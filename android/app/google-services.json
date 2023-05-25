@@ -1,0 +1,82 @@
+{
+  "project_info": {
+    "project_number": "62022410637",
+    "project_id": "electricityplus-a6572",
+    "storage_bucket": "electricityplus-a6572.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:62022410637:android:1888cea957451648301dc4",
+        "android_client_info": {
+          "package_name": "com.ElectricityPlus.electricityplus"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "62022410637-juop12ojsobhc3qit3hidofmqg84d6c4.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyBjsjIQBuJQ_YafX2GseFWbBcTHC94aiIQ"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "62022410637-juop12ojsobhc3qit3hidofmqg84d6c4.apps.googleusercontent.com",
+              "client_type": 3
+            },
+            {
+              "client_id": "62022410637-temr7ocbh7m88g9ee073fh2iis8ec3nv.apps.googleusercontent.com",
+              "client_type": 2,
+              "ios_info": {
+                "bundle_id": "com.ElectricityPlus.electricityplus"
+              }
+            }
+          ]
+        }
+      }
+    },
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:62022410637:android:dc187a9d0a8d5ee6301dc4",
+        "android_client_info": {
+          "package_name": "com.electricity_plus.electricity_plus"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "62022410637-juop12ojsobhc3qit3hidofmqg84d6c4.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyBjsjIQBuJQ_YafX2GseFWbBcTHC94aiIQ"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "62022410637-juop12ojsobhc3qit3hidofmqg84d6c4.apps.googleusercontent.com",
+              "client_type": 3
+            },
+            {
+              "client_id": "62022410637-temr7ocbh7m88g9ee073fh2iis8ec3nv.apps.googleusercontent.com",
+              "client_type": 2,
+              "ios_info": {
+                "bundle_id": "com.ElectricityPlus.electricityplus"
+              }
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
