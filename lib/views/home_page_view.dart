@@ -20,12 +20,14 @@ class _HomePageViewState extends State<HomePageView> {
           PopupMenuButton<MenuAction>(
             onSelected: (value) async {
               switch (value) {
-                
                 case MenuAction.logout:
                   final shouldLogout = await showLogoutDialog(context);
                   if (shouldLogout) {
                     FirebaseAuth.instance.signOut();
-                    await Navigator.of(context).pushNamedAndRemoveUntil(home, (route) => false);
+                    if (context.mounted) {
+                      await Navigator.of(context)
+                          .pushNamedAndRemoveUntil(loginView, (route) => false);
+                    }
                   }
                   break;
               }

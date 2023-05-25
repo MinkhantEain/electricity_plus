@@ -1,5 +1,5 @@
 import 'package:electricity_plus/constants/routes.dart';
-import 'package:firebase_auth/firebase_auth.dart';
+import 'package:electricity_plus/services/auth/auth_service.dart';
 import 'package:flutter/material.dart';
 
 class EmailVerificationView extends StatefulWidget {
@@ -20,8 +20,8 @@ class _EmailVerificationViewState extends State<EmailVerificationView> {
           const Text("If you have not received the email, press the button below."),
           ElevatedButton(
               onPressed: () async {
-                final user = FirebaseAuth.instance.currentUser;
-                await user?.sendEmailVerification();
+                await AuthService.firebase().sendEmailVerification();
+                await AuthService.firebase().logout();
               },
               child: const Text("Re-send email verification")),
           ElevatedButton(
