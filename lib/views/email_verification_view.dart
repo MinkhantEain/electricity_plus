@@ -21,12 +21,12 @@ class _EmailVerificationViewState extends State<EmailVerificationView> {
           ElevatedButton(
               onPressed: () async {
                 await AuthService.firebase().sendEmailVerification();
-                await AuthService.firebase().logout();
+                await AuthService.firebase().logOut();
               },
               child: const Text("Re-send email verification")),
           ElevatedButton(
               onPressed: () async {
-                await Navigator.of(context).pushNamedAndRemoveUntil(loginView, (route) => false);
+                
               },
               child: const Text("Log in"))
         ],

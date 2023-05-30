@@ -24,10 +24,7 @@ class _HomePageViewState extends State<HomePageView> {
                   final shouldLogout = await showLogoutDialog(context);
                   if (shouldLogout) {
                     FirebaseAuth.instance.signOut();
-                    if (context.mounted) {
-                      await Navigator.of(context)
-                          .pushNamedAndRemoveUntil(loginView, (route) => false);
-                    }
+                    
                   }
                   break;
               }

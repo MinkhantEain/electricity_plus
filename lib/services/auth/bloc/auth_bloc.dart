@@ -10,10 +10,10 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
       emit(const AuthStateRegistering(exception: null, isLoading: false));
     },);
 
-    //send phoneNumber verification
-    on<AuthEventSendphoneNumberVerification>(
+    //send email verification
+    on<AuthEventSendEmailVerification>(
       (event, emit) async {
-        await provider.sendphoneNumberVerification();
+        await provider.sendEmailVerification();
         emit(state);
       },
     );
@@ -23,35 +23,35 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
       (event, emit) async {
         emit(const AuthStateForgotPassword(
           exception: null,
-          hasSentphoneNumber: false,
+          hasSentEmail: false,
           isLoading: false,
         ));
-        final phoneNumber = event.phoneNumber;
-        if (phoneNumber == null) {
+        final email = event.email;
+        if (email == null) {
           return; //user just want to go to forgot password screen
         }
 
-        //user wants to actually send a forgot-password phoneNumber
+        //user wants to actually send a forgot-password email
         emit(const AuthStateForgotPassword(
           exception: null,
-          hasSentphoneNumber: false,
+          hasSentEmail: false,
           isLoading: true,
         ));
 
-        bool didSendphoneNumber;
+        bool didSendEmail;
         Exception? exception;
         try {
-          await provider.sendPasswordReset(phoneNumber: phoneNumber);
-          didSendphoneNumber = true;
+          await provider.sendPasswordReset(email: email);
+          didSendEmail = true;
           exception = null;
         } on Exception catch (e) {
-          didSendphoneNumber = false;
+          didSendEmail = false;
           exception = e;
         }
 
         emit(AuthStateForgotPassword(
           exception: exception,
-          hasSentphoneNumber: didSendphoneNumber,
+          hasSentEmail: didSendEmail,
           isLoading: false,
         ));
       },
@@ -59,14 +59,16 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
 
     on<AuthEventRegister>(
       (event, emit) async {
-        final phoneNumber = event.phoneNumber;
+        final email = event.email;
         final password = event.password;
+        final passwordReEntry = event.passwordReEntry;
         try {
           await provider.createUser(
-            phoneNumber: phoneNumber,
+            email: email,
             password: password,
+            passwordReEntry: passwordReEntry,
           );
-          await provider.sendphoneNumberVerification();
+          await provider.sendEmailVerification();
           emit(const AuthStateNeedsVerification(isLoading: false));
         } on Exception catch (e) {
           emit(AuthStateRegistering(exception: e, isLoading: false));
@@ -86,7 +88,7 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
               isLoading: false,
             ),
           );
-        } else if (!user.isphoneNumberVerified) {
+        } else if (!user.isEmailVerified) {
           emit(const AuthStateNeedsVerification(isLoading: false));
         } else {
           emit(AuthStateLoggedIn(user: user, isLoading: false));
@@ -104,14 +106,14 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
             loadingText: 'Please wait while I log you in.',
           ),
         );
-        final phoneNumber = event.phoneNumber;
+        final email = event.email;
         final password = event.password;
         try {
-          final user = await provider.login(
-            phoneNumber: phoneNumber,
+          final user = await provider.logIn(
+            email: email,
             password: password,
           );
-          if (!user.isphoneNumberVerified) {
+          if (!user.isEmailVerified) {
             emit(
               const AuthStateLoggedOut(
                 exception: null,
@@ -144,7 +146,7 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
     on<AuthEventLogOut>(
       (event, emit) async {
         try {
-          await provider.logout();
+          await provider.logOut();
           emit(
             const AuthStateLoggedOut(
               exception: null,
