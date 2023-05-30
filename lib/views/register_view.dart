@@ -1,10 +1,9 @@
+import 'package:electricity_plus/app_images.dart';
 import 'package:electricity_plus/services/auth/auth_exception.dart';
-import 'package:electricity_plus/services/auth/bloc/auth_bloc.dart';
-import 'package:electricity_plus/services/auth/bloc/auth_event.dart';
-import 'package:electricity_plus/services/auth/bloc/auth_state.dart';
+import 'package:electricity_plus/services/auth/auth_service.dart';
 import 'package:electricity_plus/utilities/show_error_dialog.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:electricity_plus/utilities/generic_diaglog.dart';
 
 class RegisterView extends StatefulWidget {
   const RegisterView({super.key});
@@ -16,12 +15,13 @@ class RegisterView extends StatefulWidget {
 class _HomePageState extends State<RegisterView> {
   late final TextEditingController _phoneNumber;
   late final TextEditingController _password;
-  late final TextEditingController _passwordReEntry;
+  late final Image _electricImage;
 
   @override
   void initState() {
     _phoneNumber = TextEditingController();
     _password = TextEditingController();
+    _electricImage = Image.asset(AppImages.electric);
     super.initState();
   }
 
@@ -34,24 +34,12 @@ class _HomePageState extends State<RegisterView> {
 
   @override
   Widget build(BuildContext context) {
-    return BlocListener<AuthBloc, AuthState>(
-      listener: (context, state) async {
-        if (state is AuthStateRegistering) {
-          if (state.exception is EmailAlreadyInUseAuthException) {
-            await showErrorDialog(context, "Email already in use");
-          } else if (state.exception is WeakPasswordAuthException) {
-            await showErrorDialog(context, "Weak Password");
-          } else if (state.exception is InvalidEmailAuthException) {
-            await showErrorDialog(context, "Invalid Email");
-          } else if (state.exception is GenericAuthException) {
-            await showErrorDialog(context, "Failed to register");
-          }
-        }
-      },
-      child: Scaffold(
-        appBar: AppBar(title: const Text("Register")),
-        body: Column(
+    return Scaffold(
+      appBar: AppBar(title: const Text("Register")),
+      body: SingleChildScrollView(
+        child: Column(
           children: [
+            _electricImage,
             TextField(
               controller: _phoneNumber,
               decoration: const InputDecoration(
@@ -69,28 +57,38 @@ class _HomePageState extends State<RegisterView> {
               enableSuggestions: false,
               autocorrect: false,
             ),
-            TextField(
-              controller: _passwordReEntry,
-              decoration: const InputDecoration(
-                hintText: "Re-enter your Password",
-              ),
-              obscureText: true,
-              enableSuggestions: false,
-              autocorrect: false,
-            ),
             ElevatedButton(
               onPressed: () async {
                 final phoneNumber = _phoneNumber.text;
                 final password = _password.text;
-                context.read<AuthBloc>().add(AuthEventRegister(phoneNumber, password));
+                try {
+                  AuthService.firebase().createUser(
+                    email: email,
+                    password: password,
+                  );
+                  if (context.mounted) {
+                    await showGenericDialog(context, 'Registered!',
+                        "Please verify your email before logging in");
+                    await AuthService.firebase().sendEmailVerification();
+                    await AuthService.firebase().logout();
+                  }
+                } on WeakPasswordAuthException {
+                  await showErrorDialog(context, 'weak password');
+                } on EmailAlreadyInUseAuthException {
+                  await showErrorDialog(context, 'email already in use');
+                } on InvalidEmailAuthException {
+                  await showErrorDialog(context, 'invalid email');
+                } on GenericAuthException {
+                  await showErrorDialog(context, "Registeration Error");
+                }
               },
               child: const Text("Register"),
             ),
             ElevatedButton(
               onPressed: () {
-                context.read<AuthBloc>().add(const AuthEventLogOut());
+                Navigator.of(context).pop();
               },
-              child: const Text("Already registered?"),
+              child: const Text("Back"),
             )
           ],
         ),
