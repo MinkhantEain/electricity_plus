@@ -10,10 +10,10 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
       emit(const AuthStateRegistering(exception: null, isLoading: false));
     },);
 
-    //send email verification
-    on<AuthEventSendEmailVerification>(
+    //send phoneNumber verification
+    on<AuthEventSendphoneNumberVerification>(
       (event, emit) async {
-        await provider.sendEmailVerification();
+        await provider.sendphoneNumberVerification();
         emit(state);
       },
     );
@@ -23,35 +23,35 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
       (event, emit) async {
         emit(const AuthStateForgotPassword(
           exception: null,
-          hasSentEmail: false,
+          hasSentphoneNumber: false,
           isLoading: false,
         ));
-        final email = event.email;
-        if (email == null) {
+        final phoneNumber = event.phoneNumber;
+        if (phoneNumber == null) {
           return; //user just want to go to forgot password screen
         }
 
-        //user wants to actually send a forgot-password email
+        //user wants to actually send a forgot-password phoneNumber
         emit(const AuthStateForgotPassword(
           exception: null,
-          hasSentEmail: false,
+          hasSentphoneNumber: false,
           isLoading: true,
         ));
 
-        bool didSendEmail;
+        bool didSendphoneNumber;
         Exception? exception;
         try {
-          await provider.sendPasswordReset(email: email);
-          didSendEmail = true;
+          await provider.sendPasswordReset(phoneNumber: phoneNumber);
+          didSendphoneNumber = true;
           exception = null;
         } on Exception catch (e) {
-          didSendEmail = false;
+          didSendphoneNumber = false;
           exception = e;
         }
 
         emit(AuthStateForgotPassword(
           exception: exception,
-          hasSentEmail: didSendEmail,
+          hasSentphoneNumber: didSendphoneNumber,
           isLoading: false,
         ));
       },
@@ -59,14 +59,14 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
 
     on<AuthEventRegister>(
       (event, emit) async {
-        final email = event.email;
+        final phoneNumber = event.phoneNumber;
         final password = event.password;
         try {
           await provider.createUser(
-            email: email,
+            phoneNumber: phoneNumber,
             password: password,
           );
-          await provider.sendEmailVerification();
+          await provider.sendphoneNumberVerification();
           emit(const AuthStateNeedsVerification(isLoading: false));
         } on Exception catch (e) {
           emit(AuthStateRegistering(exception: e, isLoading: false));
@@ -86,7 +86,7 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
               isLoading: false,
             ),
           );
-        } else if (!user.isEmailVerified) {
+        } else if (!user.isphoneNumberVerified) {
           emit(const AuthStateNeedsVerification(isLoading: false));
         } else {
           emit(AuthStateLoggedIn(user: user, isLoading: false));
@@ -104,14 +104,14 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
             loadingText: 'Please wait while I log you in.',
           ),
         );
-        final email = event.email;
+        final phoneNumber = event.phoneNumber;
         final password = event.password;
         try {
           final user = await provider.login(
-            email: email,
+            phoneNumber: phoneNumber,
             password: password,
           );
-          if (!user.isEmailVerified) {
+          if (!user.isphoneNumberVerified) {
             emit(
               const AuthStateLoggedOut(
                 exception: null,

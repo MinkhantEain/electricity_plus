@@ -14,20 +14,20 @@ class RegisterView extends StatefulWidget {
 }
 
 class _HomePageState extends State<RegisterView> {
-  late final TextEditingController _email;
+  late final TextEditingController _phoneNumber;
   late final TextEditingController _password;
   late final TextEditingController _passwordReEntry;
 
   @override
   void initState() {
-    _email = TextEditingController();
+    _phoneNumber = TextEditingController();
     _password = TextEditingController();
     super.initState();
   }
 
   @override
   void dispose() {
-    _email.dispose();
+    _phoneNumber.dispose();
     _password.dispose();
     super.dispose();
   }
@@ -53,12 +53,12 @@ class _HomePageState extends State<RegisterView> {
         body: Column(
           children: [
             TextField(
-              controller: _email,
+              controller: _phoneNumber,
               decoration: const InputDecoration(
-                hintText: "Email",
+                hintText: "Phone Number",
               ),
               autocorrect: false,
-              keyboardType: TextInputType.emailAddress,
+              keyboardType: TextInputType.number,
             ),
             TextField(
               controller: _password,
@@ -80,9 +80,9 @@ class _HomePageState extends State<RegisterView> {
             ),
             ElevatedButton(
               onPressed: () async {
-                final email = _email.text;
+                final phoneNumber = _phoneNumber.text;
                 final password = _password.text;
-                context.read<AuthBloc>().add(AuthEventRegister(email, password));
+                context.read<AuthBloc>().add(AuthEventRegister(phoneNumber, password));
               },
               child: const Text("Register"),
             ),
