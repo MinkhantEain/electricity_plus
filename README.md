@@ -14,3 +14,11 @@ A few resources to get you started if this is your first Flutter project:
 For help getting started with Flutter development, view the
 [online documentation](https://docs.flutter.dev/), which offers tutorials,
 samples, guidance on mobile development, and a full API reference.
+
+
+what to be done:
+create a radio button in customer Search to select the method of searching, default be meter id.
+
+state is to carry over the information to other pages.
+event is to trigger an event in bloc.
+bloc is the business logic on a particular event.

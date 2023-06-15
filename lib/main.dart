@@ -1,13 +1,17 @@
-import 'package:electricity_plus/constants/routes.dart';
 import 'package:electricity_plus/helper/loading/loading_screen.dart';
 import 'package:electricity_plus/services/auth/bloc/auth_bloc.dart';
 import 'package:electricity_plus/services/auth/bloc/auth_event.dart';
 import 'package:electricity_plus/services/auth/bloc/auth_state.dart';
 import 'package:electricity_plus/services/auth/firebase_auth_provider.dart';
+import 'package:electricity_plus/services/cloud/firebase_cloud_storage.dart';
+import 'package:electricity_plus/services/cloud/operation/operation_bloc.dart';
+import 'package:electricity_plus/services/cloud/operation/operation_event.dart';
+import 'package:electricity_plus/services/cloud/operation/operation_state.dart';
+import 'package:electricity_plus/views/operations/customer_search_view.dart';
 import 'package:electricity_plus/views/forgot_password_view.dart';
+import 'package:electricity_plus/views/operations/home_page_view.dart';
 import 'package:electricity_plus/views/login_view.dart';
-import 'package:electricity_plus/views/notes/create_update_note_view.dart';
-import 'package:electricity_plus/views/notes/note_view.dart';
+import 'package:electricity_plus/views/operations/operation_page_views.dart';
 import 'package:electricity_plus/views/register_view.dart';
 import 'package:electricity_plus/views/verify_email_view.dart';
 import 'package:flutter/material.dart';
@@ -15,18 +19,21 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 
 void main() {
   WidgetsFlutterBinding.ensureInitialized();
-  runApp(MaterialApp(
-    title: 'Flutter Demo',
-    theme: ThemeData(
-      primarySwatch: Colors.grey,
-    ),
-    home: BlocProvider<AuthBloc>(
-      create: (context) => AuthBloc(FirebaseAuthProvider()),
-      child: const HomePage(),
-    ),
-    routes: {
-      createOrUpdateNoteRoute: (context) => const CreateUpdateNoteView(),
-    },
+  runApp(MultiBlocProvider(
+    providers: [
+      BlocProvider<AuthBloc>(
+        create: (context) => AuthBloc(FirebaseAuthProvider()),
+      ),
+      BlocProvider<OperationBloc>(
+        create: (context) => OperationBloc(FirebaseCloudStorage()),
+      ),
+    ],
+    child: MaterialApp(
+        title: 'Flutter Demo',
+        theme: ThemeData(
+          primarySwatch: Colors.grey,
+        ),
+        home: const HomePage()),
   ));
 }
 
@@ -35,6 +42,7 @@ class HomePage extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     context.read<AuthBloc>().add(const AuthEventInitialise());
+
     return BlocConsumer<AuthBloc, AuthState>(
       listener: (context, state) {
         if (state.isLoading) {
@@ -47,7 +55,7 @@ class HomePage extends StatelessWidget {
       },
       builder: (context, state) {
         if (state is AuthStateLoggedIn) {
-          return const NotesView();
+          return const OperationPageViews();
         } else if (state is AuthStateNeedsVerification) {
           return const VerifyEmailView();
         } else if (state is AuthStateLoggedOut) {

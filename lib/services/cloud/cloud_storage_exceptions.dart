@@ -15,3 +15,14 @@ class CouldNotUpdateNoteException extends CloudStorageException {}
 
 //D
 class CouldNotDeleteNoteException extends CloudStorageException {}
+
+
+class CouldNotUpdateUnitException extends CloudStorageException {}
+
+class CouldNotGetCustomerException extends CloudStorageException {}
+
+class CouldNotGetPriceException extends CloudStorageException {}
+
+class CouldNotSetPriceException extends CloudStorageException {}
+
+class UnAuthorizedPriceSetException extends CloudStorageException {}
