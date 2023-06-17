@@ -2,7 +2,8 @@ import 'package:electricity_plus/helper/loading/loading_screen.dart';
 import 'package:electricity_plus/services/cloud/operation/operation_bloc.dart';
 import 'package:electricity_plus/services/cloud/operation/operation_event.dart';
 import 'package:electricity_plus/services/cloud/operation/operation_state.dart';
-import 'package:electricity_plus/views/operations/customer_search_view.dart';
+import 'package:electricity_plus/views/operations/customer_receipt_history_list_view.dart';
+import 'package:electricity_plus/views/operations/customer_receipt_search_view.dart';
 import 'package:electricity_plus/views/operations/home_page_view.dart';
 import 'package:electricity_plus/views/operations/receipt_view.dart';
 import 'package:electricity_plus/views/operations/set_price_view.dart';
@@ -28,12 +29,14 @@ class OperationPageViews extends StatelessWidget {
       builder: (context, state) {
         if (state is OperationStateDefault) {
           return const HomePageView();
-        } else if (state is OperationStateSearchingCustomer) {
+        } else if (state is OperationStateSearchingCustomerReceipt) {
           return const CustomerSearchView();
         } else if (state is OperationStateGeneratingReceipt) {
           return const ReceiptView();
         } else if (state is OperationStateSettingPrice) {
           return const SetPriceView();
+        }else if (state is OperationStateFetchingCustomerReceiptHistory){
+          return const CustomerReceiptHistoryList();
         } else {
           return const Scaffold();
         }

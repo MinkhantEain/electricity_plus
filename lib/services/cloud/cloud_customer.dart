@@ -5,33 +5,51 @@ import 'package:electricity_plus/services/cloud/cloud_storage_constants.dart';
 @immutable
 class CloudCustomer {
   final String documentId;
-  final num id;
+  final num excelId;
   final String bookId;
-  final String meterNumber;
-  final String customerName;
-  final String customerAddress;
-  final num oldUnit;
-  final num? newUnit;
+  final String meterId;
+  final String name;
+  final String address;
+  final num lastUnit;
+  final String historyId;
+  final bool flag;
 
   const CloudCustomer({
+    required this.excelId,
     required this.documentId,
-    required this.id,
     required this.bookId,
-    required this.meterNumber,
-    required this.customerName,
-    required this.customerAddress,
-    required this.oldUnit,
-    this.newUnit
+    required this.meterId,
+    required this.name,
+    required this.address,
+    required this.lastUnit,
+    required this.historyId,
+    required this.flag,
   });
 
   CloudCustomer.fromSnapshot(
       QueryDocumentSnapshot<Map<String, dynamic>> snapshot)
       : documentId = snapshot.id,
-        id = snapshot.data()[idFieldName],
-        bookId = snapshot.data()[bookIdFieldName],
-        meterNumber = snapshot.data()[meterNumberFieldName],
-        customerName = snapshot.data()[customerNameFieldName],
-        customerAddress = snapshot.data()[customerAddressFieldName],
-        oldUnit = snapshot.data()[oldUnitFieldName],
-        newUnit = snapshot.data()[newUnitFieldName];
+        excelId = snapshot.data()[excelIdField],
+        bookId = snapshot.data()[bookIdField],
+        meterId = snapshot.data()[meterIdField],
+        name = snapshot.data()[nameField],
+        address = snapshot.data()[addressField],
+        lastUnit = snapshot.data()[lastUnitField],
+        historyId = snapshot.data()[historyIdField],
+        flag = snapshot.data()[flagField];
+  
+  @override
+  String toString() {
+    return """
+documentId: $documentId
+excelId: $excelId
+bookId: $bookId
+meterId: $meterId
+name: $name
+address: $address
+lastUnit: $lastUnit
+historyId: $historyId
+flag: $flag
+""";
+  }
 }

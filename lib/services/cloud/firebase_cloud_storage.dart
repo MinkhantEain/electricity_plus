@@ -1,17 +1,31 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:electricity_plus/services/cloud/cloud_customer.dart';
+import 'package:electricity_plus/services/cloud/cloud_customer_history.dart';
 import 'package:electricity_plus/services/cloud/cloud_storage_constants.dart';
 import 'package:electricity_plus/services/cloud/cloud_storage_exceptions.dart';
+import 'dart:developer' as dev show log;
 
 class FirebaseCloudStorage {
-  final customersCollection =
-      FirebaseFirestore.instance.collection('firestore_test');
-  final price = FirebaseFirestore.instance.collection('price').doc('priceDoc');
+  final customersDetailsCollection =
+      FirebaseFirestore.instance.collection(customerDetailsCollection);
+  final priceCollectionDoc =
+      FirebaseFirestore.instance.collection(priceCollection).doc(priceDoc);
 
-  Future<num> get getPrice => price.get().then((DocumentSnapshot doc) {
-        final price = doc.data() as Map<String, dynamic>;
-        return price['price'] as num;
-      }, onError: (_) => throw CouldNotGetPriceException());
+  Future<num> get getPrice => priceCollectionDoc.get().then(
+        (DocumentSnapshot doc) {
+          final price = doc.data() as Map<String, dynamic>;
+          return price[pricePerUnitField] as num;
+        },
+        onError: (_) => throw CouldNotGetPriceException(),
+      );
+
+  Future<num> get getServiceCharge => priceCollectionDoc.get().then(
+        (DocumentSnapshot doc) {
+          final serviceCharge = doc.data() as Map<String, dynamic>;
+          return serviceCharge[serviceChargeField] as num;
+        },
+        onError: (_) => throw CouldNotGetServiceChargeException(),
+      );
 
   void setPrice(String newPrice, String token) {
     num? parsedNewPrice = num.tryParse(newPrice);
@@ -19,26 +33,25 @@ class FirebaseCloudStorage {
       throw UnAuthorizedPriceSetException();
     }
     if (parsedNewPrice != null && parsedNewPrice != 0) {
-      price.set({"price" : parsedNewPrice});
+      priceCollectionDoc.update({pricePerUnitField: parsedNewPrice});
     } else {
       throw CouldNotSetPriceException();
     }
-    
   }
-  // final notes = FirebaseFirestore.instance.collection("notes");
 
-  // Future<void> deleteNote({
-  //   required String documentId,
-  // }) async {
-  //   try {
-  //     await notes.doc(documentId).delete();
-  //   } catch (e) {
-  //     throw CouldNotDeleteNoteException();
-  //   }
-  // }
-  Stream<Iterable<CloudCustomer>> allCustomer() => customersCollection
-      .snapshots()
-      .map((event) => event.docs.map((doc) => CloudCustomer.fromSnapshot(doc)));
+  void setServiceCharge(String newServiceCharge, String token) {
+    num? parsedNewServiceCharge = num.tryParse(newServiceCharge);
+    if (token != 'sf2465<>100600') {
+      throw UnAuthorizedPriceSetException();
+    }
+    if (parsedNewServiceCharge != null && parsedNewServiceCharge != 0) {
+      priceCollectionDoc.update({serviceChargeField: parsedNewServiceCharge});
+    } else {
+      throw CouldNotSetServiceChargeException();
+    }
+  }
+
+
 
   // Future<void> updateNote({
   //   required String documentId,
@@ -51,20 +64,23 @@ class FirebaseCloudStorage {
   //   }
   // }
 
-  Future<String> printReceipt({required CloudCustomer customer}) async {
+  Future<String> printReceipt(
+      {required CloudCustomer customer,
+      required CloudCustomerHistory history}) async {
+        dev.log("print receipt is executed");
     return '''
-            Receipt ID: ${customer.documentId}
-            ID: 
+            Receipt ID: ${history.documentId}
             -Details-
-            Date: ??????
-            Name: ${customer.customerName}
-            Meter ID: ${customer.meterNumber}
-            Address: ${customer.customerAddress}
-            Previous Reading: ${customer.oldUnit}
-            New Reading: ${customer.newUnit}
-            Unit Used: ${(customer.newUnit! - customer.oldUnit)}
-            Price Per Unit: ${await getPrice}
-            Cost: ${(customer.newUnit! - customer.oldUnit) * await getPrice}
+            Date: ${history.date}
+            Name: ${customer.name}
+            Meter ID: ${customer.meterId}
+            Address: ${customer.address}
+            Previous Reading: ${history.previousUnit}
+            New Reading: ${history.newUnit}
+            Unit Used: ${(history.newUnit - customer.lastUnit)}
+            Price Per Unit: ${history.priceAtm}
+            Service Charge: ${history.serviceCharge}
+            Cost: ${(history.newUnit - customer.lastUnit) * history.priceAtm + history.serviceCharge}
     ''';
   }
 
@@ -73,7 +89,7 @@ class FirebaseCloudStorage {
     required int newUnit,
   }) async {
     try {
-      await customersCollection
+      await customersDetailsCollection
           .doc(documentId)
           .update({newUnitFieldName: newUnit});
     } catch (e) {
@@ -112,39 +128,59 @@ class FirebaseCloudStorage {
   //     throw CouldNoteGetAllNotesException();
   //   }
   // }
+  Future<CloudCustomerHistory> getCustomerHistory(
+      {required CloudCustomer customer}) async {
+    final customerHistoryCollection = FirebaseFirestore.instance.collection(
+        '$customerDetailsCollection/${customer.documentId}/$historyCollection');
+    final result = await customerHistoryCollection
+        .orderBy(dateField, descending: true)
+        .get()
+        .then((value) => CloudCustomerHistory.fromSnapshot(value.docs.first));
+    return result;
+  }
+
+  Future<Iterable<CloudCustomerHistory>> getCustomerAllHistory({
+    required CloudCustomer customer
+  }) async {
+    final customerHistoryCollection = FirebaseFirestore.instance.collection(
+        '$customerDetailsCollection/${customer.documentId}/$historyCollection');
+    final result = await customerHistoryCollection
+        .orderBy(dateField, descending: true)
+        .get()
+        .then((value) => value.docs.map((doc) => CloudCustomerHistory.fromSnapshot(doc)));
+    return result;
+  }
 
   Future<Iterable<CloudCustomer>> getCustomer({
     // int? id,
-    String? bookId,
-    String? meterNumber,
+    required String? bookId,
+    required String? meterNumber,
   }) async {
     try {
-      // if (id != null) {
-      //   return await customersCollection
-      //       .where(idFieldName, isEqualTo: id)
-      //       .get()
-      //       .then((value) =>
-      //           value.docs.map((doc) => CloudCustomer.fromSnapshot(doc)));
-      // }
       if (bookId != null) {
-        return await customersCollection
-            .where(bookIdFieldName, isEqualTo: bookId)
+        return await customersDetailsCollection
+            .where(bookIdField, isEqualTo: bookId)
             .get()
             .then((value) =>
                 value.docs.map((doc) => CloudCustomer.fromSnapshot(doc)));
       }
       if (meterNumber != null) {
-        return await customersCollection
-            .where(meterNumberFieldName, isEqualTo: meterNumber)
+        return await customersDetailsCollection
+            .where(meterIdField, isEqualTo: meterNumber)
             .get()
             .then((value) =>
                 value.docs.map((doc) => CloudCustomer.fromSnapshot(doc)));
       }
       throw CouldNotGetCustomerException();
+      // return await customersDetailsCollection.where(meterIdField, isEqualTo: 'E1D177111').get()
+      // .then((value) => value.docs.map((doc) => CloudCustomer.fromSnapshot(doc)));
     } catch (e) {
       throw CouldNotGetCustomerException();
     }
   }
+
+  Future<Iterable<CloudCustomer>> allCustomer() => customersDetailsCollection
+  .get().then((value) => value.docs.map((doc) => CloudCustomer.fromSnapshot(doc)));
 
   static final FirebaseCloudStorage _shared =
       FirebaseCloudStorage._sharedInstance();

@@ -7,7 +7,7 @@ import 'package:electricity_plus/services/cloud/firebase_cloud_storage.dart';
 import 'package:electricity_plus/services/cloud/operation/operation_bloc.dart';
 import 'package:electricity_plus/services/cloud/operation/operation_event.dart';
 import 'package:electricity_plus/services/cloud/operation/operation_state.dart';
-import 'package:electricity_plus/views/operations/customer_search_view.dart';
+import 'package:electricity_plus/views/operations/customer_receipt_search_view.dart';
 import 'package:electricity_plus/views/forgot_password_view.dart';
 import 'package:electricity_plus/views/operations/home_page_view.dart';
 import 'package:electricity_plus/views/login_view.dart';

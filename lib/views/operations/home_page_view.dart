@@ -1,3 +1,5 @@
+// ignore_for_file: use_build_context_synchronously
+
 import 'package:electricity_plus/enums/menu_action.dart';
 import 'package:electricity_plus/services/auth/bloc/auth_bloc.dart';
 import 'package:electricity_plus/services/auth/bloc/auth_event.dart';
@@ -17,40 +19,40 @@ class HomePageView extends StatefulWidget {
 }
 
 class _HomePageViewState extends State<HomePageView> {
-  
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-    appBar: AppBar(
-      actions: [
-        PopupMenuButton<MenuAction>(
-          onSelected: (value) async {
-            switch (value) {
-              case MenuAction.logout:
-                final shouldLogout = await showLogOutDialog(context);
-                if (shouldLogout) {
-                  context.read<AuthBloc>().add(const AuthEventLogOut());
-                }
-                break;
-              default: break;
-            }
-          },
-          itemBuilder: (context) {
-            return const [
-              PopupMenuItem(
-                value: MenuAction.logout,
-                child: Text("Logout"),
-              )
-            ];
-          },
-        )
-      ],
-      title: const Text("Home"),
-    ),
-    body: Padding(
-      padding: const EdgeInsets.all(0.0),
-      child: Column(
-        mainAxisAlignment: MainAxisAlignment.center,
+      appBar: AppBar(
+        actions: [
+          PopupMenuButton<MenuAction>(
+            onSelected: (value) async {
+              switch (value) {
+                case MenuAction.logout:
+                  final shouldLogout = await showLogOutDialog(context);
+                  if (shouldLogout) {
+                    context.read<AuthBloc>().add(const AuthEventLogOut());
+                  }
+                  break;
+                default:
+                  break;
+              }
+            },
+            itemBuilder: (context) {
+              return const [
+                PopupMenuItem(
+                  value: MenuAction.logout,
+                  child: Text("Logout"),
+                )
+              ];
+            },
+          )
+        ],
+        title: const Text("Home"),
+      ),
+      body: Padding(
+        padding: const EdgeInsets.all(0.0),
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
           children: [
             Container(
               padding: const EdgeInsets.all(30.0),
@@ -59,9 +61,13 @@ class _HomePageViewState extends State<HomePageView> {
                 height: 60,
                 child: ElevatedButton(
                   onPressed: () {
-                    context.read<OperationBloc>().add(const OperationEventCustomerSearch(isSearching: false));
+                    context
+                        .read<OperationBloc>()
+                        .add(const OperationEventCustomerReceiptSearch(
+                          isSearching: false, userInput: '',
+                        ));
                   },
-                  child: const Text("Customer Payment/Receipt"),
+                  child: const Text("Customer Receipt history"),
                 ),
               ),
             ),
@@ -83,7 +89,9 @@ class _HomePageViewState extends State<HomePageView> {
                 height: 60,
                 child: ElevatedButton(
                   onPressed: () {
-                    context.read<OperationBloc>().add(const OperationEventSetPriceIntention());
+                    context
+                        .read<OperationBloc>()
+                        .add(const OperationEventSetPriceIntention());
                   },
                   child: const Text("Set Price"),
                 ),
@@ -91,7 +99,7 @@ class _HomePageViewState extends State<HomePageView> {
             ),
           ],
         ),
-    ),
+      ),
     );
   }
 }
