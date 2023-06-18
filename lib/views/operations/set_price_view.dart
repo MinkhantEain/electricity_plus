@@ -1,3 +1,4 @@
+import 'package:electricity_plus/services/cloud/cloud_storage_constants.dart';
 import 'package:electricity_plus/services/cloud/cloud_storage_exceptions.dart';
 import 'package:electricity_plus/services/cloud/operation/operation_bloc.dart';
 import 'package:electricity_plus/services/cloud/operation/operation_event.dart';
@@ -52,47 +53,57 @@ class _SetPriceViewState extends State<SetPriceView> {
           } else if (!state.isChanged) {
             await showPriceUnhangeAlertDialog(context);
           }
-          }
-          
-        },
-      builder:(context, state) {
+        }
+      },
+      builder: (context, state) {
         state as OperationStateSettingPrice;
         return Scaffold(
-        appBar: AppBar(
-          title: const Text("Price Setting"),
-        ),
-        body: Column(children: [
-          Text("Current Price is ${state.currentPrice}, Current service charge is ${state.currentServiceCharge}"),
-          TextField(
-            decoration: const InputDecoration(hintText: "Enter the new price."),
-            controller: _priceTextController,
+          appBar: AppBar(
+            title: const Text("Price Setting"),
           ),
-          TextField(
-            decoration: const InputDecoration(hintText: "Enter the Service Charge Price."),
-            controller: _serviceChargeController,
-          ),
-          TextField(
-            decoration: const InputDecoration(hintText: "Password"),
-            controller: _tokenInputController,
-          ),
-          ElevatedButton(
-            onPressed: () async {
-              context.read<OperationBloc>().add(OperationEventSetPrice(
+          body: Column(children: [
+            Text(
+                "Current Price is ${state.currentPrice}, Current service charge is ${state.currentServiceCharge}"),
+            TextField(
+              decoration:
+                  const InputDecoration(hintText: "Enter the new price."),
+              controller: _priceTextController,
+            ),
+            TextField(
+              decoration: const InputDecoration(
+                  hintText: "Enter the Service Charge Price."),
+              controller: _serviceChargeController,
+            ),
+            TextField(
+              decoration: const InputDecoration(hintText: "Password"),
+              controller: _tokenInputController,
+              obscureText: true,
+              enableSuggestions: false,
+              autocorrect: false,
+            ),
+            ElevatedButton(
+              onPressed: () async {
+                context.read<OperationBloc>().add(OperationEventSetPrice(
                     price: _priceTextController.text,
                     tokenInput: _tokenInputController.text,
-                    serviceCharge: _serviceChargeController.text
-                  ));
-            },
-            child: const Text("Enter"),
-          ),
-          ElevatedButton(
-              onPressed: () async {
-                context.read<OperationBloc>().add(const OperationEventDefault());
+                    serviceCharge: _serviceChargeController.text));
+                _priceTextController.clear();
+                _tokenInputController.clear();
+                _serviceChargeController.clear();
               },
-              child: const Text("Back"),),
-        ]),
-      );
-      }, 
+              child: const Text("Enter"),
+            ),
+            ElevatedButton(
+              onPressed: () async {
+                context
+                    .read<OperationBloc>()
+                    .add(const OperationEventDefault());
+              },
+              child: const Text("Back"),
+            ),
+          ]),
+        );
+      },
     );
   }
 }

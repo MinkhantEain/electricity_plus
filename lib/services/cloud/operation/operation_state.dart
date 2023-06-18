@@ -1,3 +1,4 @@
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:electricity_plus/services/cloud/cloud_customer.dart';
 import 'package:electricity_plus/services/cloud/cloud_customer_history.dart';
 import 'package:flutter/foundation.dart';
@@ -57,8 +58,44 @@ class OperationStateFetchingCustomerReceiptHistory extends OperationState {
   final Iterable<CloudCustomerHistory> customerHistory;
   final CloudCustomer customer;
   const OperationStateFetchingCustomerReceiptHistory({
-     required bool isLoading,
-     required this.customerHistory,
-     required this.customer,
+    required bool isLoading,
+    required this.customerHistory,
+    required this.customer,
+  }) : super(isLoading: isLoading);
+}
+
+class OperationStateElectricLogSearch extends OperationState {
+  final Exception? exception;
+  final Iterable<CloudCustomer> customerIterable;
+  const OperationStateElectricLogSearch(
+      {required this.exception,
+      required this.customerIterable,
+      required bool isLoading})
+      : super(isLoading: isLoading);
+}
+
+class OperationStateCreatingNewElectricLog extends OperationState {
+  final CloudCustomer customer;
+  final DocumentReference? newHistory;
+  final Exception? exception;
+  const OperationStateCreatingNewElectricLog({
+    required this.customer,
+    required this.newHistory,
+    required bool isLoading,
+    required this.exception,
+  }) : super(isLoading: isLoading);
+}
+
+class OperationStateImageCommentFlag extends OperationState {
+  final CloudCustomer customer;
+  final DocumentReference newHistory;
+  final Exception? exception;
+  final num newReading;
+  const OperationStateImageCommentFlag({
+    required this.customer,
+    required this.newHistory,
+    required bool isLoading,
+    required this.exception,
+    required this.newReading,
   }) : super(isLoading: isLoading);
 }

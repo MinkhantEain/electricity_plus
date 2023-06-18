@@ -1,11 +1,8 @@
-import 'dart:async';
-import 'dart:developer' as dev show log;
 import 'package:electricity_plus/enums/menu_action.dart';
 import 'package:electricity_plus/services/auth/bloc/auth_bloc.dart';
 import 'package:electricity_plus/services/auth/bloc/auth_event.dart';
 import 'package:electricity_plus/services/cloud/cloud_customer.dart';
 import 'package:electricity_plus/services/cloud/cloud_storage_exceptions.dart';
-import 'package:electricity_plus/services/cloud/firebase_cloud_storage.dart';
 import 'package:electricity_plus/services/cloud/operation/operation_bloc.dart';
 import 'package:electricity_plus/services/cloud/operation/operation_event.dart';
 import 'package:electricity_plus/services/cloud/operation/operation_state.dart';
@@ -25,13 +22,10 @@ class CustomerSearchView extends StatefulWidget {
 }
 
 class _CustomerSearchViewState extends State<CustomerSearchView> {
-  late final FirebaseCloudStorage _customerCloudService;
   late final TextEditingController _textController;
-  String searchText = '';
 
   @override
   void initState() {
-    _customerCloudService = FirebaseCloudStorage();
     _textController = TextEditingController();
     super.initState();
   }
@@ -57,6 +51,11 @@ class _CustomerSearchViewState extends State<CustomerSearchView> {
         Iterable<CloudCustomer> customers = state.customerIterable;
         return Scaffold(
             appBar: AppBar(
+              leading: BackButton(
+                onPressed: () => context
+                    .read<OperationBloc>()
+                    .add(const OperationEventDefault()),
+              ),
               title: const Text("Customer Payment/Receipt"),
               actions: [
                 PopupMenuButton<MenuAction>(
@@ -97,7 +96,7 @@ class _CustomerSearchViewState extends State<CustomerSearchView> {
             ),
             body: Column(
               children: [
-                const Text("Book ID/Meter Number:"),
+                const Text("BookID/MeterID:"),
                 TextField(
                   controller: _textController,
                   decoration: const InputDecoration(
@@ -113,6 +112,7 @@ class _CustomerSearchViewState extends State<CustomerSearchView> {
                               const OperationEventCustomerReceiptSearch(
                                   isSearching: true, userInput: ''),
                             );
+                        _textController.clear();
                       },
                       child: const Text('Reset'),
                     ),

@@ -31,3 +31,5 @@ class UnAuthorizedPriceSetException extends CloudStorageException {}
 class CouldNotGetServiceChargeException extends CloudStorageException {}
 
 class CouldNotSetServiceChargeException extends CloudStorageException {}
+
+class UnableToUploadImageException extends CloudStorageException {}

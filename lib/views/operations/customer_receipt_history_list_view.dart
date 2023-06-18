@@ -18,7 +18,6 @@ class _CustomerReceiptHistoryListState
   Widget build(BuildContext context) {
     return BlocConsumer<OperationBloc, OperationState>(
       listener: (context, state) {
-        // TODO: implement listener
       },
       builder: (context, state) {
         state as OperationStateFetchingCustomerReceiptHistory;

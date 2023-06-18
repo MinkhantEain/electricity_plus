@@ -3,3 +3,7 @@ class OperationException implements Exception {
 }
 
 class InvalidSearchInputOperationException extends OperationException {}
+
+class UnableToParseException extends OperationException {}
+
+class InvalidNewReadingException extends OperationException {}

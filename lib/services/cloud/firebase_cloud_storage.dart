@@ -1,3 +1,5 @@
+import 'dart:io';
+
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:electricity_plus/services/cloud/cloud_customer.dart';
 import 'package:electricity_plus/services/cloud/cloud_customer_history.dart';
@@ -5,11 +7,38 @@ import 'package:electricity_plus/services/cloud/cloud_storage_constants.dart';
 import 'package:electricity_plus/services/cloud/cloud_storage_exceptions.dart';
 import 'dart:developer' as dev show log;
 
+import 'package:firebase_storage/firebase_storage.dart';
+
 class FirebaseCloudStorage {
-  final customersDetailsCollection =
+  final _customersDetailsCollection =
       FirebaseFirestore.instance.collection(customerDetailsCollection);
   final priceCollectionDoc =
       FirebaseFirestore.instance.collection(priceCollection).doc(priceDoc);
+
+  final firebaseStorage = FirebaseStorage.instance.ref();
+
+  DocumentReference createHistoryDocument(CloudCustomer customer) {
+    return FirebaseFirestore.instance
+        .collection(
+            '$customerDetailsCollection/${customer.documentId}/$historyCollection')
+        .doc();
+  }
+
+  Future<String> storeImage(String customerDocumentId, File file) async {
+    try {
+      final uploadTask = firebaseStorage
+          .child(customerDocumentId)
+          .child(DateTime.now().toString().substring(0, 7))
+          .putFile(file);
+
+      final snapshot = await uploadTask.whenComplete(() {});
+
+      final urlDownload = await snapshot.ref.getDownloadURL();
+      return urlDownload;
+    } catch (e) {
+      throw UnableToUploadImageException();
+    }
+  }
 
   Future<num> get getPrice => priceCollectionDoc.get().then(
         (DocumentSnapshot doc) {
@@ -27,31 +56,30 @@ class FirebaseCloudStorage {
         onError: (_) => throw CouldNotGetServiceChargeException(),
       );
 
-  void setPrice(String newPrice, String token) {
+  void setPrice(String newPrice, String token) async {
     num? parsedNewPrice = num.tryParse(newPrice);
     if (token != 'sf2465<>100600') {
       throw UnAuthorizedPriceSetException();
     }
     if (parsedNewPrice != null && parsedNewPrice != 0) {
-      priceCollectionDoc.update({pricePerUnitField: parsedNewPrice});
+      await priceCollectionDoc.update({pricePerUnitField: parsedNewPrice});
     } else {
       throw CouldNotSetPriceException();
     }
   }
 
-  void setServiceCharge(String newServiceCharge, String token) {
+  void setServiceCharge(String newServiceCharge, String token) async {
     num? parsedNewServiceCharge = num.tryParse(newServiceCharge);
     if (token != 'sf2465<>100600') {
       throw UnAuthorizedPriceSetException();
     }
     if (parsedNewServiceCharge != null && parsedNewServiceCharge != 0) {
-      priceCollectionDoc.update({serviceChargeField: parsedNewServiceCharge});
+      await priceCollectionDoc
+          .update({serviceChargeField: parsedNewServiceCharge});
     } else {
       throw CouldNotSetServiceChargeException();
     }
   }
-
-
 
   // Future<void> updateNote({
   //   required String documentId,
@@ -64,10 +92,11 @@ class FirebaseCloudStorage {
   //   }
   // }
 
-  Future<String> printReceipt(
-      {required CloudCustomer customer,
-      required CloudCustomerHistory history}) async {
-        dev.log("print receipt is executed");
+  Future<String> printReceipt({
+    required CloudCustomer customer,
+    required CloudCustomerHistory history,
+  }) async {
+    dev.log("print receipt is executed");
     return '''
             Receipt ID: ${history.documentId}
             -Details-
@@ -77,57 +106,28 @@ class FirebaseCloudStorage {
             Address: ${customer.address}
             Previous Reading: ${history.previousUnit}
             New Reading: ${history.newUnit}
-            Unit Used: ${(history.newUnit - customer.lastUnit)}
+            Unit Used: ${(history.newUnit - history.previousUnit)}
             Price Per Unit: ${history.priceAtm}
             Service Charge: ${history.serviceCharge}
-            Cost: ${(history.newUnit - customer.lastUnit) * history.priceAtm + history.serviceCharge}
+            Cost: ${(history.newUnit - history.previousUnit) * history.priceAtm + history.serviceCharge}
     ''';
   }
 
-  Future<void> updateUnit({
+  Future<void> updateCustomerLastUnitAndFlag({
     required String documentId,
-    required int newUnit,
+    required num lastUnit,
+    required bool flag,
   }) async {
     try {
-      await customersDetailsCollection
-          .doc(documentId)
-          .update({newUnitFieldName: newUnit});
+      await _customersDetailsCollection.doc(documentId).update({
+        lastUnitField: lastUnit,
+        flagField: flag,
+      });
     } catch (e) {
       throw CouldNotUpdateUnitException();
     }
   }
 
-  // Future<CloudNote> createNewnotes({required String ownerUserId}) async {
-  //   final document = await notes
-  //       .add({ownerUserIdFieldNames: ownerUserId, textFieldName: ''});
-  //   final fetchedNote = await document.get();
-  //   return CloudNote(
-  //     documentId: fetchedNote.id,
-  //     ownerUserId: ownerUserId,
-  //     text: '',
-  //   );
-  // }
-
-  // Stream<Iterable<CloudNote>> allNotes({required String ownerUserId}) =>
-  //     notes.snapshots().map((event) => event.docs
-  //         .map((doc) => CloudNote.fromSnapshot(doc))
-  //         .where((note) => note.ownerUserId == ownerUserId));
-
-  // Future<Iterable<CloudNote>> getNotes({required String ownerUserId}) async {
-  //   try {
-  //     return await notes
-  //         .where(
-  //           ownerUserIdFieldNames,
-  //           isEqualTo: ownerUserId,
-  //         )
-  //         .get()
-  //         .then(
-  //           (value) => value.docs.map((doc) => CloudNote.fromSnapshot(doc)),
-  //         );
-  //   } catch (e) {
-  //     throw CouldNoteGetAllNotesException();
-  //   }
-  // }
   Future<CloudCustomerHistory> getCustomerHistory(
       {required CloudCustomer customer}) async {
     final customerHistoryCollection = FirebaseFirestore.instance.collection(
@@ -139,15 +139,15 @@ class FirebaseCloudStorage {
     return result;
   }
 
-  Future<Iterable<CloudCustomerHistory>> getCustomerAllHistory({
-    required CloudCustomer customer
-  }) async {
+  Future<Iterable<CloudCustomerHistory>> getCustomerAllHistory(
+      {required CloudCustomer customer}) async {
     final customerHistoryCollection = FirebaseFirestore.instance.collection(
         '$customerDetailsCollection/${customer.documentId}/$historyCollection');
     final result = await customerHistoryCollection
         .orderBy(dateField, descending: true)
         .get()
-        .then((value) => value.docs.map((doc) => CloudCustomerHistory.fromSnapshot(doc)));
+        .then((value) =>
+            value.docs.map((doc) => CloudCustomerHistory.fromSnapshot(doc)));
     return result;
   }
 
@@ -158,29 +158,28 @@ class FirebaseCloudStorage {
   }) async {
     try {
       if (bookId != null) {
-        return await customersDetailsCollection
+        return await _customersDetailsCollection
             .where(bookIdField, isEqualTo: bookId)
             .get()
             .then((value) =>
                 value.docs.map((doc) => CloudCustomer.fromSnapshot(doc)));
       }
       if (meterNumber != null) {
-        return await customersDetailsCollection
+        return await _customersDetailsCollection
             .where(meterIdField, isEqualTo: meterNumber)
             .get()
             .then((value) =>
                 value.docs.map((doc) => CloudCustomer.fromSnapshot(doc)));
       }
       throw CouldNotGetCustomerException();
-      // return await customersDetailsCollection.where(meterIdField, isEqualTo: 'E1D177111').get()
-      // .then((value) => value.docs.map((doc) => CloudCustomer.fromSnapshot(doc)));
     } catch (e) {
       throw CouldNotGetCustomerException();
     }
   }
 
-  Future<Iterable<CloudCustomer>> allCustomer() => customersDetailsCollection
-  .get().then((value) => value.docs.map((doc) => CloudCustomer.fromSnapshot(doc)));
+  Future<Iterable<CloudCustomer>> allCustomer() =>
+      _customersDetailsCollection.get().then(
+          (value) => value.docs.map((doc) => CloudCustomer.fromSnapshot(doc)));
 
   static final FirebaseCloudStorage _shared =
       FirebaseCloudStorage._sharedInstance();

@@ -1,7 +1,10 @@
 import 'package:electricity_plus/helper/loading/loading_screen.dart';
 import 'package:electricity_plus/services/cloud/operation/operation_bloc.dart';
+import 'package:electricity_plus/views/operations/image_comment_view.dart';
+import 'package:electricity_plus/views/operations/operation_electric_log_search_view.dart';
 import 'package:electricity_plus/services/cloud/operation/operation_event.dart';
 import 'package:electricity_plus/services/cloud/operation/operation_state.dart';
+import 'package:electricity_plus/views/operations/create_new_electric_log_view.dart';
 import 'package:electricity_plus/views/operations/customer_receipt_history_list_view.dart';
 import 'package:electricity_plus/views/operations/customer_receipt_search_view.dart';
 import 'package:electricity_plus/views/operations/home_page_view.dart';
@@ -35,8 +38,14 @@ class OperationPageViews extends StatelessWidget {
           return const ReceiptView();
         } else if (state is OperationStateSettingPrice) {
           return const SetPriceView();
-        }else if (state is OperationStateFetchingCustomerReceiptHistory){
+        } else if (state is OperationStateElectricLogSearch) {
+          return const ElectricLogSearchView();
+        } else if (state is OperationStateFetchingCustomerReceiptHistory) {
           return const CustomerReceiptHistoryList();
+        } else if (state is OperationStateCreatingNewElectricLog) {
+          return const CreateElectricLogView();
+        }else if(state is OperationStateImageCommentFlag) {
+          return const ImageCommentFlagView();
         } else {
           return const Scaffold();
         }

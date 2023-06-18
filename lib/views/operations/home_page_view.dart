@@ -1,12 +1,8 @@
-// ignore_for_file: use_build_context_synchronously
-
 import 'package:electricity_plus/enums/menu_action.dart';
 import 'package:electricity_plus/services/auth/bloc/auth_bloc.dart';
 import 'package:electricity_plus/services/auth/bloc/auth_event.dart';
-import 'package:electricity_plus/services/cloud/firebase_cloud_storage.dart';
 import 'package:electricity_plus/services/cloud/operation/operation_bloc.dart';
 import 'package:electricity_plus/services/cloud/operation/operation_event.dart';
-import 'package:electricity_plus/utilities/dialogs/home_page_dialog.dart';
 import 'package:electricity_plus/utilities/dialogs/logout_dialog.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -30,6 +26,7 @@ class _HomePageViewState extends State<HomePageView> {
                 case MenuAction.logout:
                   final shouldLogout = await showLogOutDialog(context);
                   if (shouldLogout) {
+                    // ignore: use_build_context_synchronously
                     context.read<AuthBloc>().add(const AuthEventLogOut());
                   }
                   break;
@@ -64,7 +61,8 @@ class _HomePageViewState extends State<HomePageView> {
                     context
                         .read<OperationBloc>()
                         .add(const OperationEventCustomerReceiptSearch(
-                          isSearching: false, userInput: '',
+                          isSearching: false,
+                          userInput: '',
                         ));
                   },
                   child: const Text("Customer Receipt history"),
@@ -77,7 +75,14 @@ class _HomePageViewState extends State<HomePageView> {
                 width: double.infinity,
                 height: 60,
                 child: ElevatedButton(
-                  onPressed: () {},
+                  onPressed: () {
+                    context
+                        .read<OperationBloc>()
+                        .add(const OperationEventElectricLogSearch(
+                          isSearching: false,
+                          userInput: '',
+                        ));
+                  },
                   child: const Text("Customer ELectric Log"),
                 ),
               ),

@@ -1,8 +1,5 @@
 import 'package:electricity_plus/services/cloud/cloud_customer.dart';
-import 'package:electricity_plus/services/cloud/operation/operation_bloc.dart';
-import 'package:electricity_plus/services/cloud/operation/operation_state.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_bloc/flutter_bloc.dart';
 
 typedef CustomerCallBack = void Function(CloudCustomer customer);
 

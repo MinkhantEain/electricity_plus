@@ -1,4 +1,3 @@
-import 'dart:math';
 
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -40,6 +39,7 @@ class _ForgotPassowrdViewState extends State<ForgotPassowrdView> {
             await showPasswordResetSentDialog(context);
           }
           if (state.exception != null) {
+            // ignore: use_build_context_synchronously
             await showErrorDialog(context,
                 'We could not process your request Please make sure you are a registered user.');
           }
