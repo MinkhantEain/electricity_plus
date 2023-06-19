@@ -74,28 +74,62 @@ class OperationStateElectricLogSearch extends OperationState {
       : super(isLoading: isLoading);
 }
 
+class OpeartionStateFlagCustomerSearch extends OperationState {
+  final Exception? exception;
+  final Iterable<CloudCustomer> customers;
+  const OpeartionStateFlagCustomerSearch(
+      {required this.exception,
+      required this.customers,
+      required bool isLoading})
+      : super(isLoading: isLoading);
+}
+
 class OperationStateCreatingNewElectricLog extends OperationState {
   final CloudCustomer customer;
-  final DocumentReference? newHistory;
   final Exception? exception;
+  final num lastUnit;
   const OperationStateCreatingNewElectricLog({
     required this.customer,
-    required this.newHistory,
     required bool isLoading,
     required this.exception,
+    required this.lastUnit,
   }) : super(isLoading: isLoading);
 }
 
 class OperationStateImageCommentFlag extends OperationState {
   final CloudCustomer customer;
-  final DocumentReference newHistory;
   final Exception? exception;
   final num newReading;
   const OperationStateImageCommentFlag({
     required this.customer,
-    required this.newHistory,
     required bool isLoading,
     required this.exception,
     required this.newReading,
+  }) : super(isLoading: isLoading);
+}
+
+class OperationStateResolveIssue extends OperationState {
+  final String date;
+  final String previousComment;
+  final CloudCustomer customer;
+  final Exception? exception;
+  final bool resolved;
+  const OperationStateResolveIssue(
+      {required this.date,
+      required this.previousComment,
+      required bool isLoading,
+      required this.customer,
+      required this.exception,
+      required this.resolved})
+      : super(isLoading: isLoading);
+}
+
+class OperationStateAddCustomer extends OperationState {
+  final bool isSubmitted;
+  final Exception? exception;
+  const OperationStateAddCustomer({
+    required bool isLoading,
+    required this.isSubmitted,
+    required this.exception,
   }) : super(isLoading: isLoading);
 }

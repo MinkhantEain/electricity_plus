@@ -26,7 +26,9 @@ class _ImageCommentFlagViewState extends State<ImageCommentFlagView> {
 
   Future getImage() async {
     try {
-      final image = await ImagePicker().pickImage(source: ImageSource.camera);
+      final image = await ImagePicker().pickImage(
+        source: ImageSource.camera,
+      );
       if (image == null) {
         return;
       }
@@ -63,7 +65,6 @@ class _ImageCommentFlagViewState extends State<ImageCommentFlagView> {
             title: const Text("Image, Comment and Flag"),
             leading: BackButton(
               onPressed: () {
-                state.newHistory.delete();
                 context.read<OperationBloc>().add(
                       OperationEventCreateNewElectricLog(
                         customer: state.customer,
@@ -140,7 +141,6 @@ class _ImageCommentFlagViewState extends State<ImageCommentFlagView> {
                             comment: _commentTextController.text,
                             image: _image!,
                             customer: state.customer,
-                            newHistory: state.newHistory,
                             flag: isChecked,
                             newReading: state.newReading,
                           ));

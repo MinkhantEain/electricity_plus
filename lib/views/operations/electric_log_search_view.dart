@@ -128,7 +128,8 @@ class _ElectricLogSearchViewState extends State<ElectricLogSearchView> {
                   onTap: (customer) {
                     context
                         .read<OperationBloc>()
-                        .add(OperationEventCreateNewElectricLog(newReading: '',
+                        .add(OperationEventCreateNewElectricLog(
+                          newReading: '',
                           customer: customer,
                         ));
                   },

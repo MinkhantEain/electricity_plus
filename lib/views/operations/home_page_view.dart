@@ -76,6 +76,21 @@ class _HomePageViewState extends State<HomePageView> {
                 height: 60,
                 child: ElevatedButton(
                   onPressed: () {
+                    context.read<OperationBloc>().add(
+                        const OperationEventFlagCustomerSearch(
+                            userInput: '', isSearching: false));
+                  },
+                  child: const Text("Flagged Customers"),
+                ),
+              ),
+            ),
+            Container(
+              padding: const EdgeInsets.all(30.0),
+              child: SizedBox(
+                width: double.infinity,
+                height: 60,
+                child: ElevatedButton(
+                  onPressed: () {
                     context
                         .read<OperationBloc>()
                         .add(const OperationEventElectricLogSearch(
@@ -99,6 +114,21 @@ class _HomePageViewState extends State<HomePageView> {
                         .add(const OperationEventSetPriceIntention());
                   },
                   child: const Text("Set Price"),
+                ),
+              ),
+            ),
+            Container(
+              padding: const EdgeInsets.all(30.0),
+              child: SizedBox(
+                width: double.infinity,
+                height: 60,
+                child: ElevatedButton(
+                  onPressed: () {
+                    context
+                        .read<OperationBloc>()
+                        .add(const OperationEventAddCustomer(isSubmitted: false));
+                  },
+                  child: const Text("Add Customer"),
                 ),
               ),
             ),

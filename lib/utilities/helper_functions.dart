@@ -9,3 +9,12 @@ bool isNumeric(String? input) {
     }
   }
 }
+
+String currentMonthYearDate() {
+  return DateTime.now().toString().substring(0, 7);
+}
+
+String pastMonthYearDate() {
+  return (num.parse(DateTime.now().toString().substring(0, 4)) - 1).toString() +
+      DateTime.now().toString().substring(4, 7);
+}

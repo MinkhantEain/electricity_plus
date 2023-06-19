@@ -18,15 +18,6 @@ class OperationEventInitialise extends OperationEvent {
   const OperationEventInitialise();
 }
 
-class OperationEventCustomerReceiptSearch extends OperationEvent {
-  final String userInput;
-  final bool isSearching;
-  const OperationEventCustomerReceiptSearch({
-    required this.isSearching,
-    required this.userInput,
-  });
-}
-
 class OperationEventReceiptGeneration extends OperationEvent {
   final CloudCustomer customer;
   final CloudCustomerHistory customerHistory;
@@ -56,11 +47,31 @@ class OperationEventFetchCustomerReceiptHistory extends OperationEvent {
   });
 }
 
+class OperationEventCustomerReceiptSearch extends OperationEvent {
+  final String userInput;
+  final bool isSearching;
+  const OperationEventCustomerReceiptSearch({
+    required this.isSearching,
+    required this.userInput,
+  });
+}
+
 class OperationEventElectricLogSearch extends OperationEvent {
   final String userInput;
   final bool isSearching;
-  const OperationEventElectricLogSearch(
-      {required this.userInput, required this.isSearching});
+  const OperationEventElectricLogSearch({
+    required this.userInput,
+    required this.isSearching,
+  });
+}
+
+class OperationEventFlagCustomerSearch extends OperationEvent {
+  final String userInput;
+  final bool isSearching;
+  const OperationEventFlagCustomerSearch({
+    required this.userInput,
+    required this.isSearching,
+  });
 }
 
 class OperationEventCreateNewElectricLog extends OperationEvent {
@@ -83,17 +94,43 @@ class OperationEventImageCommentFlag extends OperationEvent {
 
 class OperationEventLogSubmission extends OperationEvent {
   final CloudCustomer customer;
-  final DocumentReference newHistory;
   final File image;
   final String comment;
   final bool flag;
   final num newReading;
   const OperationEventLogSubmission({
     required this.customer,
-    required this.newHistory,
     required this.image,
     required this.comment,
     required this.flag,
     required this.newReading,
+  });
+}
+
+class OperationEventResolveIssue extends OperationEvent {
+  final CloudCustomer customer;
+  final bool resolved;
+  final String newComment;
+  const OperationEventResolveIssue({
+    required this.customer,
+    required this.resolved,
+    required this.newComment,
+  });
+}
+
+class OperationEventAddCustomer extends OperationEvent {
+  final bool isSubmitted;
+  final String? meterId;
+  final String? address;
+  final String? name;
+  final String? bookId;
+  final String? meterReading;
+  const OperationEventAddCustomer({
+    required this.isSubmitted,
+    this.address,
+    this.bookId,
+    this.meterId,
+    this.meterReading,
+    this.name,
   });
 }

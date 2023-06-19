@@ -122,7 +122,7 @@ class _CreateElectricLogViewState extends State<CreateElectricLogView> {
                     fit: FlexFit.loose,
                     child: TextField(
                       decoration: InputDecoration(
-                          hintText: state.customer.lastUnit.toString()),
+                          hintText: state.lastUnit.toString()),
                       enabled: false,
                     ),
                   )

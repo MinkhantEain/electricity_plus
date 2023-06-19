@@ -18,12 +18,10 @@ const textFieldName = 'text';
 // const myinFieldName = 'မြင်းကောင်ရေခ';
 
 //new Implementation
-const excelIdField = 'ExcelID';
 const meterIdField = 'MeterID';
 const bookIdField = 'BookID';
 const nameField = 'Name';
 const addressField = 'Address';
-const historyIdField = 'HistoryID';
 const lastUnitField = 'LastUnit';
 const flagField = 'Flag';
 const previousUnitField = 'PreviousUnit';
@@ -37,10 +35,13 @@ const pricePerUnitField = 'price';
 const serviceChargeField = 'serviceCharge';
 const commentField = 'Comment';
 const isVoidedField = 'isVoided';
+const referenceField = 'reference';
+const inspectorField = 'Inspector';
 //collection path
 const transactionsCollection = 'Transactions';
 const customerDetailsCollection = 'CustomerDetails';
 const historyCollection = 'History';
 const priceCollection = 'price';
+const issueCollection = 'Issues';
 //doc path
 const priceDoc = 'priceDoc';

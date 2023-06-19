@@ -24,6 +24,8 @@ class CustomerSearchView extends StatefulWidget {
 class _CustomerSearchViewState extends State<CustomerSearchView> {
   late final TextEditingController _textController;
 
+
+
   @override
   void initState() {
     _textController = TextEditingController();

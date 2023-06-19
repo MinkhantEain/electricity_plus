@@ -33,3 +33,7 @@ class CouldNotGetServiceChargeException extends CloudStorageException {}
 class CouldNotSetServiceChargeException extends CloudStorageException {}
 
 class UnableToUploadImageException extends CloudStorageException {}
+
+class UnableToUpdateException extends CloudStorageException {}
+
+class CouldNotGetCustomerHistoryException extends CloudStorageException {}
