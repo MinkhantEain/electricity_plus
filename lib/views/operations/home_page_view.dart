@@ -4,6 +4,7 @@ import 'package:electricity_plus/services/auth/bloc/auth_event.dart';
 import 'package:electricity_plus/services/cloud/operation/operation_bloc.dart';
 import 'package:electricity_plus/services/cloud/operation/operation_event.dart';
 import 'package:electricity_plus/utilities/dialogs/logout_dialog.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
@@ -111,7 +112,14 @@ class _HomePageViewState extends State<HomePageView> {
                   onPressed: () {
                     context
                         .read<OperationBloc>()
-                        .add(const OperationEventSetPriceIntention());
+                        .add(const OperationEventSetPrice(
+                          price: '',
+                          serviceCharge: '',
+                          tokenInput: '',
+                          isSettingPrice: false,
+                          horsePowerPerUnitCost: '',
+                          roadLightPrice: '',
+                        ));
                   },
                   child: const Text("Set Price"),
                 ),
@@ -124,9 +132,8 @@ class _HomePageViewState extends State<HomePageView> {
                 height: 60,
                 child: ElevatedButton(
                   onPressed: () {
-                    context
-                        .read<OperationBloc>()
-                        .add(const OperationEventAddCustomer(isSubmitted: false));
+                    context.read<OperationBloc>().add(
+                        const OperationEventAddCustomer());
                   },
                   child: const Text("Add Customer"),
                 ),

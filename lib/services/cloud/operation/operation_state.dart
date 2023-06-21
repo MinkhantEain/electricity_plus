@@ -43,15 +43,18 @@ class OperationStateGeneratingReceipt extends OperationState {
 
 class OperationStateSettingPrice extends OperationState {
   final Exception? exception;
-  final bool isChanged;
   final String currentPrice;
   final String currentServiceCharge;
+  final String currentHorsePowerPerUnitCost;
+  final String currentRoadLightPrice;
   const OperationStateSettingPrice({
-    required this.isChanged,
     required this.exception,
     required this.currentPrice,
     required this.currentServiceCharge,
-  }) : super(isLoading: false);
+    required bool isLoading,
+    required this.currentHorsePowerPerUnitCost,
+    required this.currentRoadLightPrice,
+  }) : super(isLoading: isLoading);
 }
 
 class OperationStateFetchingCustomerReceiptHistory extends OperationState {

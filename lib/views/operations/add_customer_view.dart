@@ -20,6 +20,9 @@ class _AddCustomerViewState extends State<AddCustomerView> {
   late final TextEditingController _meterIdTextController;
   late final TextEditingController _nameTextController;
   late final TextEditingController _meterReadingTextController;
+  late final TextEditingController _horsePowerUnitTextController;
+  late final TextEditingController _meterMultiplierTextController;
+  bool isChecked = false;
 
   @override
   void initState() {
@@ -28,7 +31,8 @@ class _AddCustomerViewState extends State<AddCustomerView> {
     _meterReadingTextController = TextEditingController();
     _meterIdTextController = TextEditingController();
     _nameTextController = TextEditingController();
-
+    _horsePowerUnitTextController = TextEditingController();
+    _meterMultiplierTextController = TextEditingController();
     super.initState();
   }
 
@@ -39,7 +43,8 @@ class _AddCustomerViewState extends State<AddCustomerView> {
     _meterReadingTextController.dispose();
     _meterIdTextController.dispose();
     _nameTextController.dispose();
-
+    _horsePowerUnitTextController.dispose();
+    _meterMultiplierTextController.dispose();
     super.dispose();
   }
 
@@ -50,8 +55,21 @@ class _AddCustomerViewState extends State<AddCustomerView> {
         if (state is OperationStateAddCustomer) {
           if (state.exception is EmptyTextInputException) {
             await showErrorDialog(context, 'Error: cannot have empty input');
-          } else if (state.exception is UnableToParseException) {
+          } else if (state.exception is InvalidMeterReadingException) {
             await showErrorDialog(context, 'Invalid Meter Reading input');
+          } else if (state.exception is InvalidMeterMultiplierException) {
+            await showErrorDialog(context, 'Invalid Meter Multiplier input');
+          } else if (state.exception is InvalidHorsePowerUnitException) {
+            await showErrorDialog(context, 'Invalid Horse Power input');
+          } else if (state.exception is InvalidBookIdFormatException) {
+            await showGenericDialog(
+              context: context,
+              title: "Error",
+              content: 'Invalid Book ID input',
+              optionsBuilder: () => {
+                'OK': null,
+              },
+            );
           } else if (state.isSubmitted) {
             await showGenericDialog(
               context: context,
@@ -115,7 +133,7 @@ class _AddCustomerViewState extends State<AddCustomerView> {
             ),
             Row(
               children: [
-                const Text("Meter Reading: "),
+                const Text("Current Meter Reading: "),
                 Expanded(
                     child: TextField(
                   controller: _meterReadingTextController,
@@ -123,15 +141,53 @@ class _AddCustomerViewState extends State<AddCustomerView> {
                 )),
               ],
             ),
+            Row(
+              children: [
+                const Text("Horse Power Units: "),
+                Expanded(
+                    child: TextField(
+                  controller: _horsePowerUnitTextController,
+                  keyboardType: TextInputType.number,
+                )),
+              ],
+            ),
+            Row(
+              children: [
+                const Text("Meter Multiplier: "),
+                Expanded(
+                    child: TextField(
+                  controller: _meterMultiplierTextController,
+                  keyboardType: TextInputType.number,
+                )),
+              ],
+            ),
+            Row(
+              children: [
+                const Text("Include Road Light Cost:"),
+                Checkbox(
+                  value: isChecked,
+                  activeColor: Colors.black,
+                  onChanged: (value) {
+                    setState(() {
+                      isChecked = value!;
+                    });
+                  },
+                )
+              ],
+            ),
             ElevatedButton(
               onPressed: () {
                 context.read<OperationBloc>().add(OperationEventAddCustomer(
-                      isSubmitted: true,
-                      address: _addressTextController.text,
-                      meterId: _meterIdTextController.text,
-                      name: _nameTextController.text,
-                      bookId: _bookIdTextController.text,
-                      meterReading: _meterReadingTextController.text,
+                      address: _addressTextController.text.trim(),
+                      meterId: _meterIdTextController.text.trim(),
+                      name: _nameTextController.text.trim(),
+                      bookId: _bookIdTextController.text.trim(),
+                      meterReading: _meterReadingTextController.text.trim(),
+                      horsePowerUnits:
+                          _horsePowerUnitTextController.text.trim(),
+                      meterMultiplier:
+                          _meterMultiplierTextController.text.trim(),
+                      hasRoadLight: isChecked,
                     ));
               },
               child: const Text('Submit'),

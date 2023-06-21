@@ -19,14 +19,23 @@ class FirebaseCloudStorage {
 
   final firebaseStorage = FirebaseStorage.instance.ref();
 
-  CollectionReference<Map<String, dynamic>> customerHistoryCollection(
+  Future<String> get getServerToken => FirebaseFirestore.instance
+          .collection('Admin')
+          .doc('Details')
+          .get()
+          .then((DocumentSnapshot doc) {
+        final snapshot = doc.data() as Map<String, dynamic>;
+        return snapshot['Password'];
+      }, onError: (_) => throw CouldNotGetPasswordException());
+
+  CollectionReference<Map<String, dynamic>> getCustomerHistoryCollection(
       CloudCustomer customer) {
     return FirebaseFirestore.instance.collection(
         '$customerDetailsCollection/${customer.documentId}/$historyCollection');
   }
 
   Future<num> getPreviousValidUnit(CloudCustomer customer) async {
-    final historyCollection = customerHistoryCollection(customer);
+    final historyCollection = getCustomerHistoryCollection(customer);
     final result = await historyCollection
         .where(dateField,
             isLessThanOrEqualTo: DateTime.now().toString().substring(0, 7))
@@ -38,6 +47,7 @@ class FirebaseCloudStorage {
     if (result.isEmpty) {
       return 0;
     } else {
+      
       return result.first.newUnit;
     }
   }
@@ -68,39 +78,91 @@ class FirebaseCloudStorage {
           final price = doc.data() as Map<String, dynamic>;
           return price[pricePerUnitField] as num;
         },
-        onError: (_) => throw CouldNotGetPriceException(),
+        onError: (_) {
+          throw CouldNotGetPriceException();
+        },
+      );
+
+  Future<num> get getRoadLightPrice =>
+      priceCollectionDoc.get().then((DocumentSnapshot doc) {
+        final price = doc.data() as Map<String, dynamic>;
+        dev.log(price[roadLightPriceField].toString());
+        return price[roadLightPriceField] as num;
+      }, onError: (_) => throw CouldNotGetPriceException());
+
+  Future<num> get getHorsePowerPerUnitCost => priceCollectionDoc.get().then(
+        (DocumentSnapshot doc) {
+          final price = doc.data() as Map<String, dynamic>;
+          return price[horsePowerPerUnitCostField] as num;
+        },
+        onError: (_) {
+          throw CouldNotGetPriceException();
+        },
       );
 
   Future<num> get getServiceCharge => priceCollectionDoc.get().then(
         (DocumentSnapshot doc) {
-          final serviceCharge = doc.data() as Map<String, dynamic>;
-          return serviceCharge[serviceChargeField] as num;
+          final price = doc.data() as Map<String, dynamic>;
+          // dev.log('1${price[pricePerUnitField].toString()}');
+          // dev.log("2${price[serviceChargeField].toString()}");
+          // dev.log("3${price[horsePowerPerUnitCostField].toString()}");
+          // dev.log("4${price[roadLightPriceField].toString()}");
+          return price[serviceChargeField] as num;
         },
-        onError: (_) => throw CouldNotGetServiceChargeException(),
+        onError: (_) {
+          throw CouldNotGetPriceException();
+        },
       );
 
-  void setPrice(String newPrice, String token) async {
-    num? parsedNewPrice = num.tryParse(newPrice);
-    if (token != 'sf2465<>100600') {
-      throw UnAuthorizedPriceSetException();
-    }
-    if (parsedNewPrice != null && parsedNewPrice != 0) {
-      await priceCollectionDoc.update({pricePerUnitField: parsedNewPrice});
-    } else {
-      throw CouldNotSetPriceException();
+  // Future<void> setPrice(String newPrice, String token) async {
+  //   num? parsedNewPrice = num.tryParse(newPrice);
+  //   final serverToken = await getServerToken;
+  //   if (token != serverToken) {
+  //     throw UnAuthorizedPriceSetException();
+  //   } else if (parsedNewPrice != null && parsedNewPrice != 0) {
+  //     await priceCollectionDoc.update({pricePerUnitField: parsedNewPrice});
+  //   } else {
+  //     throw CouldNotSetPriceException();
+  //   }
+  // }
+
+  Future<void> setPrice({
+    required String newPrice,
+    required String token,
+    required String priceChangeField,
+  }) async {
+    try {
+      num? parsedNewPrice = num.tryParse(newPrice);
+      final serverToken = await getServerToken;
+      if (token != serverToken) {
+        throw UnAuthorizedPriceSetException();
+      } else if (parsedNewPrice != null &&
+          parsedNewPrice != 0) {
+        await priceCollectionDoc
+            .update({priceChangeField: parsedNewPrice});
+      } else {
+        throw CouldNotSetServiceChargeException();
+      }
+    } catch (e) {
+      rethrow;
     }
   }
 
-  void setServiceCharge(String newServiceCharge, String token) async {
-    num? parsedNewServiceCharge = num.tryParse(newServiceCharge);
-    if (token != 'sf2465<>100600') {
-      throw UnAuthorizedPriceSetException();
-    }
-    if (parsedNewServiceCharge != null && parsedNewServiceCharge != 0) {
-      await priceCollectionDoc
-          .update({serviceChargeField: parsedNewServiceCharge});
-    } else {
-      throw CouldNotSetServiceChargeException();
+  Future<void> setServiceCharge(String newServiceCharge, String token) async {
+    try {
+      num? parsedNewServiceCharge = num.tryParse(newServiceCharge);
+      final serverToken = await getServerToken;
+      if (token != serverToken) {
+        throw UnAuthorizedPriceSetException();
+      } else if (parsedNewServiceCharge != null &&
+          parsedNewServiceCharge != 0) {
+        await priceCollectionDoc
+            .update({serviceChargeField: parsedNewServiceCharge});
+      } else {
+        throw CouldNotSetServiceChargeException();
+      }
+    } catch (e) {
+      rethrow;
     }
   }
 
@@ -120,13 +182,29 @@ class FirebaseCloudStorage {
             New Reading: ${history.newUnit}
             Unit Used: ${(history.newUnit - history.previousUnit)}
             Price Per Unit: ${history.priceAtm}
-            Service Charge: ${history.serviceCharge}
-            Cost: ${(history.newUnit - history.previousUnit) * history.priceAtm + history.serviceCharge}
+            Service Charge: ${history.serviceChargeAtm}
+            Cost: ${(history.newUnit - history.previousUnit) * history.priceAtm + history.serviceChargeAtm}
             ${FirebaseAuth.instance.currentUser!.email}
     ''';
   }
 
-  Future<void> updateSubmission({
+  Future<num> calculateCost(CloudCustomer customer, num newReading) async {
+    final price = await getPrice;
+    final previusUnit = await getPreviousValidUnit(customer);
+    final serviceCharge = await getServiceCharge;
+    final meterMultiplier = customer.meterMultiplier;
+    final roadLightPrice = await getRoadLightPrice;
+    final horsePowerPerUnitCost = await getHorsePowerPerUnitCost;
+    final horsePowerUnits = customer.horsePowerUnits;
+    final hasRoadLight = customer.hasRoadLightCost ? 1 : 0;
+    final result = price * (newReading - previusUnit) * meterMultiplier +
+        horsePowerUnits * horsePowerPerUnitCost +
+        serviceCharge +
+        hasRoadLight * roadLightPrice;
+    return result;
+  }
+
+  Future<void> submitElectricLog({
     required String comment,
     required num newReading,
     required bool flag,
@@ -143,22 +221,28 @@ class FirebaseCloudStorage {
       FirebaseFirestore.instance.runTransaction(
         (transaction) async {
           transaction.set(customerHistoryDocRef, {
-            previousUnitField: await getPreviousValidUnit(customer),
-            newUnitField: newReading,
-            priceAtmField: await getPrice,
-            serviceChargeField: await getServiceCharge,
-            isVoidedField: false,
-            dateField: DateTime.now().toString(),
-            costField: (newReading - await getPreviousValidUnit(customer)) *
-                    await getPrice +
-                await getServiceCharge,
-            inspectorField: FirebaseAuth.instance.currentUser!.email,
             commentField: comment,
+            //need update
+            costField: await calculateCost(customer, newReading),
+            dateField: DateTime.now().toString(),
+            horsePowerPerUnitCostAtmField: await getHorsePowerPerUnitCost,
+            horsePowerUnitsField: customer.horsePowerUnits,
             imageUrlField: imageUrl,
+            inspectorField: FirebaseAuth.instance.currentUser!.email,
+            meterMultiplierField: customer.meterMultiplier,
+            newUnitField: newReading,
+            previousUnitField: await getPreviousValidUnit(customer),
+            priceAtmField: await getPrice,
+            isPaidField: false,
+            isVoidedField: false,
+            serviceChargeField: await getServiceCharge,
           });
         },
       ).then((value) => dev.log("Document submitted successfully."),
-          onError: (e) => throw UnableToUpdateException());
+          onError: (e) {
+        dev.log(e.toString());
+        throw UnableToUpdateException();
+      });
 
       FirebaseFirestore.instance.runTransaction((transaction) async {
         transaction.update(customerDetailDocRef, {
@@ -316,6 +400,9 @@ class FirebaseCloudStorage {
     required String bookId,
     required String meterId,
     required num meterReading,
+    required num meterMultiplier,
+    required num horsePowerUnits,
+    required bool hasRoadLight,
   }) async {
     final newCustomerCollectionRef = _customersDetailsCollection.doc();
     await newCustomerCollectionRef.set({
@@ -325,6 +412,10 @@ class FirebaseCloudStorage {
       bookIdField: bookId,
       lastUnitField: meterReading,
       flagField: false,
+      hasRoadLightCostField: hasRoadLight,
+      meterMultiplierField: meterMultiplier,
+      horsePowerUnitsField: horsePowerUnits,
+      adderField: 0,
     });
     final customerHistoryDocRef = FirebaseFirestore.instance
         .collection(
@@ -341,7 +432,11 @@ class FirebaseCloudStorage {
           dateField: pastMonthYearDate(),
           costField: 0,
           inspectorField: '',
+          meterMultiplierField: meterMultiplier,
+          horsePowerUnitsField: horsePowerUnits,
+          horsePowerPerUnitCostAtmField: await getHorsePowerPerUnitCost,
           commentField: '',
+          isPaidField: true,
           imageUrlField:
               'https://firebasestorage.googleapis.com/v0/b/electricityplus-a6572.appspot.com/o/newUser%2Fsoil.jpg?alt=media&token=93cdbd32-72a3-4992-a134-226d465c340f',
         });

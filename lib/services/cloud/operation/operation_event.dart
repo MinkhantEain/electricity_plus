@@ -33,10 +33,16 @@ class OperationEventSetPrice extends OperationEvent {
   final String price;
   final String tokenInput;
   final String serviceCharge;
+  final String horsePowerPerUnitCost;
+  final String roadLightPrice;
+  final bool isSettingPrice;
   const OperationEventSetPrice({
     required this.price,
     required this.tokenInput,
     required this.serviceCharge,
+    required this.isSettingPrice,
+    required this.horsePowerPerUnitCost,
+    required this.roadLightPrice,
   });
 }
 
@@ -119,18 +125,22 @@ class OperationEventResolveIssue extends OperationEvent {
 }
 
 class OperationEventAddCustomer extends OperationEvent {
-  final bool isSubmitted;
   final String? meterId;
   final String? address;
   final String? name;
   final String? bookId;
   final String? meterReading;
+  final String? horsePowerUnits;
+  final String? meterMultiplier;
+  final bool? hasRoadLight;
   const OperationEventAddCustomer({
-    required this.isSubmitted,
     this.address,
     this.bookId,
     this.meterId,
     this.meterReading,
     this.name,
+    this.horsePowerUnits,
+    this.meterMultiplier,
+    this.hasRoadLight,
   });
 }

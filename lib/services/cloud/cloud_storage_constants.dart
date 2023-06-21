@@ -1,47 +1,49 @@
 const ownerUserIdFieldNames = 'user_id';
 const textFieldName = 'text';
 
-//all the fields in the cloudFirestore
-// const idFieldName = 'ID';
-// const customerAddressFieldName = "Address";
-// const bookIdFieldName = 'BookID';
-// const costFieldName = 'Cost';
-// const customerNameFieldName = 'Name';
-// const basicCostFieldName = 'Basic Cost';
-// const meterNumberFieldName = 'Meter Number';
-// const newUnitFieldName = 'New Unit';
-// const oldUnitFieldName = 'Old Unit';
-// const roadElectricBillFieldName = 'Road Electric Bill';
-// const totalCostFieldName = 'Total Cost';
-// const unitUsedFieldName = 'Unit Used';
-// const additonalFieldName = 'ပေါင်းရန်';
-// const myinFieldName = 'မြင်းကောင်ရေခ';
-
 //new Implementation
+//Customer Fields
 const meterIdField = 'MeterID';
 const bookIdField = 'BookID';
 const nameField = 'Name';
 const addressField = 'Address';
 const lastUnitField = 'LastUnit';
 const flagField = 'Flag';
+//also in customer history
+const horsePowerUnitsField = 'HorsePowerUnits';
+//also in customer history
+const meterMultiplierField = 'MeterMultiplier';
+const adderField = 'Adder';
+const hasRoadLightCostField = 'hasRoadLightCost';
+
+//Customer History Fields
 const previousUnitField = 'PreviousUnit';
 const newUnitField = 'NewUnit';
 const priceAtmField = 'PriceATM';
+const serviceChargeAtmField = 'ServiceCharge';
 const costField = 'Cost';
 const dateField = 'Date';
 const imageUrlField = 'ImageURL';
-const transactionIdField = 'TransactionID';
-const pricePerUnitField = 'price';
-const serviceChargeField = 'serviceCharge';
 const commentField = 'Comment';
 const isVoidedField = 'isVoided';
-const referenceField = 'reference';
+const isPaidField = 'isPaid';
 const inspectorField = 'Inspector';
+const horsePowerPerUnitCostAtmField = 'HorsePowerPerUnitCostATM';
+
+//Issue
+const referenceField = 'Reference';
+
+//Price fields
+const pricePerUnitField = 'PricePerUnit';
+const serviceChargeField = 'ServiceCharge';
+const horsePowerPerUnitCostField = 'HorsePowerPerUnitCost';
+const roadLightPriceField = 'RoadLightPrice';
+
 //collection path
-const transactionsCollection = 'Transactions';
 const customerDetailsCollection = 'CustomerDetails';
 const historyCollection = 'History';
 const priceCollection = 'price';
 const issueCollection = 'Issues';
+
 //doc path
-const priceDoc = 'priceDoc';
+const priceDoc = 'PriceDoc';
