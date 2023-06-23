@@ -17,3 +17,7 @@ class EmptyTextInputException extends OperationException {}
 class InvalidNewReadingException extends OperationException {}
 
 class InvalidBookIdFormatException extends OperationException {}
+
+class UnAuthorisedPersonException extends OperationException {}
+
+class InvalidFileTypeException extends OperationException {}

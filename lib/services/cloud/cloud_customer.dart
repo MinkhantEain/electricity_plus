@@ -30,6 +30,33 @@ class CloudCustomer {
     required this.hasRoadLightCost,
   });
 
+  CloudCustomer.fromJson(Map<String, dynamic> json)
+      : documentId = json['documentId'],
+        bookId = json['bookId'],
+        meterId = json['meterId'],
+        name = json['name'],
+        address = json['address'],
+        lastUnit = json['lastUnit'],
+        flag = json['flag'],
+        adder = json['adder'],
+        horsePowerUnits = json['horsePowerUnits'],
+        meterMultiplier = json['meterMultiplier'],
+        hasRoadLightCost = json['hasRoadLightCost'];
+
+  Map<String, dynamic> toJson() => {
+        'documentId': documentId,
+        'bookId': bookId,
+        'meterId': meterId,
+        'name': name,
+        'address': address,
+        'lastUnit': lastUnit,
+        'flag': flag,
+        'adder': adder,
+        'horsePowerUnits': horsePowerUnits,
+        'meterMultiplier': meterMultiplier,
+        'hasRoadLightCost': hasRoadLightCost,
+      };
+
   CloudCustomer.fromSnapshot(
       QueryDocumentSnapshot<Map<String, dynamic>> snapshot)
       : documentId = snapshot.id,
@@ -43,7 +70,7 @@ class CloudCustomer {
         horsePowerUnits = snapshot.data()[horsePowerUnitsField],
         meterMultiplier = snapshot.data()[meterMultiplierField],
         hasRoadLightCost = snapshot.data()[hasRoadLightCostField];
-  
+
   @override
   String toString() {
     return """

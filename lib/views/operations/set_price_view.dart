@@ -1,13 +1,11 @@
-import 'package:electricity_plus/services/cloud/cloud_storage_constants.dart';
+
 import 'package:electricity_plus/services/cloud/cloud_storage_exceptions.dart';
 import 'package:electricity_plus/services/cloud/operation/operation_bloc.dart';
 import 'package:electricity_plus/services/cloud/operation/operation_event.dart';
 import 'package:electricity_plus/services/cloud/operation/operation_state.dart';
 import 'package:electricity_plus/utilities/dialogs/error_dialog.dart';
-import 'package:electricity_plus/utilities/dialogs/price_change_alert_dialog.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'dart:developer' as dev show log;
 
 class SetPriceView extends StatefulWidget {
   const SetPriceView({super.key});
@@ -68,7 +66,7 @@ class _SetPriceViewState extends State<SetPriceView> {
               onPressed: () {
                 context
                     .read<OperationBloc>()
-                    .add(const OperationEventDefault());
+                    .add(const OperationEventAdminView());
               },
             ),
           ),

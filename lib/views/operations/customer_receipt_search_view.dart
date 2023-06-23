@@ -6,10 +6,13 @@ import 'package:electricity_plus/services/cloud/cloud_storage_exceptions.dart';
 import 'package:electricity_plus/services/cloud/operation/operation_bloc.dart';
 import 'package:electricity_plus/services/cloud/operation/operation_event.dart';
 import 'package:electricity_plus/services/cloud/operation/operation_state.dart';
+import 'package:electricity_plus/utilities/custom_button.dart';
 import 'package:electricity_plus/utilities/dialogs/error_dialog.dart';
 import 'package:electricity_plus/utilities/dialogs/home_page_dialog.dart';
 import 'package:electricity_plus/utilities/dialogs/logout_dialog.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
+import 'package:flutter_barcode_scanner/flutter_barcode_scanner.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:electricity_plus/views/operations/customer_list_view.dart';
 
@@ -24,7 +27,25 @@ class CustomerSearchView extends StatefulWidget {
 class _CustomerSearchViewState extends State<CustomerSearchView> {
   late final TextEditingController _textController;
 
+  Future<String> scanBarcode() async {
+    String barCodeScanResult;
+    try {
+      barCodeScanResult = await FlutterBarcodeScanner.scanBarcode(
+        '#ff6666',
+        'Cancel',
+        true,
+        ScanMode.BARCODE,
+      );
+    } on PlatformException {
+      barCodeScanResult = '';
+    }
 
+    if (!mounted) {
+      return '';
+    }
+
+    return barCodeScanResult;
+  }
 
   @override
   void initState() {
@@ -58,52 +79,36 @@ class _CustomerSearchViewState extends State<CustomerSearchView> {
                     .read<OperationBloc>()
                     .add(const OperationEventDefault()),
               ),
-              title: const Text("Customer Payment/Receipt"),
-              actions: [
-                PopupMenuButton<MenuAction>(
-                  onSelected: (value) async {
-                    switch (value) {
-                      case MenuAction.logout:
-                        final shouldLogout = await showLogOutDialog(context);
-                        if (shouldLogout) {
-                          // ignore: use_build_context_synchronously
-                          context.read<AuthBloc>().add(const AuthEventLogOut());
-                        }
-                        break;
-                      case MenuAction.home:
-                        final shouldGoHome = await showHomePageDialog(context);
-                        if (shouldGoHome) {
-                          // ignore: use_build_context_synchronously
-                          context
-                              .read<OperationBloc>()
-                              .add(const OperationEventDefault());
-                        }
-                        break;
-                    }
-                  },
-                  itemBuilder: (context) {
-                    return const [
-                      PopupMenuItem(
-                        value: MenuAction.home,
-                        child: Text("Home"),
-                      ),
-                      PopupMenuItem(
-                        value: MenuAction.logout,
-                        child: Text("Logout"),
-                      ),
-                    ];
-                  },
-                )
-              ],
+              title: const Text("Customer Bill"),
+              actions: [AppBarMenu(context)],
             ),
             body: Column(
               children: [
-                const Text("BookID/MeterID:"),
-                TextField(
-                  controller: _textController,
-                  decoration: const InputDecoration(
-                    hintText: 'Search...',
-                  ),
+                Row(
+                  children: [
+                    Expanded(
+                      flex: 1,
+                      child: TextField(
+                        controller: _textController,
+                        decoration: const InputDecoration(
+                          hintText: 'BookID/MeterID:',
+                        ),
+                      ),
+                    ),
+                    IconButton(
+                        onPressed: () async {
+                          final newText = await scanBarcode();
+                          setState(() {
+                            _textController.text = newText;
+                          });
+                          context.read<OperationBloc>().add(
+                                OperationEventCustomerReceiptSearch(
+                                    isSearching: true,
+                                    userInput: _textController.text),
+                              );
+                        },
+                        icon: const Icon(Icons.qr_code_scanner)),
+                  ],
                 ),
                 Row(
                   mainAxisAlignment: MainAxisAlignment.center,
@@ -148,4 +153,6 @@ class _CustomerSearchViewState extends State<CustomerSearchView> {
       },
     );
   }
+
+  
 }

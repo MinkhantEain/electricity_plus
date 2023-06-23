@@ -47,6 +47,11 @@ dependencies:
   firebase_storage: ^11.2.3
   image_picker: ^0.8.9
   local_session_timeout: ^2.3.0
+  file_picker: ^5.3.1
+  flutter_barcode_scanner: ^2.0.0
+  excel: ^2.1.0
+  path_provider: ^2.0.15
+  permission_handler: ^10.3.0
 
 dev_dependencies:
   flutter_test:

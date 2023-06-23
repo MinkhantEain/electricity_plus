@@ -1,13 +1,18 @@
 import 'dart:io';
-
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:electricity_plus/services/cloud/cloud_customer.dart';
 import 'package:electricity_plus/services/cloud/cloud_customer_history.dart';
+import 'package:electricity_plus/services/cloud/operation/operation_state.dart';
+import 'package:file_picker/file_picker.dart';
 import 'package:flutter/foundation.dart';
 
 @immutable
 abstract class OperationEvent {
   const OperationEvent();
+}
+
+class OperationEventChooseTown extends OperationEvent {
+  const OperationEventChooseTown();
 }
 
 class OperationEventDefault extends OperationEvent {
@@ -143,4 +148,27 @@ class OperationEventAddCustomer extends OperationEvent {
     this.meterMultiplier,
     this.hasRoadLight,
   });
+}
+
+class OperationEventAdminView extends OperationEvent {
+  const OperationEventAdminView();
+}
+
+class OperationEventInitialiseData extends OperationEvent {
+  final PlatformFile? result;
+  final bool submit;
+  const OperationEventInitialiseData(
+    {required this.result,
+    required this.submit}
+  );
+}
+
+class OperationEventInitialiseDataSubmission extends OperationEvent {
+  final PlatformFile? result;
+  const OperationEventInitialiseDataSubmission({required this.result});
+}
+
+
+class OperationEventProduceExcel extends OperationEvent {
+  const OperationEventProduceExcel();
 }

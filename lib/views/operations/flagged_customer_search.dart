@@ -8,6 +8,8 @@ import 'package:electricity_plus/utilities/dialogs/home_page_dialog.dart';
 import 'package:electricity_plus/utilities/dialogs/logout_dialog.dart';
 import 'package:electricity_plus/views/operations/customer_list_view.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
+import 'package:flutter_barcode_scanner/flutter_barcode_scanner.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
 import 'package:electricity_plus/services/cloud/operation/operation_bloc.dart';
@@ -16,11 +18,32 @@ class FlaggedCustomerSearchView extends StatefulWidget {
   const FlaggedCustomerSearchView({super.key});
 
   @override
-  State<FlaggedCustomerSearchView> createState() => _FlaggedCustomerSearchViewState();
+  State<FlaggedCustomerSearchView> createState() =>
+      _FlaggedCustomerSearchViewState();
 }
 
 class _FlaggedCustomerSearchViewState extends State<FlaggedCustomerSearchView> {
   late final TextEditingController _userInputTextController;
+
+  Future<String> scanBarcode() async {
+    String barCodeScanResult;
+    try {
+      barCodeScanResult = await FlutterBarcodeScanner.scanBarcode(
+        '#ff6666',
+        'Cancel',
+        true,
+        ScanMode.BARCODE,
+      );
+    } on PlatformException {
+      barCodeScanResult = '';
+    }
+
+    if (!mounted) {
+      return '';
+    }
+
+    return barCodeScanResult;
+  }
 
   @override
   void initState() {
@@ -92,11 +115,31 @@ class _FlaggedCustomerSearchViewState extends State<FlaggedCustomerSearchView> {
           ),
           body: Column(
             children: [
-              TextField(
-                decoration: const InputDecoration(
-                  hintText: 'BookID/MeterID',
-                ),
-                controller: _userInputTextController,
+              Row(
+                children: [
+                  Expanded(
+                    flex: 1,
+                    child: TextField(
+                      controller: _userInputTextController,
+                      decoration: const InputDecoration(
+                        hintText: 'BookID/MeterID:',
+                      ),
+                    ),
+                  ),
+                  IconButton(
+                      onPressed: () async {
+                        final newText = await scanBarcode();
+                        setState(() {
+                          _userInputTextController.text = newText;
+                        });
+                        context.read<OperationBloc>().add(
+                              OperationEventFlagCustomerSearch(
+                                  isSearching: true,
+                                  userInput: _userInputTextController.text),
+                            );
+                      },
+                      icon: const Icon(Icons.qr_code_scanner)),
+                ],
               ),
               Row(
                 mainAxisAlignment: MainAxisAlignment.center,

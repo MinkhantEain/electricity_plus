@@ -1,3 +1,4 @@
+import 'package:electricity_plus/services/cloud/cloud_storage_exceptions.dart';
 import 'package:electricity_plus/services/cloud/operation/operation_bloc.dart';
 import 'package:electricity_plus/services/cloud/operation/operation_event.dart';
 import 'package:electricity_plus/services/cloud/operation/operation_exception.dart';
@@ -33,6 +34,7 @@ class _AddCustomerViewState extends State<AddCustomerView> {
     _nameTextController = TextEditingController();
     _horsePowerUnitTextController = TextEditingController();
     _meterMultiplierTextController = TextEditingController();
+    _meterMultiplierTextController.text = '1';
     super.initState();
   }
 
@@ -57,7 +59,7 @@ class _AddCustomerViewState extends State<AddCustomerView> {
             await showErrorDialog(context, 'Error: cannot have empty input');
           } else if (state.exception is InvalidMeterReadingException) {
             await showErrorDialog(context, 'Invalid Meter Reading input');
-          } else if (state.exception is InvalidMeterMultiplierException) {
+          }else if (state.exception is InvalidMeterMultiplierException) {
             await showErrorDialog(context, 'Invalid Meter Multiplier input');
           } else if (state.exception is InvalidHorsePowerUnitException) {
             await showErrorDialog(context, 'Invalid Horse Power input');
@@ -89,7 +91,7 @@ class _AddCustomerViewState extends State<AddCustomerView> {
           title: const Text('Add Customer'),
           leading: BackButton(
             onPressed: () {
-              context.read<OperationBloc>().add(const OperationEventDefault());
+              context.read<OperationBloc>().add(const OperationEventAdminView());
             },
           ),
         ),

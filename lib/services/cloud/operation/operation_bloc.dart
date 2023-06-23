@@ -5,7 +5,8 @@ import 'package:electricity_plus/services/cloud/firebase_cloud_storage.dart';
 import 'package:electricity_plus/services/cloud/operation/operation_event.dart';
 import 'package:electricity_plus/services/cloud/operation/operation_exception.dart';
 import 'package:electricity_plus/services/cloud/operation/operation_state.dart';
-import 'package:electricity_plus/utilities/dialogs/error_dialog.dart';
+import 'package:electricity_plus/services/others/excel_production.dart';
+import 'package:electricity_plus/services/others/local_storage.dart';
 import 'package:electricity_plus/utilities/helper_functions.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'dart:developer' as dev show log;
@@ -13,9 +14,9 @@ import 'dart:developer' as dev show log;
 class OperationBloc extends Bloc<OperationEvent, OperationState> {
   OperationBloc(FirebaseCloudStorage provider)
       : super(const OperationStateUninitialised(isLoading: true)) {
-    on<OperationEventDefault>(
-      (event, emit) => emit(const OperationStateDefault()),
-    );
+    on<OperationEventDefault>((event, emit) async {
+      emit(OperationStateDefault(townName: await AppDocumentData.getTownName()));
+    });
 
     //customer receipt history implementation
     on<OperationEventFetchCustomerReceiptHistory>(
@@ -54,18 +55,18 @@ class OperationBloc extends Bloc<OperationEvent, OperationState> {
     on<OperationEventCustomerReceiptSearch>(
       (event, emit) async {
         if (!event.isSearching) {
-          emit(OperationStateSearchingCustomerReceipt(
+          emit(const OperationStateSearchingCustomerReceipt(
             exception: null,
             isLoading: false,
-            customerIterable: await provider.allCustomer(),
+            customerIterable: [],
           ));
         } else {
           //no user input
           if (event.userInput.isEmpty) {
-            emit(OperationStateSearchingCustomerReceipt(
+            emit(const OperationStateSearchingCustomerReceipt(
               exception: null,
               isLoading: false,
-              customerIterable: await provider.allCustomer(),
+              customerIterable: [],
             ));
           } else {
             //has user input
@@ -252,7 +253,7 @@ class OperationBloc extends Bloc<OperationEvent, OperationState> {
             newReading: event.newReading,
           ));
         } else {
-          emit(const OperationStateDefault());
+          emit(OperationStateDefault(townName: await AppDocumentData.getTownName()));
         }
       },
     );
@@ -261,17 +262,15 @@ class OperationBloc extends Bloc<OperationEvent, OperationState> {
       (event, emit) async {
         if (!event.isSearching) {
           emit(
-            OperationStateElectricLogSearch(
-                customerIterable: await provider.allCustomer(),
-                exception: null,
-                isLoading: false),
+            const OperationStateElectricLogSearch(
+                customerIterable: [], exception: null, isLoading: false),
           );
         } else {
           if (event.userInput.isEmpty) {
-            emit(OperationStateElectricLogSearch(
+            emit(const OperationStateElectricLogSearch(
               exception: null,
               isLoading: false,
-              customerIterable: await provider.allCustomer(),
+              customerIterable: [],
             ));
           } else {
             Exception? exception;
@@ -304,6 +303,14 @@ class OperationBloc extends Bloc<OperationEvent, OperationState> {
     //set price implementation
     on<OperationEventSetPrice>(
       (event, emit) async {
+        emit(const OperationStateSettingPrice(
+          exception: null,
+          currentPrice: '',
+          currentServiceCharge: '',
+          isLoading: true,
+          currentHorsePowerPerUnitCost: '',
+          currentRoadLightPrice: '',
+        ));
         if (!event.isSettingPrice) {
           emit(OperationStateSettingPrice(
             exception: null,
@@ -405,7 +412,8 @@ class OperationBloc extends Bloc<OperationEvent, OperationState> {
               throw EmptyTextInputException();
             } else if (!isIntInput(event.meterReading!)) {
               throw InvalidMeterReadingException();
-            } else if(!isIntInput(event.meterMultiplier!)) {
+            } else if (!isIntInput(event.meterMultiplier!) ||
+                event.meterMultiplier! == '0') {
               throw InvalidMeterMultiplierException();
             } else if (!isIntInput(event.horsePowerUnits!)) {
               throw InvalidHorsePowerUnitException();
@@ -413,17 +421,17 @@ class OperationBloc extends Bloc<OperationEvent, OperationState> {
               throw InvalidBookIdFormatException();
             } else {
               provider.createUser(
-                name: event.name!,
-                address: event.address!,
-                bookId: event.bookId!,
-                meterId: event.meterId!,
-                meterReading: num.parse(event.meterReading!),
-                meterMultiplier: num.parse(event.meterMultiplier!),
-                horsePowerUnits: num.parse(event.horsePowerUnits!),
-                hasRoadLight: event.hasRoadLight!
-              );
+                  name: event.name!,
+                  address: event.address!,
+                  bookId: event.bookId!,
+                  meterId: event.meterId!,
+                  meterReading: num.parse(event.meterReading!),
+                  meterMultiplier: num.parse(event.meterMultiplier!),
+                  horsePowerUnits: num.parse(event.horsePowerUnits!),
+                  hasRoadLight: event.hasRoadLight!);
             }
           } on Exception catch (e) {
+            dev.log((e is CustomerAlreadyExistsException).toString());
             exception = e;
           }
           emit(OperationStateAddCustomer(
@@ -432,6 +440,142 @@ class OperationBloc extends Bloc<OperationEvent, OperationState> {
             exception: exception,
           ));
         }
+      },
+    );
+
+    //AdminView
+    on<OperationEventAdminView>(
+      (event, emit) {
+        emit(const OperationStateAdminView(
+          isLoading: false,
+          exception: null,
+        ));
+      },
+    );
+
+    //import data implementation
+    on<OperationEventInitialiseData>(
+      (event, emit) async {
+        emit(const OperationStateInitialiseData(
+          isLoading: false,
+          exception: null,
+          pickedFile: null,
+          fileName: '',
+          fileBytes: '',
+          fileExtension: '',
+          filePath: '',
+          fileSize: '',
+        ));
+        final result = event.result;
+        if (result != null) {
+          emit(const OperationStateInitialiseData(
+            isLoading: true,
+            exception: null,
+            pickedFile: null,
+            fileName: '',
+            fileBytes: '',
+            fileExtension: '',
+            filePath: '',
+            fileSize: '',
+          ));
+
+          emit(OperationStateInitialiseData(
+            isLoading: false,
+            exception: null,
+            pickedFile: null,
+            fileName: result.name,
+            fileBytes: result.bytes.toString(),
+            fileExtension: result.extension!,
+            filePath: result.path!,
+            fileSize: result.size.toString(),
+            platformFile: result,
+          ));
+        }
+      },
+    );
+
+    on<OperationEventInitialiseDataSubmission>(
+      (event, emit) async {
+        if (event.result == null) {
+          emit(const OperationStateInitialiseData(
+            isLoading: false,
+            exception: null,
+            pickedFile: null,
+            fileName: '',
+            fileBytes: '',
+            fileExtension: '',
+            filePath: '',
+            fileSize: '',
+          ));
+        } else if (event.result!.extension != 'csv') {
+          emit(OperationStateInitialiseData(
+            isLoading: false,
+            exception: InvalidFileTypeException(),
+            pickedFile: null,
+            fileName: '',
+            fileBytes: '',
+            fileExtension: '',
+            filePath: '',
+            fileSize: '',
+          ));
+        } else {
+          try {
+            emit(const OperationStateInitialiseData(
+              isLoading: true,
+              exception: null,
+              pickedFile: null,
+              fileName: '',
+              fileBytes: '',
+              fileExtension: '',
+              filePath: '',
+              fileSize: '',
+            ));
+            await provider.importData(event.result!);
+            emit(const OperationStateInitialiseData(
+              isLoading: false,
+              exception: null,
+              pickedFile: null,
+              fileName: '',
+              fileBytes: '',
+              fileExtension: '',
+              filePath: '',
+              fileSize: '',
+            ));
+          } on Exception catch (e) {
+            dev.log(e.toString());
+            emit(OperationStateInitialiseData(
+              isLoading: false,
+              exception: e,
+              pickedFile: null,
+              fileName: '',
+              fileBytes: '',
+              fileExtension: '',
+              filePath: '',
+              fileSize: '',
+            ));
+          }
+        }
+      },
+    );
+
+    on<OperationEventChooseTown>(
+      (event, emit) {
+        emit(const OperationStateChooseTown(isLoading: false));
+      },
+    );
+
+    on<OperationEventProduceExcel>(
+      (event, emit) async {
+        emit(const OperationStateProduceExcel(
+          isLoading: true,
+          exception: null,
+        ));
+
+        await createExcelSheet('test');
+        emit(const OperationStateProduceExcel(
+          isLoading: false,
+          exception: null,
+        ));
       },
     );
   }

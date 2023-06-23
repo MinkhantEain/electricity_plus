@@ -19,6 +19,7 @@ class CloudCustomerHistory {
   final num meterMultiplier;
   final bool isVoided;
   final bool isPaid;
+  final num roadLightPrice;
 
 
   const CloudCustomerHistory({
@@ -37,6 +38,7 @@ class CloudCustomerHistory {
     required this.horsePowerPerUnitCostAtm,
     required this.horsePowerUnits,
     required this.meterMultiplier,
+    required this.roadLightPrice,
   });
 
   CloudCustomerHistory.fromSnapshot(QueryDocumentSnapshot<Map<String, dynamic>> snapshot) 
@@ -54,7 +56,8 @@ class CloudCustomerHistory {
   inspector = snapshot.data()[inspectorField],
   horsePowerPerUnitCostAtm = snapshot.data()[horsePowerPerUnitCostAtmField],
   horsePowerUnits = snapshot.data()[horsePowerUnitsField],
-  meterMultiplier = snapshot.data()[meterMultiplierField];
+  meterMultiplier = snapshot.data()[meterMultiplierField],
+  roadLightPrice = snapshot.data()[roadLightPriceField];
 
   @override
   String toString() {

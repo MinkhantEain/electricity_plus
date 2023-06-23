@@ -1,6 +1,6 @@
-import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:electricity_plus/services/cloud/cloud_customer.dart';
 import 'package:electricity_plus/services/cloud/cloud_customer_history.dart';
+import 'package:file_picker/file_picker.dart';
 import 'package:flutter/foundation.dart';
 
 @immutable
@@ -13,8 +13,15 @@ abstract class OperationState {
   });
 }
 
+class OperationStateChooseTown extends OperationState {
+  const OperationStateChooseTown({
+    required bool isLoading,
+  }) : super(isLoading: isLoading);
+}
+
 class OperationStateDefault extends OperationState {
-  const OperationStateDefault() : super(isLoading: false);
+  final String townName;
+  const OperationStateDefault({required this.townName}) : super(isLoading: false);
 }
 
 class OperationStateUninitialised extends OperationState {
@@ -133,6 +140,43 @@ class OperationStateAddCustomer extends OperationState {
   const OperationStateAddCustomer({
     required bool isLoading,
     required this.isSubmitted,
+    required this.exception,
+  }) : super(isLoading: isLoading);
+}
+
+class OperationStateAdminView extends OperationState {
+  final Exception? exception;
+  const OperationStateAdminView(
+      {required bool isLoading, required this.exception})
+      : super(isLoading: isLoading);
+}
+
+class OperationStateInitialiseData extends OperationState {
+  final Exception? exception;
+  final FilePickerResult? pickedFile;
+  final String fileName;
+  final String fileBytes;
+  final String fileSize;
+  final String fileExtension;
+  final String filePath;
+  final PlatformFile? platformFile;
+  const OperationStateInitialiseData(
+      {required bool isLoading,
+      required this.exception,
+      required this.pickedFile,
+      required this.fileName,
+      required this.fileBytes,
+      required this.fileExtension,
+      required this.filePath,
+      required this.fileSize,
+      this.platformFile})
+      : super(isLoading: isLoading);
+}
+
+class OperationStateProduceExcel extends OperationState {
+  final Exception? exception;
+  const OperationStateProduceExcel({
+    required isLoading,
     required this.exception,
   }) : super(isLoading: isLoading);
 }

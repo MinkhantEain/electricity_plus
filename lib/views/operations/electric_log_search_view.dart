@@ -1,14 +1,13 @@
-import 'package:electricity_plus/enums/menu_action.dart';
-import 'package:electricity_plus/services/auth/bloc/auth_bloc.dart';
-import 'package:electricity_plus/services/auth/bloc/auth_event.dart';
+
 import 'package:electricity_plus/services/cloud/cloud_customer.dart';
 import 'package:electricity_plus/services/cloud/operation/operation_bloc.dart';
 import 'package:electricity_plus/services/cloud/operation/operation_event.dart';
 import 'package:electricity_plus/services/cloud/operation/operation_state.dart';
-import 'package:electricity_plus/utilities/dialogs/home_page_dialog.dart';
-import 'package:electricity_plus/utilities/dialogs/logout_dialog.dart';
+import 'package:electricity_plus/utilities/custom_button.dart';
 import 'package:electricity_plus/views/operations/customer_list_view.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
+import 'package:flutter_barcode_scanner/flutter_barcode_scanner.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
 class ElectricLogSearchView extends StatefulWidget {
@@ -20,6 +19,26 @@ class ElectricLogSearchView extends StatefulWidget {
 
 class _ElectricLogSearchViewState extends State<ElectricLogSearchView> {
   late final TextEditingController _userInputTextController;
+
+  Future<String> scanBarcode() async {
+    String barCodeScanResult;
+    try {
+      barCodeScanResult = await FlutterBarcodeScanner.scanBarcode(
+        '#ff6666',
+        'Cancel',
+        true,
+        ScanMode.BARCODE,
+      );
+    } on PlatformException {
+      barCodeScanResult = '';
+    }
+
+    if (!mounted) {
+      return '';
+    }
+
+    return barCodeScanResult;
+  }
 
   @override
   void initState() {
@@ -37,7 +56,6 @@ class _ElectricLogSearchViewState extends State<ElectricLogSearchView> {
   Widget build(BuildContext context) {
     return BlocConsumer<OperationBloc, OperationState>(
       listener: (context, state) {
-        // TODO: implement listener
       },
       builder: (context, state) {
         state as OperationStateElectricLogSearch;
@@ -53,50 +71,37 @@ class _ElectricLogSearchViewState extends State<ElectricLogSearchView> {
               },
             ),
             actions: [
-              PopupMenuButton<MenuAction>(
-                onSelected: (value) async {
-                  switch (value) {
-                    case MenuAction.logout:
-                      final shouldLogout = await showLogOutDialog(context);
-                      if (shouldLogout) {
-                        // ignore: use_build_context_synchronously
-                        context.read<AuthBloc>().add(const AuthEventLogOut());
-                      }
-                      break;
-                    case MenuAction.home:
-                      final shouldGoHome = await showHomePageDialog(context);
-                      if (shouldGoHome) {
-                        // ignore: use_build_context_synchronously
-                        context
-                            .read<OperationBloc>()
-                            .add(const OperationEventDefault());
-                      }
-                      break;
-                  }
-                },
-                itemBuilder: (context) {
-                  return const [
-                    PopupMenuItem(
-                      value: MenuAction.home,
-                      child: Text("Home"),
-                    ),
-                    PopupMenuItem(
-                      value: MenuAction.logout,
-                      child: Text("Logout"),
-                    ),
-                  ];
-                },
-              )
+              AppBarMenu(context),
             ],
           ),
           body: Column(
             children: [
-              TextField(
-                decoration: const InputDecoration(
-                  hintText: 'BookID/MeterID',
+              Row(
+                  children: [
+                    Expanded(
+                      flex: 1,
+                      child: TextField(
+                        controller: _userInputTextController,
+                        decoration: const InputDecoration(
+                          hintText: 'BookID/MeterID:',
+                        ),
+                      ),
+                    ),
+                    IconButton(
+                        onPressed: () async {
+                          final newText = await scanBarcode();
+                          setState(() {
+                            _userInputTextController.text = newText;
+                          });
+                          context.read<OperationBloc>().add(
+                            OperationEventElectricLogSearch(
+                                isSearching: true,
+                                userInput: _userInputTextController.text),
+                          );
+                        },
+                        icon: const Icon(Icons.qr_code_scanner)),
+                  ],
                 ),
-                controller: _userInputTextController,
-              ),
               Row(
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [

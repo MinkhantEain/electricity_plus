@@ -1,3 +1,4 @@
+import 'dart:convert';
 import 'dart:io';
 
 import 'package:cloud_firestore/cloud_firestore.dart';
@@ -6,6 +7,7 @@ import 'package:electricity_plus/services/cloud/cloud_customer_history.dart';
 import 'package:electricity_plus/services/cloud/cloud_storage_constants.dart';
 import 'package:electricity_plus/services/cloud/cloud_storage_exceptions.dart';
 import 'package:electricity_plus/utilities/helper_functions.dart';
+import 'package:file_picker/file_picker.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'dart:developer' as dev show log;
 
@@ -47,7 +49,6 @@ class FirebaseCloudStorage {
     if (result.isEmpty) {
       return 0;
     } else {
-      
       return result.first.newUnit;
     }
   }
@@ -136,16 +137,18 @@ class FirebaseCloudStorage {
       final serverToken = await getServerToken;
       if (token != serverToken) {
         throw UnAuthorizedPriceSetException();
-      } else if (parsedNewPrice != null &&
-          parsedNewPrice != 0) {
-        await priceCollectionDoc
-            .update({priceChangeField: parsedNewPrice});
+      } else if (parsedNewPrice != null && parsedNewPrice != 0) {
+        await priceCollectionDoc.update({priceChangeField: parsedNewPrice});
       } else {
         throw CouldNotSetServiceChargeException();
       }
     } catch (e) {
       rethrow;
     }
+  }
+
+  Future<bool> verifyPassword(String token) async {
+    return token == await getServerToken;
   }
 
   Future<void> setServiceCharge(String newServiceCharge, String token) async {
@@ -233,6 +236,7 @@ class FirebaseCloudStorage {
             newUnitField: newReading,
             previousUnitField: await getPreviousValidUnit(customer),
             priceAtmField: await getPrice,
+            roadLightPriceField: await getRoadLightPrice,
             isPaidField: false,
             isVoidedField: false,
             serviceChargeField: await getServiceCharge,
@@ -388,7 +392,7 @@ class FirebaseCloudStorage {
             .then((value) =>
                 value.docs.map((doc) => CloudCustomer.fromSnapshot(doc)));
       }
-      throw CouldNotGetCustomerException();
+      return [];
     } catch (e) {
       throw CouldNotGetCustomerException();
     }
@@ -404,50 +408,103 @@ class FirebaseCloudStorage {
     required num horsePowerUnits,
     required bool hasRoadLight,
   }) async {
-    final newCustomerCollectionRef = _customersDetailsCollection.doc();
-    await newCustomerCollectionRef.set({
-      nameField: name,
-      addressField: address,
-      meterIdField: meterId,
-      bookIdField: bookId,
-      lastUnitField: meterReading,
-      flagField: false,
-      hasRoadLightCostField: hasRoadLight,
-      meterMultiplierField: meterMultiplier,
-      horsePowerUnitsField: horsePowerUnits,
-      adderField: 0,
-    });
-    final customerHistoryDocRef = FirebaseFirestore.instance
-        .collection(
-            '$customerDetailsCollection/${newCustomerCollectionRef.id}/$historyCollection')
-        .doc();
-    FirebaseFirestore.instance.runTransaction(
-      (transaction) async {
-        transaction.set(customerHistoryDocRef, {
-          previousUnitField: meterReading,
-          newUnitField: meterReading,
-          priceAtmField: await getPrice,
-          serviceChargeField: await getServiceCharge,
-          isVoidedField: false,
-          dateField: pastMonthYearDate(),
-          costField: 0,
-          inspectorField: '',
-          meterMultiplierField: meterMultiplier,
-          horsePowerUnitsField: horsePowerUnits,
-          horsePowerPerUnitCostAtmField: await getHorsePowerPerUnitCost,
-          commentField: '',
-          isPaidField: true,
-          imageUrlField:
-              'https://firebasestorage.googleapis.com/v0/b/electricityplus-a6572.appspot.com/o/newUser%2Fsoil.jpg?alt=media&token=93cdbd32-72a3-4992-a134-226d465c340f',
-        });
-      },
-    ).then((value) => dev.log("Document submitted successfully."),
-        onError: (e) => throw UnableToUpdateException());
+    try {
+      final newCustomerDocRef = _customersDetailsCollection.doc();
+      await newCustomerDocRef.set({
+        nameField: name,
+        addressField: address,
+        meterIdField: meterId,
+        bookIdField: bookId,
+        lastUnitField: meterReading,
+        flagField: false,
+        hasRoadLightCostField: hasRoadLight,
+        meterMultiplierField: meterMultiplier,
+        horsePowerUnitsField: horsePowerUnits,
+        adderField: 0,
+      });
+      final customerHistoryDocRef = FirebaseFirestore.instance
+          .collection(
+              '$customerDetailsCollection/${newCustomerDocRef.id}/$historyCollection')
+          .doc();
+      FirebaseFirestore.instance.runTransaction(
+        (transaction) async {
+          transaction.set(customerHistoryDocRef, {
+            previousUnitField: meterReading,
+            newUnitField: meterReading,
+            priceAtmField: await getPrice,
+            serviceChargeField: await getServiceCharge,
+            isVoidedField: false,
+            dateField: pastMonthYearDate(),
+            costField: 0,
+            inspectorField: '',
+            roadLightPriceField: hasRoadLight ? await getRoadLightPrice : 0,
+            meterMultiplierField: meterMultiplier,
+            horsePowerUnitsField: horsePowerUnits,
+            horsePowerPerUnitCostAtmField: await getHorsePowerPerUnitCost,
+            commentField: '',
+            isPaidField: true,
+            imageUrlField:
+                'https://firebasestorage.googleapis.com/v0/b/electricityplus-a6572.appspot.com/o/newUser%2Fsoil.jpg?alt=media&token=93cdbd32-72a3-4992-a134-226d465c340f',
+          });
+        },
+      ).then((value) => dev.log("Document submitted successfully."),
+          onError: (e) {
+        throw CouldNotCreateCustomerException();
+      });
+    } on Exception {
+      rethrow;
+    }
   }
 
   Future<Iterable<CloudCustomer>> allCustomer() =>
       _customersDetailsCollection.get().then(
           (value) => value.docs.map((doc) => CloudCustomer.fromSnapshot(doc)));
+
+  Future<void> importData(PlatformFile platformFile) async {
+    final file = File(platformFile.path!);
+    final lines =
+        file.openRead().transform(utf8.decoder).transform(const LineSplitter());
+    await for (var line in lines) {
+      final splitExpression = RegExp(",(?=(?:[^\"]*\"[^\"]*\")*(?![^\"]*\"))");
+      final splittedLine = line.split(splitExpression);
+      if (isIntInput(splittedLine[0].trim())) {
+        try {
+          final name = splittedLine[3];
+          final address = splittedLine[7];
+          final bookId = splittedLine[6];
+          final meterId = splittedLine[2];
+          final meterReading = num.parse(splittedLine[11].trim());
+          final meterMultiplier = splittedLine[12].trim().isEmpty
+              ? 0
+              : num.parse(splittedLine[12].trim());
+          final horsePowerUnits = num.parse(splittedLine[18].trim());
+          final hasRoadLight =
+              num.parse(splittedLine[16].trim()) == 0 ? false : true;
+          await createUser(
+            name: name,
+            address: address,
+            bookId: bookId,
+            meterId: meterId,
+            meterReading: meterReading,
+            meterMultiplier: meterMultiplier,
+            horsePowerUnits: horsePowerUnits,
+            hasRoadLight: hasRoadLight,
+          );
+        } catch (e) {
+          dev.log(splittedLine.toString());
+
+          dev.log((splittedLine[12].trim().isEmpty
+                  ? 0
+                  : num.parse(splittedLine[12].trim()))
+              .toString());
+          dev.log(num.parse(splittedLine[18].trim()).toString());
+          dev.log((num.parse(splittedLine[16].trim()) == 0 ? false : true)
+              .toString());
+          dev.log(num.parse(splittedLine[11].trim()).toString());
+        }
+      }
+    }
+  }
 
   static final FirebaseCloudStorage _shared =
       FirebaseCloudStorage._sharedInstance();

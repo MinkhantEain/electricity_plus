@@ -36,5 +36,10 @@ class UnableToUploadImageException extends CloudStorageException {}
 
 class UnableToUpdateException extends CloudStorageException {}
 
+class CouldNotCreateCustomerException extends CloudStorageException {}
+
+class CustomerAlreadyExistsException extends CloudStorageException {}
+
 class CouldNotGetCustomerHistoryException extends CloudStorageException {}
+
 class CouldNotGetPasswordException extends CloudStorageException {}

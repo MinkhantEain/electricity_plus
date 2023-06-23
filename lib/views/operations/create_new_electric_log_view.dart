@@ -160,9 +160,6 @@ class _CreateElectricLogViewState extends State<CreateElectricLogView> {
                               customer: state.customer,
                               newReading: _newReadingTextController.text),
                         );
-                        //TODO: need to ensure that when the customer is already logged
-                        //for the month, the the previous unit must be obtained from the
-                        //previous entry
                   }
                 },
                 child: const Text('Next'),

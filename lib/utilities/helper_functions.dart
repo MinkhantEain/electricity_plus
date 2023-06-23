@@ -1,3 +1,5 @@
+
+
 bool isNumeric(String? input) {
   if (input == null) {
     return false;
@@ -41,6 +43,9 @@ bool intIsBetween(int input, int startInclusive, int endInclusive) {
 }
 
 bool isIntInput(String input) {
+  if (input.isEmpty) {
+    return false;
+  }
   final codes = input.codeUnits;
   for (int code in codes) {
     if (!intIsBetween(code, 48, 57)) {
@@ -49,3 +54,4 @@ bool isIntInput(String input) {
   }
   return true;
 }
+
