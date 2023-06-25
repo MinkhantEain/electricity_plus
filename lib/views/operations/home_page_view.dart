@@ -23,24 +23,19 @@ class _HomePageViewState extends State<HomePageView> {
         return Scaffold(
           appBar: AppBar(
             actions: [
+              IconButton(onPressed: () {
+                context.read<OperationBloc>().add(const OperationEventChooseBluetooth());
+              }, icon: const Icon(Icons.print_outlined)),
               AppBarMenu(context),
             ],
-            title: Text("Home, Town: ${state.townName}"),
+            title: Text("Town: ${state.townName}"),
           ),
           body: Padding(
             padding: const EdgeInsets.all(0.0),
             child: Column(
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
-                HomePageButton(
-                  icon: Icons.home_work_outlined,
-                  text: "Town",
-                  onPressed: () {
-                    context
-                        .read<OperationBloc>()
-                        .add(const OperationEventChooseTown());
-                  },
-                ),
+                
                 HomePageButton(
                   icon: Icons.receipt_long_outlined,
                   text: "Bill",

@@ -21,3 +21,7 @@ class InvalidBookIdFormatException extends OperationException {}
 class UnAuthorisedPersonException extends OperationException {}
 
 class InvalidFileTypeException extends OperationException {}
+
+class InvalidTokenException extends OperationException {}
+
+class PrinterNotConnectedException extends OperationException {}

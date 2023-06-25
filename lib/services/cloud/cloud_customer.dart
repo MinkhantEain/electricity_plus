@@ -1,3 +1,4 @@
+import 'package:bluetooth_print/bluetooth_print_model.dart';
 import 'package:flutter/foundation.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:electricity_plus/services/cloud/cloud_storage_constants.dart';
@@ -9,6 +10,7 @@ class CloudCustomer {
   final String meterId;
   final String name;
   final String address;
+  final DocumentReference<Map<String, dynamic>> lastHistory;
   final num lastUnit;
   final num adder;
   final num horsePowerUnits;
@@ -28,7 +30,9 @@ class CloudCustomer {
     required this.horsePowerUnits,
     required this.meterMultiplier,
     required this.hasRoadLightCost,
+    required this.lastHistory
   });
+
 
   CloudCustomer.fromJson(Map<String, dynamic> json)
       : documentId = json['documentId'],
@@ -41,7 +45,8 @@ class CloudCustomer {
         adder = json['adder'],
         horsePowerUnits = json['horsePowerUnits'],
         meterMultiplier = json['meterMultiplier'],
-        hasRoadLightCost = json['hasRoadLightCost'];
+        hasRoadLightCost = json['hasRoadLightCost'],
+        lastHistory = json[lastHistoryField];
 
   Map<String, dynamic> toJson() => {
         'documentId': documentId,
@@ -69,7 +74,8 @@ class CloudCustomer {
         adder = snapshot.data()[adderField],
         horsePowerUnits = snapshot.data()[horsePowerUnitsField],
         meterMultiplier = snapshot.data()[meterMultiplierField],
-        hasRoadLightCost = snapshot.data()[hasRoadLightCostField];
+        hasRoadLightCost = snapshot.data()[hasRoadLightCostField],
+        lastHistory = snapshot.data()[lastHistoryField];
 
   @override
   String toString() {

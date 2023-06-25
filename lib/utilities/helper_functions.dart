@@ -1,4 +1,8 @@
+import 'dart:convert';
 
+import 'package:bluetooth_print/bluetooth_print_model.dart';
+import 'package:electricity_plus/services/others/local_storage.dart';
+import 'package:flutter/services.dart';
 
 bool isNumeric(String? input) {
   if (input == null) {
@@ -17,8 +21,7 @@ String currentMonthYearDate() {
 }
 
 String pastMonthYearDate() {
-  return (num.parse(DateTime.now().toString().substring(0, 4)) - 1).toString() +
-      DateTime.now().toString().substring(4, 7);
+  return '${num.parse(DateTime.now().toString().substring(0, 4)) - 1}${DateTime.now().toString().substring(4, 7)}-01';
 }
 
 bool isBookIdFormat(String input) {
@@ -55,3 +58,39 @@ bool isIntInput(String input) {
   return true;
 }
 
+Future<List<LineText>> printBillHelper(Map<String, String?> details) async {
+  final town = await AppDocumentData.getTownName();
+  List<LineText> result = [];
+  result.add(LineText(
+      type: LineText.TYPE_TEXT,
+      content: '********************************',
+      weight: 1,
+      align: LineText.ALIGN_CENTER,
+      linefeed: 1));
+  result.add(LineText(
+      type: LineText.TYPE_TEXT,
+      content: town,
+      weight: 1,
+      align: LineText.ALIGN_CENTER,
+      linefeed: 1));
+  result.add(LineText(linefeed: 1));
+  for (var key in details.keys) {
+    if (details[key] == null) {
+      continue;
+    } else {
+      result.add(LineText(
+      type: LineText.TYPE_TEXT,
+      content: '$key: ${details[key]}',
+      weight: 1,
+      align: LineText.ALIGN_LEFT,
+      linefeed: 1));
+    }
+  }
+  result.add(LineText(
+      type: LineText.TYPE_TEXT,
+      content: '********************************',
+      weight: 1,
+      align: LineText.ALIGN_CENTER,
+      linefeed: 1));
+  return result;
+}

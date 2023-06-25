@@ -1,8 +1,8 @@
 import 'dart:io';
+import 'package:bluetooth_print/bluetooth_print_model.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:electricity_plus/services/cloud/cloud_customer.dart';
 import 'package:electricity_plus/services/cloud/cloud_customer_history.dart';
-import 'package:electricity_plus/services/cloud/operation/operation_state.dart';
 import 'package:file_picker/file_picker.dart';
 import 'package:flutter/foundation.dart';
 
@@ -158,9 +158,7 @@ class OperationEventInitialiseData extends OperationEvent {
   final PlatformFile? result;
   final bool submit;
   const OperationEventInitialiseData(
-    {required this.result,
-    required this.submit}
-  );
+      {required this.result, required this.submit});
 }
 
 class OperationEventInitialiseDataSubmission extends OperationEvent {
@@ -168,7 +166,33 @@ class OperationEventInitialiseDataSubmission extends OperationEvent {
   const OperationEventInitialiseDataSubmission({required this.result});
 }
 
-
 class OperationEventProduceExcel extends OperationEvent {
   const OperationEventProduceExcel();
+}
+
+class OperationEventAddNewTown extends OperationEvent {
+  final String townName;
+  final String token;
+  const OperationEventAddNewTown({
+    required this.townName,
+    required this.token,
+  });
+}
+
+class OperationEventDeleteTown extends OperationEvent {
+  final String townName;
+  final String token;
+  const OperationEventDeleteTown({
+    required this.token,
+    required this.townName,
+  });
+}
+
+class OperationEventChooseBluetooth extends OperationEvent {
+  const OperationEventChooseBluetooth();
+}
+
+class OperationEventPrintBill extends OperationEvent {
+  final List<LineText> printDetails;
+  const OperationEventPrintBill({required this.printDetails});
 }

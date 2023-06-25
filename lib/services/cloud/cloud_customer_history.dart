@@ -17,9 +17,10 @@ class CloudCustomerHistory {
   final num horsePowerPerUnitCostAtm;
   final num horsePowerUnits;
   final num meterMultiplier;
+  final num roadLightPrice;
   final bool isVoided;
   final bool isPaid;
-  final num roadLightPrice;
+  
 
 
   const CloudCustomerHistory({

@@ -91,9 +91,9 @@ class AdminView extends StatelessWidget {
               icon: Icons.download_outlined,
               text: "Produce Excel",
               onPressed: () {
-                context.read<OperationBloc>().add(
-                  const OperationEventProduceExcel()
-                );
+                context
+                    .read<OperationBloc>()
+                    .add(const OperationEventProduceExcel());
               },
             ),
             HomePageButton(
@@ -103,6 +103,15 @@ class AdminView extends StatelessWidget {
                 context.read<OperationBloc>().add(
                     const OperationEventInitialiseData(
                         result: null, submit: false));
+              },
+            ),
+            HomePageButton(
+              icon: Icons.home_work_outlined,
+              text: "Town",
+              onPressed: () {
+                context
+                    .read<OperationBloc>()
+                    .add(const OperationEventChooseTown());
               },
             ),
           ],

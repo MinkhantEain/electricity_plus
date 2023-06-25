@@ -1,5 +1,8 @@
+
+import 'package:bluetooth_print/bluetooth_print_model.dart';
 import 'package:electricity_plus/services/cloud/cloud_customer.dart';
 import 'package:electricity_plus/services/cloud/cloud_customer_history.dart';
+import 'package:electricity_plus/services/others/town.dart';
 import 'package:file_picker/file_picker.dart';
 import 'package:flutter/foundation.dart';
 
@@ -14,14 +17,19 @@ abstract class OperationState {
 }
 
 class OperationStateChooseTown extends OperationState {
+  final Iterable<Town> towns;
+  final Exception? exception;
   const OperationStateChooseTown({
     required bool isLoading,
+    required this.towns,
+    required this.exception,
   }) : super(isLoading: isLoading);
 }
 
 class OperationStateDefault extends OperationState {
   final String townName;
-  const OperationStateDefault({required this.townName}) : super(isLoading: false);
+  const OperationStateDefault({required this.townName})
+      : super(isLoading: false);
 }
 
 class OperationStateUninitialised extends OperationState {
@@ -40,12 +48,13 @@ class OperationStateSearchingCustomerReceipt extends OperationState {
 }
 
 class OperationStateGeneratingReceipt extends OperationState {
-  final String receiptDetails;
+  final List<LineText> receiptDetails;
   final Exception? exception;
   const OperationStateGeneratingReceipt({
+    required bool isLoading,
     required this.receiptDetails,
     required this.exception,
-  }) : super(isLoading: false);
+  }) : super(isLoading: isLoading);
 }
 
 class OperationStateSettingPrice extends OperationState {
@@ -179,4 +188,8 @@ class OperationStateProduceExcel extends OperationState {
     required isLoading,
     required this.exception,
   }) : super(isLoading: isLoading);
+}
+
+class OperationStateChooseBluetooth extends OperationState {
+  const OperationStateChooseBluetooth({required bool isLoading}) : super(isLoading: isLoading);
 }

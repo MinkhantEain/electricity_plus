@@ -1,3 +1,5 @@
+import 'package:bluetooth_print/bluetooth_print.dart';
+import 'package:bluetooth_print/bluetooth_print_model.dart';
 import 'package:electricity_plus/services/cloud/cloud_customer.dart';
 import 'package:electricity_plus/services/cloud/cloud_storage_constants.dart';
 import 'package:electricity_plus/services/cloud/cloud_storage_exceptions.dart';
@@ -15,7 +17,8 @@ class OperationBloc extends Bloc<OperationEvent, OperationState> {
   OperationBloc(FirebaseCloudStorage provider)
       : super(const OperationStateUninitialised(isLoading: true)) {
     on<OperationEventDefault>((event, emit) async {
-      emit(OperationStateDefault(townName: await AppDocumentData.getTownName()));
+      emit(
+          OperationStateDefault(townName: await AppDocumentData.getTownName()));
     });
 
     //customer receipt history implementation
@@ -35,20 +38,45 @@ class OperationBloc extends Bloc<OperationEvent, OperationState> {
     on<OperationEventReceiptGeneration>(
       (event, emit) async {
         Exception? exception;
-        String receiptDetails = 'Nothing to show';
+        List<LineText> billDetails;
         try {
-          receiptDetails = await provider.printReceipt(
+          billDetails = await provider.printBill(
             customer: event.customer,
             history: event.customerHistory,
           );
         } on CloudStorageException catch (e) {
           exception = e;
+          billDetails = [];
         }
 
         emit(OperationStateGeneratingReceipt(
-          receiptDetails: receiptDetails,
+          receiptDetails: billDetails,
+          isLoading: false,
           exception: exception,
         ));
+      },
+    );
+
+    on<OperationEventPrintBill>(
+      (event, emit) async {
+        emit(OperationStateGeneratingReceipt(
+            exception: null,
+            isLoading: true,
+            receiptDetails: event.printDetails));
+        Exception? exception;
+        Map<String, dynamic> config = {};
+
+        if (await BluetoothPrint.instance.isConnected ?? false) {
+          await BluetoothPrint.instance.printReceipt(config, event.printDetails);
+          
+        } else {
+          exception = PrinterNotConnectedException();
+        }
+
+        emit(OperationStateGeneratingReceipt(
+            exception: exception,
+            isLoading: false,
+            receiptDetails: event.printDetails));
       },
     );
 
@@ -235,7 +263,7 @@ class OperationBloc extends Bloc<OperationEvent, OperationState> {
             event.customer.documentId,
             event.image,
           );
-          await provider.voidCurrentMonthHistory(customer: event.customer);
+          await provider.voidCurrentMonthLastHistory(customer: event.customer);
           await provider.submitElectricLog(
               customer: event.customer,
               newReading: event.newReading,
@@ -253,7 +281,8 @@ class OperationBloc extends Bloc<OperationEvent, OperationState> {
             newReading: event.newReading,
           ));
         } else {
-          emit(OperationStateDefault(townName: await AppDocumentData.getTownName()));
+          emit(OperationStateDefault(
+              townName: await AppDocumentData.getTownName()));
         }
       },
     );
@@ -559,8 +588,79 @@ class OperationBloc extends Bloc<OperationEvent, OperationState> {
     );
 
     on<OperationEventChooseTown>(
-      (event, emit) {
-        emit(const OperationStateChooseTown(isLoading: false));
+      (event, emit) async {
+        emit(OperationStateChooseTown(
+          isLoading: true,
+          towns: await provider.getAllTown(),
+          exception: null,
+        ));
+        emit(OperationStateChooseTown(
+          isLoading: false,
+          towns: await provider.getAllTown(),
+          exception: null,
+        ));
+      },
+    );
+
+    on<OperationEventAddNewTown>(
+      (event, emit) async {
+        //loading when pressed
+        emit(const OperationStateChooseTown(
+          isLoading: true,
+          exception: null,
+          towns: [],
+        ));
+        final town = event.townName;
+        final token = event.token;
+        final serverToken = await provider.getServerToken;
+        Exception? exception;
+
+        try {
+          if (token != serverToken) {
+            dev.log('message');
+            throw InvalidTokenException();
+          }
+          await provider.addTown(town);
+        } on Exception catch (e) {
+          exception = e;
+        }
+        //
+        emit(OperationStateChooseTown(
+          isLoading: false,
+          towns: await provider.getAllTown(),
+          exception: exception,
+        ));
+      },
+    );
+
+    on<OperationEventDeleteTown>(
+      (event, emit) async {
+        //loading when pressed
+        emit(const OperationStateChooseTown(
+          isLoading: true,
+          exception: null,
+          towns: [],
+        ));
+        final town = event.townName;
+        final token = event.token;
+        final serverToken = await provider.getServerToken;
+        Exception? exception;
+
+        try {
+          if (token != serverToken) {
+            dev.log('message');
+            throw InvalidTokenException();
+          }
+          await provider.deleteTown(town);
+        } on Exception catch (e) {
+          exception = e;
+        }
+        //
+        emit(OperationStateChooseTown(
+          isLoading: false,
+          towns: await provider.getAllTown(),
+          exception: exception,
+        ));
       },
     );
 
@@ -571,11 +671,17 @@ class OperationBloc extends Bloc<OperationEvent, OperationState> {
           exception: null,
         ));
 
-        await createExcelSheet('test');
+        await createExcelSheet(await AppDocumentData.getTownName());
         emit(const OperationStateProduceExcel(
           isLoading: false,
           exception: null,
         ));
+      },
+    );
+
+    on<OperationEventChooseBluetooth>(
+      (event, emit) {
+        emit(const OperationStateChooseBluetooth(isLoading: false));
       },
     );
   }

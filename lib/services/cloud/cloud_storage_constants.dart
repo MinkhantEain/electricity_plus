@@ -15,6 +15,7 @@ const horsePowerUnitsField = 'HorsePowerUnits';
 const meterMultiplierField = 'MeterMultiplier';
 const adderField = 'Adder';
 const hasRoadLightCostField = 'hasRoadLightCost';
+const lastHistoryField = 'LastHistory';
 
 //Customer History Fields
 const previousUnitField = 'PreviousUnit';
@@ -39,6 +40,7 @@ const serviceChargeField = 'ServiceCharge';
 const horsePowerPerUnitCostField = 'HorsePowerPerUnitCost';
 const roadLightPriceField = 'RoadLightPrice';
 
+
 //collection path
 const customerDetailsCollection = 'CustomerDetails';
 const historyCollection = 'History';
@@ -47,3 +49,13 @@ const issueCollection = 'Issues';
 
 //doc path
 const priceDoc = 'PriceDoc';
+
+
+//Admin paths
+const adminCollection = 'Admin';
+const detailsDoc = 'Details';
+const passwordFields = 'Password';
+
+//Town path
+const townCollection = 'Towns';
+

@@ -3,6 +3,7 @@ import 'package:electricity_plus/services/cloud/operation/operation_bloc.dart';
 import 'package:electricity_plus/views/excel_produce_view.dart';
 import 'package:electricity_plus/views/operations/add_customer_view.dart';
 import 'package:electricity_plus/views/operations/admin_view.dart';
+import 'package:electricity_plus/views/operations/bluetooth_view.dart';
 import 'package:electricity_plus/views/operations/choose_town_view.dart';
 import 'package:electricity_plus/views/operations/flagged_customer_search.dart';
 import 'package:electricity_plus/views/operations/image_comment_view.dart';
@@ -73,6 +74,8 @@ class _OperationPageViewsState extends State<OperationPageViews> {
           return const ProduceExcelView();
         } else if (state is OperationStateChooseTown){
           return const ChooseTownView();
+        } else if(state is OperationStateChooseBluetooth) {
+          return const PrinterSelectView();
         } else {
           return const Scaffold();
         }

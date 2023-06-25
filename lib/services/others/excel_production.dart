@@ -1,11 +1,9 @@
-import 'dart:io';
+
 import 'package:electricity_plus/services/cloud/cloud_customer.dart';
 import 'package:electricity_plus/services/cloud/cloud_customer_history.dart';
 import 'package:electricity_plus/services/cloud/firebase_cloud_storage.dart';
 import 'package:electricity_plus/services/others/filestorage.dart';
 import 'package:excel/excel.dart';
-import 'package:firebase_storage/firebase_storage.dart';
-import 'package:path_provider/path_provider.dart';
 import 'dart:developer' as dev show log;
 
 void inputData(Sheet excelSheet, CellStyle style, int colIndex, int rowIndex,
@@ -130,7 +128,7 @@ Future<void> inputAllCustomerData(
     totalHorsePowerCost,
     totalCost,
   ];
-  addTotal(totalData, rowIndex + 1, excelSheet);
+  addTotal(totalData, rowIndex, excelSheet);
 }
 
 Future<void> createExcelSheet(String townName) async {

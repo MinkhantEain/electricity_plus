@@ -19,4 +19,6 @@ class AppDocumentData {
     File file = File('${dir.path}/townName.txt');
     file.writeAsString(townName);
   }
+
+  
 }
