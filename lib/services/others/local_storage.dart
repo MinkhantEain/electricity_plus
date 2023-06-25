@@ -6,11 +6,11 @@ class AppDocumentData {
   static Future<String> getTownName() async {
     final dir = await getApplicationDocumentsDirectory();
     File file = File('${dir.path}/townName.txt');
-    final lines = await file.readAsLines();
-    if (lines.isEmpty) {
-      return '';
-    } else {
+    try {
+      final lines = await file.readAsLines();
       return lines.first;
+    } on Exception catch(e) {
+      return 'Town Not Chosen';
     }
   }
 
