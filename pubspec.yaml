@@ -53,6 +53,11 @@ dependencies:
   path_provider: ^2.0.15
   permission_handler: ^10.3.0
   bluetooth_print: ^4.3.0
+  image: ^4.0.17
+  flutter_pos_printer_platform: ^1.4.1
+  screenshot: ^2.1.0
+  print_bluetooth_thermal: ^1.0.9
+  esc_pos_utils_plus: ^2.0.2
 
 dev_dependencies:
   flutter_test:

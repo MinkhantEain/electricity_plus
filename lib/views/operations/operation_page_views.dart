@@ -1,10 +1,13 @@
 import 'package:electricity_plus/helper/loading/loading_screen.dart';
+import 'package:electricity_plus/services/cloud/firebase_cloud_storage.dart';
 import 'package:electricity_plus/services/cloud/operation/operation_bloc.dart';
 import 'package:electricity_plus/views/excel_produce_view.dart';
 import 'package:electricity_plus/views/operations/add_customer_view.dart';
-import 'package:electricity_plus/views/operations/admin_view.dart';
+import 'package:electricity_plus/views/operations/admin/bloc/admin_bloc.dart';
+import 'package:electricity_plus/views/operations/admin/admin_view.dart';
 import 'package:electricity_plus/views/operations/bluetooth_view.dart';
-import 'package:electricity_plus/views/operations/choose_town_view.dart';
+import 'package:electricity_plus/views/operations/price_setting/bloc/set_price_bloc.dart';
+import 'package:electricity_plus/views/operations/town_selection/town_selection_frame.dart';
 import 'package:electricity_plus/views/operations/flagged_customer_search.dart';
 import 'package:electricity_plus/views/operations/image_comment_view.dart';
 import 'package:electricity_plus/views/operations/electric_log_search_view.dart';
@@ -17,7 +20,8 @@ import 'package:electricity_plus/views/operations/home_page_view.dart';
 import 'package:electricity_plus/views/operations/initialise_data_view.dart';
 import 'package:electricity_plus/views/operations/receipt_view.dart';
 import 'package:electricity_plus/views/operations/resolve_issue_view.dart';
-import 'package:electricity_plus/views/operations/set_price_view.dart';
+import 'package:electricity_plus/views/operations/price_setting/set_price_view.dart';
+import 'package:electricity_plus/views/operations/town_selection/bloc/town_selection_bloc.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
@@ -51,7 +55,10 @@ class _OperationPageViewsState extends State<OperationPageViews> {
         } else if (state is OperationStateGeneratingReceipt) {
           return const ReceiptView();
         } else if (state is OperationStateSettingPrice) {
-          return const SetPriceView();
+          return BlocProvider(
+            create: (context) => SetPriceBloc(FirebaseCloudStorage())..add(const SetPriceEventInitialise()),
+            child: const SetPriceView(),
+          );
         } else if (state is OperationStateElectricLogSearch) {
           return const ElectricLogSearchView();
         } else if (state is OperationStateFetchingCustomerReceiptHistory) {
@@ -67,18 +74,26 @@ class _OperationPageViewsState extends State<OperationPageViews> {
         } else if (state is OperationStateAddCustomer) {
           return const AddCustomerView();
         } else if (state is OperationStateAdminView) {
-          return const AdminView();
+          return BlocProvider(
+            create: (context) => AdminBloc(FirebaseCloudStorage())
+              ..add(const AdminEventCheckAuthorisation()),
+            child: const AdminView(),
+          );
         } else if (state is OperationStateInitialiseData) {
           return const InitialiseDataView();
         } else if (state is OperationStateProduceExcel) {
           return const ProduceExcelView();
-        } else if (state is OperationStateChooseTown){
-          return const ChooseTownView();
-        } else if(state is OperationStateChooseBluetooth) {
+        } else if (state is OperationStateChooseTown) {
+          return BlocProvider<TownSelectionBloc>(
+            create: (context) => TownSelectionBloc(FirebaseCloudStorage())
+              ..add(const TownSelectionInitialise()),
+            child: const TownSelectionFrame(),
+          );
+        } else if (state is OperationStateChooseBluetooth) {
           return const PrinterSelectView();
-        } else {
+        }  else {
           return const Scaffold();
-        }
+        } 
       },
     );
   }

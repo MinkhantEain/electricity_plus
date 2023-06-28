@@ -65,7 +65,6 @@ class OperationBloc extends Bloc<OperationEvent, OperationState> {
             receiptDetails: event.printDetails));
         Exception? exception;
         Map<String, dynamic> config = {};
-
         if (await BluetoothPrint.instance.isConnected ?? false) {
           await BluetoothPrint.instance.printReceipt(config, event.printDetails);
           
@@ -587,82 +586,23 @@ class OperationBloc extends Bloc<OperationEvent, OperationState> {
       },
     );
 
+
     on<OperationEventChooseTown>(
       (event, emit) async {
+        final towns = await provider.getAllTown();
         emit(OperationStateChooseTown(
           isLoading: true,
-          towns: await provider.getAllTown(),
+          towns: towns,
           exception: null,
         ));
         emit(OperationStateChooseTown(
           isLoading: false,
-          towns: await provider.getAllTown(),
+          towns: towns,
           exception: null,
         ));
       },
     );
 
-    on<OperationEventAddNewTown>(
-      (event, emit) async {
-        //loading when pressed
-        emit(const OperationStateChooseTown(
-          isLoading: true,
-          exception: null,
-          towns: [],
-        ));
-        final town = event.townName;
-        final token = event.token;
-        final serverToken = await provider.getServerToken;
-        Exception? exception;
-
-        try {
-          if (token != serverToken) {
-            dev.log('message');
-            throw InvalidTokenException();
-          }
-          await provider.addTown(town);
-        } on Exception catch (e) {
-          exception = e;
-        }
-        //
-        emit(OperationStateChooseTown(
-          isLoading: false,
-          towns: await provider.getAllTown(),
-          exception: exception,
-        ));
-      },
-    );
-
-    on<OperationEventDeleteTown>(
-      (event, emit) async {
-        //loading when pressed
-        emit(const OperationStateChooseTown(
-          isLoading: true,
-          exception: null,
-          towns: [],
-        ));
-        final town = event.townName;
-        final token = event.token;
-        final serverToken = await provider.getServerToken;
-        Exception? exception;
-
-        try {
-          if (token != serverToken) {
-            dev.log('message');
-            throw InvalidTokenException();
-          }
-          await provider.deleteTown(town);
-        } on Exception catch (e) {
-          exception = e;
-        }
-        //
-        emit(OperationStateChooseTown(
-          isLoading: false,
-          towns: await provider.getAllTown(),
-          exception: exception,
-        ));
-      },
-    );
 
     on<OperationEventProduceExcel>(
       (event, emit) async {

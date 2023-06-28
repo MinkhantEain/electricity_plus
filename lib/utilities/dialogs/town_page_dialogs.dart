@@ -1,7 +1,9 @@
 import 'package:electricity_plus/utilities/dialogs/generic_dialog.dart';
 import 'package:flutter/material.dart';
 
-Future<void> showTownChangeDialog(BuildContext context, String townName) async {
+
+
+Future<void> showTownSelected(BuildContext context, String townName) async {
    return showGenericDialog(
     context: context,
     title: 'Town Changed',
@@ -13,11 +15,11 @@ Future<void> showTownChangeDialog(BuildContext context, String townName) async {
 }
 
 
-Future<void> showTownDelete(BuildContext context) async {
+Future<void> showTownDelete(BuildContext context, String townName) async {
    return showGenericDialog(
     context: context,
     title: 'Town Deleted',
-    content: "The town has been deleted",
+    content: "The $townName has been deleted",
     optionsBuilder: () => {
       'OK' : null,
     },
@@ -27,8 +29,8 @@ Future<void> showTownDelete(BuildContext context) async {
 Future<void> showTownAdded(BuildContext context, String townName) async {
    return showGenericDialog(
     context: context,
-    title: 'Town Deleted',
-    content: "Town: $townName has been deleted",
+    title: 'Town Added',
+    content: "Town: $townName has been added",
     optionsBuilder: () => {
       'OK' : null,
     },

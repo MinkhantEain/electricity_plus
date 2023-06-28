@@ -25,6 +25,21 @@ class FirebaseCloudStorage {
 
   final firebaseStorage = FirebaseStorage.instance.ref();
 
+  Future<bool> isAdminPersonnel(String uid) async {
+    return FirebaseFirestore.instance
+        .collection('AdminPersonnelList')
+        .doc(uid)
+        .get()
+        .then((DocumentSnapshot doc) {
+      if (doc.data() != null) {
+        final snapshot = doc.data() as Map<String, dynamic>;
+        return snapshot['AdminPage'];
+      } else {
+        return false;
+      }
+    }, onError: (_) => false);
+  }
+
   Future<String> get getServerToken => FirebaseFirestore.instance
           .collection('Admin')
           .doc('Details')
@@ -124,6 +139,9 @@ class FirebaseCloudStorage {
     required String priceChangeField,
   }) async {
     try {
+      if (!isIntInput(newPrice)) {
+        throw CouldNotSetPriceException();
+      }
       num? parsedNewPrice = num.tryParse(newPrice);
       final serverToken = await getServerToken;
       if (token != serverToken) {
@@ -131,7 +149,7 @@ class FirebaseCloudStorage {
       } else if (parsedNewPrice != null && parsedNewPrice != 0) {
         await priceCollectionDoc.update({priceChangeField: parsedNewPrice});
       } else {
-        throw CouldNotSetServiceChargeException();
+        throw CouldNotSetPriceException();
       }
     } catch (e) {
       rethrow;
@@ -142,43 +160,31 @@ class FirebaseCloudStorage {
     return token == await getServerToken;
   }
 
-  Future<void> setServiceCharge(String newServiceCharge, String token) async {
-    try {
-      num? parsedNewServiceCharge = num.tryParse(newServiceCharge);
-      final serverToken = await getServerToken;
-      if (token != serverToken) {
-        throw UnAuthorizedPriceSetException();
-      } else if (parsedNewServiceCharge != null &&
-          parsedNewServiceCharge != 0) {
-        await priceCollectionDoc
-            .update({serviceChargeField: parsedNewServiceCharge});
-      } else {
-        throw CouldNotSetServiceChargeException();
-      }
-    } catch (e) {
-      rethrow;
-    }
-  }
 
   Future<List<LineText>> printBill({
     required CloudCustomer customer,
     required CloudCustomerHistory history,
   }) async {
     Map<String, String?> map = {
-      'documentId' : history.documentId,
-      dateField : history.date,
-      bookIdField : customer.bookId,
-      nameField : customer.name,
-      addressField : customer.address,
-      meterIdField : customer.meterId,
-      previousUnitField : history.previousUnit.toString(),
-      newUnitField : history.newUnit.toString(),
-      serviceChargeAtmField : history.serviceChargeAtm.toString(),
-      horsePowerUnitsField : customer.horsePowerUnits == 0 ? null : (history.horsePowerUnits * history.horsePowerPerUnitCostAtm).toString(),
-      roadLightPriceField : customer.hasRoadLightCost ? history.roadLightPrice.toString() : null, 
-      meterMultiplierField : customer.meterMultiplier == 1 ? null : customer.meterMultiplier.toString(),
-      costField : (await calculateCost(customer, history.newUnit)).toString(),
-
+      'documentId': history.documentId,
+      dateField: history.date,
+      bookIdField: customer.bookId,
+      nameField: customer.name,
+      addressField: customer.address,
+      meterIdField: customer.meterId,
+      previousUnitField: history.previousUnit.toString(),
+      newUnitField: history.newUnit.toString(),
+      serviceChargeAtmField: history.serviceChargeAtm.toString(),
+      horsePowerUnitsField: customer.horsePowerUnits == 0
+          ? null
+          : (history.horsePowerUnits * history.horsePowerPerUnitCostAtm)
+              .toString(),
+      roadLightPriceField:
+          customer.hasRoadLightCost ? history.roadLightPrice.toString() : null,
+      meterMultiplierField: customer.meterMultiplier == 1
+          ? null
+          : customer.meterMultiplier.toString(),
+      costField: (await calculateCost(customer, history.newUnit)).toString(),
     };
     dev.log("print receipt is executed");
     return (await printBillHelper(map));

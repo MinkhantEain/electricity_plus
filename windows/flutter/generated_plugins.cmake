@@ -5,6 +5,8 @@
 list(APPEND FLUTTER_PLUGIN_LIST
   file_selector_windows
   firebase_core
+  flutter_pos_printer_platform
+  network_info_plus
   permission_handler_windows
   share_plus
   url_launcher_windows

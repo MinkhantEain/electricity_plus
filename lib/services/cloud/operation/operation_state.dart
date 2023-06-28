@@ -26,6 +26,7 @@ class OperationStateChooseTown extends OperationState {
   }) : super(isLoading: isLoading);
 }
 
+
 class OperationStateDefault extends OperationState {
   final String townName;
   const OperationStateDefault({required this.townName})

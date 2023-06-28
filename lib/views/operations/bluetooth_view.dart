@@ -1,9 +1,18 @@
+import 'dart:convert';
+import 'dart:typed_data';
+import 'dart:developer' as dev show log;
 import 'package:bluetooth_print/bluetooth_print.dart';
 import 'package:bluetooth_print/bluetooth_print_model.dart';
 import 'package:electricity_plus/services/cloud/operation/operation_bloc.dart';
 import 'package:electricity_plus/services/cloud/operation/operation_event.dart';
+import 'package:esc_pos_utils_plus/esc_pos_utils.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:flutter_pos_printer_platform/flutter_pos_printer_platform.dart';
+import 'package:image/image.dart';
+import 'package:print_bluetooth_thermal/print_bluetooth_thermal.dart';
+import 'package:screenshot/screenshot.dart';
 
 class PrinterSelectView extends StatefulWidget {
   const PrinterSelectView({super.key});
@@ -14,6 +23,7 @@ class PrinterSelectView extends StatefulWidget {
 
 class _PrinterSelectViewState extends State<PrinterSelectView> {
   BluetoothPrint bluetoothPrint = BluetoothPrint.instance;
+  ScreenshotController screenshotController = ScreenshotController();
 
   bool _connected = false;
   BluetoothDevice? _device;
@@ -22,8 +32,13 @@ class _PrinterSelectViewState extends State<PrinterSelectView> {
   @override
   void initState() {
     WidgetsBinding.instance.addPostFrameCallback((_) => initBluetooth());
-    
+
     super.initState();
+  }
+
+  @override
+  void dispose() {
+    super.dispose();
   }
 
   Future<void> initBluetooth() async {
@@ -61,86 +76,18 @@ class _PrinterSelectViewState extends State<PrinterSelectView> {
 
   Future<void> printReceipt() async {
     Map<String, dynamic> config = Map();
-
-    List<LineText> list = [];
-
-    list.add(LineText(
-        type: LineText.TYPE_TEXT,
-        content: '**********************************************',
-        weight: 1,
-        align: LineText.ALIGN_CENTER,
-        linefeed: 1));
-    list.add(LineText(
-        type: LineText.TYPE_TEXT,
-        content: 'hello',
-        weight: 1,
-        align: LineText.ALIGN_CENTER,
-        fontZoom: 2,
-        linefeed: 1));
-    list.add(LineText(linefeed: 1));
-
-    list.add(LineText(
-        type: LineText.TYPE_TEXT,
-        content: '------------------------------------------',
-        weight: 1,
-        align: LineText.ALIGN_CENTER,
-        linefeed: 1));
-    list.add(LineText(
-        type: LineText.TYPE_TEXT,
-        content: 'dfasdf',
-        weight: 1,
-        align: LineText.ALIGN_LEFT,
-        x: 0,
-        relativeX: 0,
-        linefeed: 0));
-    list.add(LineText(
-        type: LineText.TYPE_TEXT,
-        content: 'asdf',
-        weight: 1,
-        align: LineText.ALIGN_LEFT,
-        x: 350,
-        relativeX: 0,
-        linefeed: 0));
-    list.add(LineText(
-        type: LineText.TYPE_TEXT,
-        content: 'afdsfad',
-        weight: 1,
-        align: LineText.ALIGN_LEFT,
-        x: 500,
-        relativeX: 0,
-        linefeed: 1));
-
-    list.add(LineText(
-        type: LineText.TYPE_TEXT,
-        content: 'agadsdcds',
-        align: LineText.ALIGN_LEFT,
-        x: 0,
-        relativeX: 0,
-        linefeed: 0));
-    list.add(LineText(
-        type: LineText.TYPE_TEXT,
-        content: 'adacdsac',
-        align: LineText.ALIGN_LEFT,
-        x: 350,
-        relativeX: 0,
-        linefeed: 0));
-    list.add(LineText(
-        type: LineText.TYPE_TEXT,
-        content: '12.0',
-        align: LineText.ALIGN_LEFT,
-        x: 500,
-        relativeX: 0,
-        linefeed: 1));
-
-    list.add(LineText(
-        type: LineText.TYPE_TEXT,
-        content: '**********************************************',
-        weight: 1,
-        align: LineText.ALIGN_CENTER,
-        linefeed: 1));
-    list.add(LineText(linefeed: 1));
-
-    await bluetoothPrint.printReceipt(config, list);
+    List<LineText> list1 = [];
+    ByteData data = await rootBundle.load("assets/images/electric.png");
+    List<int> imageBytes =
+        data.buffer.asUint8List(data.offsetInBytes, data.lengthInBytes);
+    String base64Image = base64Encode(imageBytes);
+    list1.add(LineText(
+      type: LineText.TYPE_IMAGE,
+      x: 10,
+      y: 10,
+      content: base64Image,
+    ));
+    await bluetoothPrint.printLabel(config, list1);
   }
 
   @override
@@ -260,9 +207,11 @@ class _PrinterSelectViewState extends State<PrinterSelectView> {
                     ),
                     const Divider(),
                     OutlinedButton(
-                      onPressed: _connected ? () async {
-                        await printReceipt();
-                      } : null,
+                      onPressed: _connected
+                          ? () async {
+                              await printReceipt();
+                            }
+                          : null,
                       child: const Text('print receipt'),
                     ),
                   ],

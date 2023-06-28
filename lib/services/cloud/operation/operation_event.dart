@@ -11,6 +11,7 @@ abstract class OperationEvent {
   const OperationEvent();
 }
 
+
 class OperationEventChooseTown extends OperationEvent {
   const OperationEventChooseTown();
 }

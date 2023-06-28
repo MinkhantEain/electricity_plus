@@ -68,6 +68,11 @@ Future<List<LineText>> printBillHelper(Map<String, String?> details) async {
       align: LineText.ALIGN_CENTER,
       linefeed: 1));
   result.add(LineText(
+      type: LineText.TYPE_IMAGE,
+      content: 'dfs',
+      align: LineText.ALIGN_CENTER,
+      linefeed: 1));
+  result.add(LineText(
       type: LineText.TYPE_TEXT,
       content: town,
       weight: 1,
@@ -79,11 +84,11 @@ Future<List<LineText>> printBillHelper(Map<String, String?> details) async {
       continue;
     } else {
       result.add(LineText(
-      type: LineText.TYPE_TEXT,
-      content: '$key: ${details[key]}',
-      weight: 1,
-      align: LineText.ALIGN_LEFT,
-      linefeed: 1));
+          type: LineText.TYPE_TEXT,
+          content: '$key: ${details[key]}',
+          weight: 1,
+          align: LineText.ALIGN_LEFT,
+          linefeed: 1));
     }
   }
   result.add(LineText(
