@@ -78,10 +78,10 @@ class AdminView extends StatelessWidget {
                 )
               ],
             ),
-            body: Padding(
-              padding: const EdgeInsets.all(0.0),
-              child: Column(
-                mainAxisAlignment: MainAxisAlignment.center,
+            body: 
+            GridView.count(
+            padding: const EdgeInsets.all(10),
+            crossAxisCount: 3,
                 children: [
                   HomePageButton(
                     icon: Icons.price_change_outlined,
@@ -136,7 +136,6 @@ class AdminView extends StatelessWidget {
                     },
                   ),
                 ],
-              ),
             ),
           );
         

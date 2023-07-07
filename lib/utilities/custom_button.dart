@@ -23,36 +23,74 @@ Widget CustomButton({
   );
 }
 
+// Container HomePageButton(
+//     {
+//     required IconData icon,
+//     required String text,
+//     required VoidCallback onPressed}) {
+//   return Container(
+//     padding: const EdgeInsets.all(30.0),
+//     child: SizedBox(
+//       width: double.infinity,
+//       height: 60,
+//       child: ElevatedButton(
+//         onPressed: onPressed,
+//         child:  Row(
+//           mainAxisAlignment: MainAxisAlignment.start,
+//           children: [
+//             const SizedBox(
+//               width: 10,
+//             ),
+//             Icon(
+//               icon,
+//               color: Colors.black54,
+//               size: 40,
+//             ),
+//             const SizedBox(
+//               width: 10,
+//             ),
+//             Text(
+//               text,
+//               style: const TextStyle(fontSize: 20),
+//             ),
+//           ],
+//         ),
+//       ),
+//     ),
+//   );
+// }
 Container HomePageButton(
     {
     required IconData icon,
     required String text,
     required VoidCallback onPressed}) {
   return Container(
-    padding: const EdgeInsets.all(30.0),
+    padding: const EdgeInsets.all(10.0),
     child: SizedBox(
-      width: double.infinity,
-      height: 60,
       child: ElevatedButton(
         onPressed: onPressed,
-        child:  Row(
-          mainAxisAlignment: MainAxisAlignment.start,
+        child:  Column(
+          // crossAxisAlignment: CrossAxisAlignment.center,
+          mainAxisAlignment: MainAxisAlignment.spaceEvenly,
           children: [
             const SizedBox(
-              width: 10,
+              // width: 10,
             ),
             Icon(
               icon,
               color: Colors.black54,
-              size: 40,
+              // size: 40,
             ),
             const SizedBox(
-              width: 10,
+              // width: 10,
             ),
-            Text(
+            Container(
+              alignment: Alignment.center,
+              child:Text(
               text,
-              style: const TextStyle(fontSize: 20),
-            ),
+              textAlign: TextAlign.center,
+              // style: const TextStyle(fontSize: 20),
+            )),
           ],
         ),
       ),
