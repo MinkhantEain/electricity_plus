@@ -43,6 +43,12 @@ class OperationBloc extends Bloc<OperationEvent, OperationState> {
           customer: event.customer, history: event.customerHistory));
     });
 
+    on<OperationEventBillHistory>(
+      (event, emit) {
+        emit(const OperationStateBillHistory());
+      },
+    );
+
     on<OperationEventCustomerHistorySearch>(
       (event, emit) async {
         if (!event.isSearching) {
@@ -104,7 +110,7 @@ class OperationBloc extends Bloc<OperationEvent, OperationState> {
         } else {
           Exception? exception;
           try {
-            await provider.resolveIssue(
+            await provider.resolveRedFlag(
               customer: event.customer,
               comment: event.newComment,
             );
@@ -211,43 +217,9 @@ class OperationBloc extends Bloc<OperationEvent, OperationState> {
       },
     );
 
-    // on<OperationEventLogSubmission>(
-    //   (event, emit) async {
-    //     emit(OperationStateImageCommentFlag(
-    //       customer: event.customer,
-    //       isLoading: true,
-    //       exception: null,
-    //       newReading: event.newReading,
-    //     ));
-    //     Exception? exception;
-    //     try {
-    //       final imgUrl = await provider.storeImage(
-    //         event.customer.documentId,
-    //         event.image,
-    //       );
-    //       await provider.voidCurrentMonthLastHistory(customer: event.customer);
-    //       await provider.submitElectricLog(
-    //           customer: event.customer,
-    //           newReading: event.newReading,
-    //           comment: event.comment,
-    //           imageUrl: imgUrl,
-    //           flag: event.flag);
-    //     } on CloudStorageException catch (e) {
-    //       exception = e;
-    //     }
-    //     if (exception != null) {
-    //       emit(OperationStateImageCommentFlag(
-    //         customer: event.customer,
-    //         isLoading: false,
-    //         exception: exception,
-    //         newReading: event.newReading,
-    //       ));
-    //     } else {
-    //       emit(OperationStateDefault(
-    //           townName: await AppDocumentData.getTownName()));
-    //     }
-    //   },
-    // );
+    on<OperationEventFlagged>((event, emit) {
+      emit(const OperationStateFlagged());
+    },);
 
     on<OperationEventElectricLog>(
       (event, emit) async {
@@ -384,7 +356,7 @@ class OperationBloc extends Bloc<OperationEvent, OperationState> {
             filePath: '',
             fileSize: '',
           ));
-
+          await provider.initialisePrices();
           emit(OperationStateInitialiseData(
             isLoading: false,
             exception: null,

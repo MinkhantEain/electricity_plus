@@ -7,16 +7,40 @@ abstract class CustomerSearchEvent extends Equatable {
   List<Object> get props => [];
 }
 
-class CustomerSearch extends CustomerSearchEvent {
+class CustomerSearchEventSearch extends CustomerSearchEvent {
   final String userInput;
-  const CustomerSearch({required this.userInput});
+  final ContextCallBack onTap;
+  final String pageName;
+  const CustomerSearchEventSearch({
+    required this.userInput,
+    required this.onTap,
+    required this.pageName,
+  });
 }
 
-class CustomerSearchReset extends CustomerSearchEvent {
-  const CustomerSearchReset();
+class CustomerSearchMeterReadSearchInitialise extends CustomerSearchEvent {
+  const CustomerSearchMeterReadSearchInitialise();
+}
+
+class CustomerSearchSelectMeterRead extends CustomerSearchEvent {
+  final CloudCustomer customer;
+  const CustomerSearchSelectMeterRead({required this.customer});
+}
+
+class CustomerSearchBillHistorySearchInitialise extends CustomerSearchEvent {
+  const CustomerSearchBillHistorySearchInitialise();
+}
+
+class CustomerSearchSelectBillHistory extends CustomerSearchEvent {
+  final CloudCustomer customer;
+  const CustomerSearchSelectBillHistory({required this.customer});
 }
 
 class CustomerSearchCustomerSelectedEvent extends CustomerSearchEvent {
   final CloudCustomer customer;
   const CustomerSearchCustomerSelectedEvent({required this.customer});
+}
+
+class FLaggedCustomerListSearchEvent extends CustomerSearchEvent {
+  const FLaggedCustomerListSearchEvent();
 }

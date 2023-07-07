@@ -4,25 +4,23 @@ import 'package:electricity_plus/services/cloud/operation/operation_bloc.dart';
 import 'package:electricity_plus/views/excel_produce_view.dart';
 import 'package:electricity_plus/views/operations/add_customer/add_customer_view.dart';
 import 'package:electricity_plus/views/operations/add_customer/bloc/add_customer_bloc.dart';
-import 'package:electricity_plus/views/operations/admin/bloc/admin_bloc.dart';
-import 'package:electricity_plus/views/operations/admin/admin_view.dart';
 import 'package:electricity_plus/views/operations/bill_receipt/bloc/bill_receipt_bloc.dart';
+import 'package:electricity_plus/views/operations/flagged/bloc/flagged_bloc.dart';
+import 'package:electricity_plus/views/operations/flagged/flagged_view.dart';
+import 'package:electricity_plus/views/operations/management/admin_view.dart';
+import 'package:electricity_plus/views/operations/management/bloc/admin_bloc.dart';
+import 'package:electricity_plus/views/operations/management/price_setting/bloc/set_price_bloc.dart';
+import 'package:electricity_plus/views/operations/management/price_setting/set_price_view.dart';
+import 'package:electricity_plus/views/operations/management/town_selection/bloc/town_selection_bloc.dart';
+import 'package:electricity_plus/views/operations/management/town_selection/town_selection_frame.dart';
 import 'package:electricity_plus/views/operations/printer_select_view.dart';
 import 'package:electricity_plus/views/operations/customer_search/bloc/customer_search_bloc.dart';
-import 'package:electricity_plus/views/operations/price_setting/bloc/set_price_bloc.dart';
-import 'package:electricity_plus/views/operations/resolve_issue/bloc/resolve_issue_bloc.dart';
-import 'package:electricity_plus/views/operations/town_selection/town_selection_frame.dart';
-import 'package:electricity_plus/views/operations/flagged_customer_search.dart';
-import 'package:electricity_plus/views/operations/customer_search/electric_log_search_view.dart';
+import 'package:electricity_plus/views/operations/customer_search/customer_search_view.dart';
 import 'package:electricity_plus/services/cloud/operation/operation_event.dart';
 import 'package:electricity_plus/services/cloud/operation/operation_state.dart';
-import 'package:electricity_plus/views/operations/customer_receipt_history_list_view.dart';
 import 'package:electricity_plus/views/operations/home_page_view.dart';
 import 'package:electricity_plus/views/operations/initialise_data_view.dart';
 import 'package:electricity_plus/views/operations/bill_receipt/bill_view.dart';
-import 'package:electricity_plus/views/operations/resolve_issue_view.dart';
-import 'package:electricity_plus/views/operations/price_setting/set_price_view.dart';
-import 'package:electricity_plus/views/operations/town_selection/bloc/town_selection_bloc.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
@@ -64,19 +62,17 @@ class _OperationPageViewsState extends State<OperationPageViews> {
               ..add(const SetPriceEventInitialise()),
             child: const SetPriceView(),
           );
+        } else if (state is OperationStateBillHistory) {
+          return BlocProvider(
+            create: (context) => CustomerSearchBloc(FirebaseCloudStorage())
+              ..add(const CustomerSearchBillHistorySearchInitialise()),
+            child: const CustomerSearchView(),
+          );
         } else if (state is OperationStateElectricLogSearch) {
           return BlocProvider(
-            create: (context) => CustomerSearchBloc(FirebaseCloudStorage()),
-            child: const ElectricLogSearchView(),
-          );
-        } else if (state is OperationStateFetchingCustomerHistory) {
-          return const CustomerHistoryList();
-        } else if (state is OpeartionStateFlagCustomerSearch) {
-          return const FlaggedCustomerSearchView();
-        } else if (state is OperationStateResolveIssue) {
-          return BlocProvider(
-            create: (context) => ResolveIssueBloc(FirebaseCloudStorage()),
-            child: const ResolveIssueView(),
+            create: (context) => CustomerSearchBloc(FirebaseCloudStorage())
+              ..add(const CustomerSearchMeterReadSearchInitialise()),
+            child: const CustomerSearchView(),
           );
         } else if (state is OperationStateAddCustomer) {
           return BlocProvider(
@@ -103,6 +99,11 @@ class _OperationPageViewsState extends State<OperationPageViews> {
           return BlocProvider(
             create: (context) => BillReceiptBloc(FirebaseCloudStorage()),
             child: const PrinterSelectView(),
+          );
+        } else if (state is OperationStateFlagged) {
+          return BlocProvider(
+            create: (context) => FlaggedBloc(FirebaseCloudStorage()),
+            child: const FlaggedView(),
           );
         } else if (state is OperationStatePayment) {
           return BlocProvider(

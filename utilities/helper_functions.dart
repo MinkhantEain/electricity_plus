@@ -66,6 +66,8 @@ String paymentDueDate(String meterReadDate) {
   return result;
 }
 
+// String billPaymentDueDate(String m)
+
 ///change from 2023/01/23 to Jan 2023
 String monthYearWordFormat(String date) {
   final month = date.substring(5, 7);
@@ -142,13 +144,18 @@ Future printBillReceipt(Uint8List capturedImage, PrinterManager printerManager,
   final decodedImage = img.decodeImage(capturedImage)!;
   // Create a black bottom layer
   // Resize the image to a 130x? thumbnail (maintaining the aspect ratio).
-  img.Image thumbnail = img.copyResize(decodedImage, width: 380, height: 1800);
+  // img.Image thumbnail = img.copyResize(decodedImage, width: 380, height: 1800);
+  img.Image thumbnail = img.copyResize(decodedImage, width: 400);
   // creates a copy of the original image with set dimensions
   //width 380 is max for 58 mm
+  // img.Image originalImg = img.copyResize(
+  //   decodedImage,
+  //   width: 380,
+  //   height: 1820,
+  // );
   img.Image originalImg = img.copyResize(
     decodedImage,
-    width: 380,
-    height: 1820,
+    width: 400,
   );
   // img.Image originalImg = img.copyResize(decodedImage, width: 380, height: 130);
   // fills the original image with a white background
@@ -176,13 +183,18 @@ Future printReceipt(
   final decodedImage = img.decodeImage(capturedImage)!;
   // Create a black bottom layer
   // Resize the image to a 130x? thumbnail (maintaining the aspect ratio).
-  img.Image thumbnail = img.copyResize(decodedImage, width: 380, height: 380);
+  // img.Image thumbnail = img.copyResize(decodedImage, width: 380, height: 380);
+  img.Image thumbnail = img.copyResize(decodedImage, width: 400);
   // creates a copy of the original image with set dimensions
   //width 380 is max for 58 mm
+  // img.Image originalImg = img.copyResize(
+  //   decodedImage,
+  //   width: 380,
+  //   height: 380,
+  // );
   img.Image originalImg = img.copyResize(
     decodedImage,
-    width: 380,
-    height: 380,
+    width: 400
   );
   // img.Image originalImg = img.copyResize(decodedImage, width: 380, height: 130);
   // fills the original image with a white background

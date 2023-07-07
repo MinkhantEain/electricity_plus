@@ -8,6 +8,7 @@ abstract class AuthProvider {
   });
   Future<AuthUser> createUser({
     required String email,
+    required String name,
     required String password,
     required String passwordReEntry,
   });

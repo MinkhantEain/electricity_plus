@@ -16,6 +16,7 @@ class CloudReceipt {
   final num meterAllowance;
   final num priceAtm;
   final num initialCost;
+  final num finalCost;
 
   const CloudReceipt({
     required this.documentId,
@@ -32,6 +33,7 @@ class CloudReceipt {
     required this.meterAllowance,
     required this.priceAtm,
     required this.initialCost,
+    required this.finalCost,
   });
 
   String customerDocRefPath() {
@@ -57,7 +59,8 @@ class CloudReceipt {
         townName = snapshot.data()[townNameField],
         meterAllowance = snapshot.data()[meterAllowanceField],
         priceAtm = snapshot.data()[priceAtmField],
-        initialCost = snapshot.data()[initialCostField];
+        initialCost = snapshot.data()[initialCostField],
+        finalCost = snapshot.data()[finalCostField];
 
   CloudReceipt.fromDocSnapshot(DocumentSnapshot<Map<String, dynamic>> snapshot)
       : documentId = snapshot.id,
@@ -73,7 +76,8 @@ class CloudReceipt {
         townName = snapshot.data()![townNameField],
         priceAtm = snapshot.data()![priceAtmField],
         meterAllowance = snapshot.data()![meterAllowanceField],
-        initialCost = snapshot.data()![initialCostField];
+        initialCost = snapshot.data()![initialCostField],
+        finalCost = snapshot.data()![finalCostField];
 
   String costOutputType() {
     return meterAllowance == 0 ? 'Cost' : 'Final Cost';
@@ -112,6 +116,7 @@ class CloudReceipt {
     priceAtm = $priceAtm
     meterAllowance = $meterAllowance
     initialCost = $initialCost
+    finalCost = $finalCost
     """;
   }
 }

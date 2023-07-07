@@ -12,10 +12,12 @@ class AuthService implements AuthProvider {
   Future<AuthUser> createUser({
     required String email,
     required String password,
-    required String passwordReEntry
+    required String passwordReEntry,
+    required String name,
   }) =>
       provider.createUser(
         email: email,
+        name: name,
         password: password,
         passwordReEntry: passwordReEntry,
       );

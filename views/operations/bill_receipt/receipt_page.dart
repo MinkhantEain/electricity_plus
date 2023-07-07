@@ -45,11 +45,11 @@ class _ReceiptPageState extends State<ReceiptPage> {
                     children: [
                       const Text(
                         'Phoe Thee Cho Co.,Ltd',
-                        style: TextStyle(fontSize: 15),
+                        style: TextStyle(fontSize: 15, fontWeight: FontWeight.w900),
                       ),
                       Text(
                         state.receipt.townName,
-                        style: const TextStyle(fontSize: 15),
+                        style: const TextStyle(fontSize: 15, fontWeight: FontWeight.w500),
                       ),
                       Row(
                         mainAxisAlignment: MainAxisAlignment.center,
@@ -60,21 +60,21 @@ class _ReceiptPageState extends State<ReceiptPage> {
                           ),
                           const Text(
                             'ငွေရပြေစာ',
-                            style: TextStyle(fontSize: 15),
+                            style: TextStyle(fontSize: 15, fontWeight: FontWeight.w500),
                           ),
                         ],
                       ),
                       Text(
                         state.receipt.customerName,
-                        style: const TextStyle(fontSize: 15),
+                        style: const TextStyle(fontSize: 15, fontWeight: FontWeight.w500),
                       ),
                       Text(
                         state.receipt.bookId,
-                        style: const TextStyle(fontSize: 15),
+                        style: const TextStyle(fontSize: 15, fontWeight: FontWeight.w500),
                       ),
                       Text(
                         state.receipt.transactionDate,
-                        style: const TextStyle(fontSize: 15),
+                        style: const TextStyle(fontSize: 15, fontWeight: FontWeight.w500),
                       ),
                       Padding(
                         padding: const EdgeInsets.fromLTRB(10, 0, 10, 0),
@@ -87,36 +87,36 @@ class _ReceiptPageState extends State<ReceiptPage> {
                               children: [
                                 const Text(
                                   'Cash Collected by',
-                                  style: TextStyle(fontSize: 15),
+                                  style: TextStyle(fontSize: 15, fontWeight: FontWeight.w500),
                                 ),
                                 const Text(
                                   'Meter Read Date',
-                                  style: TextStyle(fontSize: 15),
+                                  style: TextStyle(fontSize: 15, fontWeight: FontWeight.w500),
                                 ),
                                 const Text(
                                   'Last Date',
-                                  style: TextStyle(fontSize: 15),
+                                  style: TextStyle(fontSize: 15, fontWeight: FontWeight.w500),
                                 ),
                                 const Text(
                                   'Receipt No.',
-                                  style: TextStyle(fontSize: 15),
+                                  style: TextStyle(fontSize: 15, fontWeight: FontWeight.w500),
                                 ),
                                 const Text(
                                   'Bill No.',
-                                  style: TextStyle(fontSize: 15),
+                                  style: TextStyle(fontSize: 15, fontWeight: FontWeight.w500),
                                 ),
                                 Visibility(
                                     visible:
                                         (state.receipt.meterAllowance != 0),
                                     child: const Text(
                                       'Meter Allowance',
-                                      style: TextStyle(fontSize: 15),
+                                      style: TextStyle(fontSize: 15, fontWeight: FontWeight.w500),
                                     )),
                                 Visibility(
                                   visible: (state.receipt.meterAllowance != 0),
                                   child: const Text(
                                     'Initial Cost',
-                                    style: TextStyle(fontSize: 15),
+                                    style: TextStyle(fontSize: 15, fontWeight: FontWeight.w500),
                                   ),
                                 ),
                                 Text(state.receipt.costOutputType()),
@@ -128,29 +128,29 @@ class _ReceiptPageState extends State<ReceiptPage> {
                               children: [
                                 Text(
                                   state.receipt.collectorName,
-                                  style: const TextStyle(fontSize: 15),
+                                  style: const TextStyle(fontSize: 15, fontWeight: FontWeight.w500),
                                 ),
                                 Text(
                                   state.receipt.meterReadDate,
-                                  style: const TextStyle(fontSize: 15),
+                                  style: const TextStyle(fontSize: 15, fontWeight: FontWeight.w500),
                                 ),
                                 Text(
                                   state.receipt.paymentDueDate,
-                                  style: const TextStyle(fontSize: 15),
+                                  style: const TextStyle(fontSize: 15, fontWeight: FontWeight.w500),
                                 ),
                                 Text(
                                   state.receipt.receiptNo(),
-                                  style: const TextStyle(fontSize: 15),
+                                  style: const TextStyle(fontSize: 15, fontWeight: FontWeight.w500),
                                 ),
                                 Text(
                                   state.receipt.documentId,
-                                  style: const TextStyle(fontSize: 15),
+                                  style: const TextStyle(fontSize: 15, fontWeight: FontWeight.w500),
                                 ),
                                 Visibility(
                                   visible: (state.receipt.meterAllowance != 0),
                                   child: Text(
                                     state.receipt.meterAllowance.toString(),
-                                    style: const TextStyle(fontSize: 15),
+                                    style: const TextStyle(fontSize: 15, fontWeight: FontWeight.w500),
                                   ),
                                 ),
                                 Text(state.receipt.initialCost.toString()),
@@ -158,7 +158,7 @@ class _ReceiptPageState extends State<ReceiptPage> {
                                   visible: (state.receipt.meterAllowance != 0),
                                   child: Text(
                                     state.receipt.finalCostCalculation(),
-                                    style: const TextStyle(fontSize: 15),
+                                    style: const TextStyle(fontSize: 15, fontWeight: FontWeight.w500),
                                   ),
                                 ),
                               ],
@@ -170,7 +170,7 @@ class _ReceiptPageState extends State<ReceiptPage> {
                   ),
                 ),
                 SizedBox(
-                  width: MediaQuery.of(context).size.width / 4,
+                  width: MediaQuery.of(context).size.width / 3.2,
                   child: ElevatedButton(
                     onPressed: () async {
                       screenshotController
@@ -189,8 +189,11 @@ class _ReceiptPageState extends State<ReceiptPage> {
                         }
                       });
                     },
-                    child: const Row(children: [
+                    child: const Row(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [
                       Icon(Icons.print_outlined),
+                      SizedBox(width: 2,),
                       Text('Print'),
                     ]),
                   ),

@@ -53,6 +53,14 @@ class OperationStateGeneratingBill extends OperationState {
       : super(isLoading: false);
 }
 
+class OperationStateBillHistory extends OperationState {
+  const OperationStateBillHistory() : super(isLoading: false);
+}
+
+class OperationStateFlagged extends OperationState {
+  const OperationStateFlagged() : super(isLoading: false);
+}
+
 class OperationStateSettingPrice extends OperationState {
   final Exception? exception;
   final String currentPrice;

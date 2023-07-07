@@ -26,17 +26,6 @@ class CustomerListView extends StatelessWidget {
           onTap: () {
             onTap(customer);
           },
-          trailing: IconButton(
-            onPressed: () {
-              context
-                  .read<OperationBloc>()
-                  .add(OperationEventFetchCustomerHistory(
-                    customer: customer,
-                  ));
-            },
-            icon: const Icon(Icons.receipt_long_rounded),
-            iconSize: 30,
-          ),
           title: Text(
             """
             Meter Number: ${customer.meterId},

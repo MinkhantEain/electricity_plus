@@ -46,6 +46,14 @@ class OperationEventSetPriceIntention extends OperationEvent {
   const OperationEventSetPriceIntention();
 }
 
+class OperationEventBillHistory extends OperationEvent {
+  const OperationEventBillHistory();
+}
+
+class OperationEventFlagged extends OperationEvent {
+  const OperationEventFlagged();
+}
+
 class OperationEventSetPrice extends OperationEvent {
   final String price;
   final String tokenInput;

@@ -1,3 +1,5 @@
+import "dart:developer";
+
 import "package:firebase_core/firebase_core.dart";
 import "package:electricity_plus/firebase_options.dart";
 import "package:electricity_plus/services/auth/auth_user.dart";
@@ -10,17 +12,23 @@ class FirebaseAuthProvider implements AuthProvider {
   @override
   Future<AuthUser> createUser({
     required String email,
+    required String name,
     required String password,
     required String passwordReEntry,
   }) async {
     try {
       if (password != passwordReEntry) {
         throw UnidenticalPasswordEntriesAuthException();
+      } else if (name.isEmpty) {
+        throw EmptyNameInputException();
       }
+
       await FirebaseAuth.instance.createUserWithEmailAndPassword(
         email: email,
         password: password,
       );
+      await FirebaseAuth.instance.currentUser!.updateDisplayName(name);
+
       final user = currentUser;
       if (user != null) {
         return user;
@@ -38,7 +46,13 @@ class FirebaseAuthProvider implements AuthProvider {
         throw GenericAuthException();
       }
     } catch (e) {
-      throw GenericAuthException();
+      if (e is UnidenticalPasswordEntriesAuthException) {
+        throw UnidenticalPasswordEntriesAuthException();
+      } else if (e is EmptyNameInputException) {
+        throw EmptyNameInputException();
+      } else {
+        throw GenericAuthException();
+      }
     }
   }
 

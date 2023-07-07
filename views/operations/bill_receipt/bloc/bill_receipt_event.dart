@@ -33,6 +33,12 @@ class BillInitialise extends BillReceiptEvent {
   const BillInitialise({required this.customer, required this.history});
 }
 
+class BillInitialiseFromBillHistory extends BillInitialise {
+  const BillInitialiseFromBillHistory(
+      {required CloudCustomer customer, required CloudCustomerHistory history})
+      : super(customer: customer, history: history);
+}
+
 class BillQrInitialise extends BillReceiptEvent {
   final String qrCode;
   const BillQrInitialise({required this.qrCode});
@@ -56,6 +62,8 @@ class ReceiptPrinterConnectEvent extends BillReceiptEvent {
 class ReopenReceiptEvent extends BillReceiptEvent {
   final CloudCustomer customer;
   final CloudCustomerHistory history;
-  const ReopenReceiptEvent(
-      {required this.customer, required this.history,});
+  const ReopenReceiptEvent({
+    required this.customer,
+    required this.history,
+  });
 }

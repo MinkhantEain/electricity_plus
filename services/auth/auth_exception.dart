@@ -32,3 +32,7 @@ class UserNotLoggedInAuthException implements Exception {
 class UnidenticalPasswordEntriesAuthException implements Exception {
   
 }
+
+class EmptyNameInputException implements Exception {
+  
+}

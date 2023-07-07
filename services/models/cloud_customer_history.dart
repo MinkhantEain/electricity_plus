@@ -19,7 +19,7 @@ class CloudCustomerHistory {
   final num meterMultiplier;
   final num roadLightPrice;
   final bool isVoided;
-  final bool isPaid;
+  final num paidAmount;
   
 
 
@@ -33,7 +33,7 @@ class CloudCustomerHistory {
     required this.imageUrl,
     required this.comment,
     required this.isVoided,
-    required this.isPaid,
+    required this.paidAmount,
     required this.inspector,
     required this.serviceChargeAtm,
     required this.horsePowerPerUnitCostAtm,
@@ -42,18 +42,26 @@ class CloudCustomerHistory {
     required this.roadLightPrice,
   });
 
+  bool isPaid() {
+    return paidAmount == cost;
+  }
+
+  num basicElectricityPrice() {
+    return ((newUnit - previousUnit) * meterMultiplier * priceAtm + horsePowerUnits * horsePowerPerUnitCostAtm);
+  }
+
   CloudCustomerHistory.fromSnapshot(QueryDocumentSnapshot<Map<String, dynamic>> snapshot) 
   : documentId = snapshot.id,
   previousUnit = snapshot.data()[previousUnitField],
   newUnit = snapshot.data()[newUnitField],
   priceAtm = snapshot.data()[priceAtmField],
-  serviceChargeAtm = snapshot.data()[priceAtmField],
+  serviceChargeAtm = snapshot.data()[serviceChargeAtmField],
   cost = snapshot.data()[costField],
   date = snapshot.data()[dateField],
   imageUrl = snapshot.data()[imageUrlField],
   comment = snapshot.data()[commentField],
   isVoided = snapshot.data()[isVoidedField],
-  isPaid = snapshot.data()[isPaidField],
+  paidAmount = snapshot.data()[paidAmountField],
   inspector = snapshot.data()[inspectorField],
   horsePowerPerUnitCostAtm = snapshot.data()[horsePowerPerUnitCostAtmField],
   horsePowerUnits = snapshot.data()[horsePowerUnitsField],
@@ -65,13 +73,13 @@ class CloudCustomerHistory {
   previousUnit = snapshot.data()![previousUnitField],
   newUnit = snapshot.data()![newUnitField],
   priceAtm = snapshot.data()![priceAtmField],
-  serviceChargeAtm = snapshot.data()![priceAtmField],
+  serviceChargeAtm = snapshot.data()![serviceChargeAtmField],
   cost = snapshot.data()![costField],
   date = snapshot.data()![dateField],
   imageUrl = snapshot.data()![imageUrlField],
   comment = snapshot.data()![commentField],
   isVoided = snapshot.data()![isVoidedField],
-  isPaid = snapshot.data()![isPaidField],
+  paidAmount = snapshot.data()![paidAmountField],
   inspector = snapshot.data()![inspectorField],
   horsePowerPerUnitCostAtm = snapshot.data()![horsePowerPerUnitCostAtmField],
   horsePowerUnits = snapshot.data()![horsePowerUnitsField],
@@ -91,7 +99,8 @@ date: $date
 imageUrl: $imageUrl
 comment: $comment
 isVoided: $isVoided
-isPaid: $isPaid
+paidAmount: $paidAmount
+isPaid: $isPaid()
 inspector: $inspector
 horsePowerCostAtm = $horsePowerPerUnitCostAtm
 horsePowerUnits = $horsePowerUnits

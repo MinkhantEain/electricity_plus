@@ -107,6 +107,7 @@ Future<void> inputAllCustomerData(
   num totalCost = 0;
   int rowIndex = 8;
   final customers = await provider.allCustomer();
+  dev.log(customers.toString());
   for (var customer in customers) {
     CloudCustomerHistory history =
         await provider.getCustomerHistory(customer: customer);

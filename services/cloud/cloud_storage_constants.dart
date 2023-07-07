@@ -7,6 +7,7 @@ const meterIdField = 'MeterID';
 const bookIdField = 'BookID';
 const nameField = 'Name';
 const addressField = 'Address';
+const debtField = 'Debt';
 const lastUnitField = 'LastUnit';
 const flagField = 'Flag';
 //also in customer history
@@ -24,15 +25,18 @@ const priceAtmField = 'PriceATM';
 const serviceChargeAtmField = 'ServiceCharge';
 const costField = 'Cost';
 const dateField = 'Date';
+const paidAmountField = 'PaidAmount';
 const imageUrlField = 'ImageURL';
 const commentField = 'Comment';
 const isVoidedField = 'isVoided';
-const isPaidField = 'isPaid';
+// const isPaidField = 'isPaid';
 const inspectorField = 'Inspector';
 const horsePowerPerUnitCostAtmField = 'HorsePowerPerUnitCostATM';
 
 //Issue
 const referenceField = 'Reference';
+//Flag
+const isResolvedField = 'isResolved';
 
 //Price fields
 const pricePerUnitField = 'PricePerUnit';
@@ -45,7 +49,8 @@ const roadLightPriceField = 'RoadLightPrice';
 const customerDetailsCollection = 'CustomerDetails';
 const historyCollection = 'History';
 const priceCollection = 'price';
-const issueCollection = 'Issues';
+const resolveCollection = 'Resolve';
+const flagCollection = 'Flag';
 
 //doc path
 const priceDoc = 'PriceDoc';
@@ -73,5 +78,6 @@ const historyDocIdField = 'HistoryDocID';
 const townNameField = 'TownName';
 const initialCostField = 'InitialCost';
 const meterAllowanceField = 'MeterAllowance';
+const finalCostField = 'FinalCost';
 
 

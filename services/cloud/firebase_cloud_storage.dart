@@ -1,7 +1,9 @@
 import 'dart:convert';
 import 'dart:io';
+import 'dart:typed_data';
 
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:electricity_plus/services/models/cloud_flag.dart';
 import 'package:electricity_plus/services/models/cloud_receipt_model.dart';
 import 'package:electricity_plus/services/models/cloud_customer.dart';
 import 'package:electricity_plus/services/models/cloud_customer_history.dart';
@@ -18,9 +20,6 @@ import 'package:firebase_storage/firebase_storage.dart';
 
 class FirebaseCloudStorage {
   final firebaseFirestoreInstance = FirebaseFirestore.instance;
-
-  final priceCollectionDoc =
-      FirebaseFirestore.instance.collection(priceCollection).doc(priceDoc);
 
   final firebaseStorage = FirebaseStorage.instance.ref();
 
@@ -48,33 +47,15 @@ class FirebaseCloudStorage {
         return snapshot['Password'];
       }, onError: (_) => throw CouldNotGetPasswordException());
 
-  Future<num> getPreviousValidUnit(CloudCustomer customer) async {
-    final town = await AppDocumentData.getTownName();
-    final customerHistoryCollection = firebaseFirestoreInstance.collection(
-        '$town$customerDetailsCollection/${customer.documentId}/$historyCollection');
-    final result = await customerHistoryCollection
-        .where(dateField,
-            isLessThanOrEqualTo: DateTime.now().toString().substring(0, 7))
-        .where(isVoidedField, isEqualTo: false)
-        .orderBy(dateField, descending: true)
-        .get()
-        .then((value) => value.docs);
-    dev.log(result.isEmpty.toString());
-    if (result.isEmpty) {
-      return 0;
-    } else {
-      return result.first[newUnitField];
-    }
-  }
-
   ///Stores the image in FirebaseStorage with customer's document Id as the folder name
   ///and the month-year date of the month the photo is taken as the name of the image.
   ///This is to reduce storage and to have only one actual image per month and the rest are unnecessary.
-  Future<String> storeImage(String customerDocumentId, File file) async {
+  Future<String> storeImage(String customerDocumentId, File file,
+      {String fileName = ''}) async {
     try {
       final uploadTask = firebaseStorage
           .child(customerDocumentId)
-          .child(currentMonthYearDate())
+          .child(currentMonthYearDate() + fileName)
           .putFile(file);
       //deletes file from a year ago if present
       final yearAgoImgRef =
@@ -91,51 +72,72 @@ class FirebaseCloudStorage {
     }
   }
 
+  Future<Uint8List?> getImage(String imageUrl) {
+    return FirebaseStorage.instance.refFromURL(imageUrl).getData();
+  }
+
   ///return the price
-  Future<num> get getPrice => priceCollectionDoc.get().then(
-        (DocumentSnapshot doc) {
-          final price = doc.data() as Map<String, dynamic>;
-          return price[pricePerUnitField] as num;
-        },
-        onError: (_) {
-          throw CouldNotGetPriceException();
-        },
-      );
+  Future<num> getPrice() async {
+    final town = await AppDocumentData.getTownName();
+    return FirebaseFirestore.instance.doc('$town$priceCollection/$priceDoc').get().then(
+      (DocumentSnapshot doc) {
+        final price = doc.data() as Map<String, dynamic>;
+        return price[pricePerUnitField] as num;
+      },
+      onError: (_) {
+        throw CouldNotGetPriceException();
+      },
+    );
+  }
 
   ///return road light price
-  Future<num> get getRoadLightPrice =>
-      priceCollectionDoc.get().then((DocumentSnapshot doc) {
+  Future<num> getRoadLightPrice() async {
+    final town = await AppDocumentData.getTownName();
+    return FirebaseFirestore.instance.doc('$town$priceCollection/$priceDoc').get().then(
+      (DocumentSnapshot doc) {
         final price = doc.data() as Map<String, dynamic>;
         return price[roadLightPriceField] as num;
-      }, onError: (_) => throw CouldNotGetPriceException());
+      },
+      onError: (_) {
+        throw CouldNotGetPriceException();
+      },
+    );
+  }
 
   ///return the unit cost of the horse power
-  Future<num> get getHorsePowerPerUnitCost => priceCollectionDoc.get().then(
-        (DocumentSnapshot doc) {
-          final price = doc.data() as Map<String, dynamic>;
-          return price[horsePowerPerUnitCostField] as num;
-        },
-        onError: (_) {
-          throw CouldNotGetPriceException();
-        },
-      );
+  Future<num> getHorsePowerPerUnitCost() async {
+    final town = await AppDocumentData.getTownName();
+    return FirebaseFirestore.instance.doc('$town$priceCollection/$priceDoc').get().then(
+      (DocumentSnapshot doc) {
+        final price = doc.data() as Map<String, dynamic>;
+        return price[horsePowerPerUnitCostField] as num;
+      },
+      onError: (_) {
+        throw CouldNotGetPriceException();
+      },
+    );
+  }
 
   ///return the service charge
-  Future<num> get getServiceCharge => priceCollectionDoc.get().then(
-        (DocumentSnapshot doc) {
-          final price = doc.data() as Map<String, dynamic>;
-          return price[serviceChargeField] as num;
-        },
-        onError: (_) {
-          throw CouldNotGetPriceException();
-        },
-      );
+  Future<num> getServiceCharge() async {
+    final town = await AppDocumentData.getTownName();
+    return FirebaseFirestore.instance.doc('$town$priceCollection/$priceDoc').get().then(
+      (DocumentSnapshot doc) {
+        final price = doc.data() as Map<String, dynamic>;
+        return price[serviceChargeField] as num;
+      },
+      onError: (_) {
+        throw CouldNotGetPriceException();
+      },
+    );
+  }
 
   Future<void> setPrice({
     required String newPrice,
     required String token,
     required String priceChangeField,
   }) async {
+    final town = await AppDocumentData.getTownName();
     try {
       if (!isIntInput(newPrice)) {
         throw CouldNotSetPriceException();
@@ -145,13 +147,29 @@ class FirebaseCloudStorage {
       if (token != serverToken) {
         throw UnAuthorizedPriceSetException();
       } else if (parsedNewPrice != null && parsedNewPrice != 0) {
-        await priceCollectionDoc.update({priceChangeField: parsedNewPrice});
+        await FirebaseFirestore.instance
+            .doc('$town$priceCollection/$priceDoc')
+            .update({priceChangeField: parsedNewPrice});
       } else {
         throw CouldNotSetPriceException();
       }
     } catch (e) {
       rethrow;
     }
+  }
+
+  ///used only when data is imported at the start,
+  ///likely never be used again.
+  Future<void> initialisePrices() async {
+    final town = await AppDocumentData.getTownName();
+    await FirebaseFirestore.instance
+        .doc('$town$priceCollection/$priceDoc')
+        .set({
+      pricePerUnitField: 990,
+      horsePowerPerUnitCostField: 200,
+      roadLightPriceField: 200,
+      serviceChargeField: 500,
+    });
   }
 
   Future<bool> verifyPassword(String token) async {
@@ -180,25 +198,142 @@ class FirebaseCloudStorage {
   }
 
   Future<num> calculateCost(CloudCustomer customer, num newReading) async {
-    final price = await getPrice;
-    final previusUnit = await getPreviousValidUnit(customer);
-    final serviceCharge = await getServiceCharge;
+    final price = await getPrice();
+    final previousUnit = await getPreviousValidUnit(customer);
+    final serviceCharge = await getServiceCharge();
     final meterMultiplier = customer.meterMultiplier;
-    final roadLightPrice = await getRoadLightPrice;
-    final horsePowerPerUnitCost = await getHorsePowerPerUnitCost;
+    final roadLightPrice = await getRoadLightPrice();
+    final horsePowerPerUnitCost = await getHorsePowerPerUnitCost();
     final horsePowerUnits = customer.horsePowerUnits;
     final hasRoadLight = customer.hasRoadLightCost ? 1 : 0;
-    final result = price * (newReading - previusUnit) * meterMultiplier +
+    final result = price * (newReading - previousUnit) * meterMultiplier +
         horsePowerUnits * horsePowerPerUnitCost +
         serviceCharge +
         hasRoadLight * roadLightPrice;
     return result;
   }
 
+  Future<void> submitFlagReport({
+    required CloudCustomer customer,
+    required String comment,
+    required String imageUrl,
+    required String inspector,
+  }) async {
+    final flag = CloudFlag(
+      date: DateTime.now().toString(),
+      comment: comment,
+      documentId: DateTime.now().toString().substring(0, 7),
+      imageUrl: imageUrl,
+      inspector: inspector,
+      isResolved: false,
+    );
+    voidCurrentMonthLastHistory(customer: customer);
+    final town = await AppDocumentData.getTownName();
+    final flagDocRef = FirebaseFirestore.instance.doc(
+        '$town$customerDetailsCollection/${customer.documentId}/$flagCollection/${flag.documentId}');
+    //creates a flag collection
+    FirebaseFirestore.instance.runTransaction((transaction) async {
+      transaction.set(flagDocRef, {
+        dateField: flag.date,
+        commentField: flag.comment,
+        imageUrlField: flag.imageUrl,
+        inspectorField: flag.inspector,
+        isResolvedField: flag.isResolved,
+      });
+    });
+
+    //Flag the customer
+    final customerDocRef = FirebaseFirestore.instance
+        .doc('$town$customerDetailsCollection/${customer.documentId}');
+    firebaseFirestoreInstance.runTransaction((transaction) async {
+      transaction.update(customerDocRef, {
+        flagField: true,
+      });
+    });
+  }
+
+  ///Get the previous valid unit a.k.a from the latest previous month
+  Future<num> getPreviousValidUnit(CloudCustomer customer) async {
+    final town = await AppDocumentData.getTownName();
+    final customerHistoryCollection = firebaseFirestoreInstance.collection(
+        '$town$customerDetailsCollection/${customer.documentId}/$historyCollection');
+    final result = await customerHistoryCollection
+        .where(dateField,
+            isLessThanOrEqualTo: DateTime.now().toString().substring(0, 7))
+        .where(isVoidedField, isEqualTo: false)
+        .orderBy(dateField, descending: true)
+        .get()
+        .then((value) => value.docs);
+    dev.log(result.isEmpty.toString());
+    if (result.isEmpty) {
+      return 0;
+    } else {
+      return result.first[newUnitField];
+    }
+  }
+
+  ///gets the latest valid history of customer
+  Future<CloudCustomerHistory> getCustomerHistory(
+      {required CloudCustomer customer}) async {
+    final lastHistorySnapshot = await customer.lastHistory.get();
+    return CloudCustomerHistory.fromDocSnapshot(lastHistorySnapshot);
+    // final customerHistoryCollection = FirebaseFirestore.instance.collection(
+    //     '$town$customerDetailsCollection/${customer.documentId}/$historyCollection');
+    // final result = await customerHistoryCollection
+    //     .where(isVoidedField, isEqualTo: false)
+    //     .orderBy(dateField, descending: true)
+    //     .get()
+    //     .then((value) =>
+    //         value.docs.map((e) => CloudCustomerHistory.fromSnapshot(e)));
+    // return result.first;
+  }
+
+  //scan qrCode to get customer history
+  Future<CloudCustomerHistory> getCusomerHistoryFromQrCode(
+      List<String> qrCodeData) async {
+    final town = await AppDocumentData.getTownName();
+    return await FirebaseFirestore.instance
+        .doc(
+            '$town$customerDetailsCollection/${qrCodeData[0]}/$historyCollection/${qrCodeData[1]}')
+        .get()
+        .then((value) => CloudCustomerHistory.fromDocSnapshot(value))
+        .onError((error, stackTrace) {
+      throw NoSuchDocumentException();
+    });
+  }
+
+  ///void the last history if it is within this month.
+  Future<void> voidCurrentMonthLastHistory({
+    required CloudCustomer customer,
+  }) async {
+    final previousHistory = await customer.lastHistory.get();
+    final previousHistoryDate = previousHistory[dateField];
+    if (isWithinMonth(previousHistoryDate) && !previousHistory[isVoidedField]) {
+      final town = await AppDocumentData.getTownName();
+      customer.lastHistory.update({isVoidedField: true});
+      final debt = customer.debt - previousHistory[costField];
+      await FirebaseFirestore.instance.doc('$town$customerDetailsCollection/${customer.documentId}').update({
+        debtField : debt,
+      });
+    }
+  }
+
+  Future<Iterable<CloudCustomerHistory>> getCustomerAllHistory(
+      {required CloudCustomer customer}) async {
+    final town = await AppDocumentData.getTownName();
+    final customerHistoryCollection = FirebaseFirestore.instance.collection(
+        '$town$customerDetailsCollection/${customer.documentId}/$historyCollection');
+    final result = await customerHistoryCollection
+        .orderBy(dateField, descending: true)
+        .get()
+        .then((value) =>
+            value.docs.map((doc) => CloudCustomerHistory.fromSnapshot(doc)));
+    return result;
+  }
+
   Future<CloudCustomerHistory> submitElectricLog({
     required String comment,
     required num newReading,
-    required bool flag,
     required String imageUrl,
     required CloudCustomer customer,
     required num previousReading,
@@ -206,72 +341,63 @@ class FirebaseCloudStorage {
     CloudCustomerHistory history;
     try {
       final town = await AppDocumentData.getTownName();
-      final customerDetailDocRef = firebaseFirestoreInstance
-          .collection('$town$customerDetailsCollection')
-          .doc(customer.documentId);
+      final customerDocRef = FirebaseFirestore.instance
+          .doc('$town$customerDetailsCollection/${customer.documentId}');
       final customerHistoryDocRef = FirebaseFirestore.instance
           .collection(
               '$town$customerDetailsCollection/${customer.documentId}/$historyCollection')
           .doc();
+      final batch = FirebaseFirestore.instance.batch();
       history = CloudCustomerHistory(
           documentId: customerHistoryDocRef.id,
           previousUnit: previousReading,
           newUnit: newReading,
-          priceAtm: await getPrice,
+          priceAtm: await getPrice(),
           cost: await calculateCost(customer, newReading),
           date: DateTime.now().toString(),
           imageUrl: imageUrl,
           comment: comment,
           isVoided: false,
-          isPaid: false,
-          inspector: FirebaseAuth.instance.currentUser!.email!,
-          serviceChargeAtm: await getServiceCharge,
-          horsePowerPerUnitCostAtm: await getHorsePowerPerUnitCost,
-          horsePowerUnits: await getHorsePowerPerUnitCost,
+          paidAmount: 0,
+          inspector: FirebaseAuth.instance.currentUser!.displayName!,
+          serviceChargeAtm: await getServiceCharge(),
+          horsePowerPerUnitCostAtm: await getHorsePowerPerUnitCost(),
+          horsePowerUnits: customer.horsePowerUnits,
           meterMultiplier: customer.meterMultiplier,
-          roadLightPrice: await getRoadLightPrice);
-      FirebaseFirestore.instance.runTransaction(
-        (transaction) async {
-          transaction.set(customerHistoryDocRef, {
-            commentField: comment,
-            //need update
-            costField: history.cost,
-            dateField: history.date,
-            horsePowerPerUnitCostAtmField: history.horsePowerPerUnitCostAtm,
-            horsePowerUnitsField: customer.horsePowerUnits,
-            imageUrlField: imageUrl,
-            inspectorField: history.inspector,
-            meterMultiplierField: customer.meterMultiplier,
-            newUnitField: newReading,
-            previousUnitField: history.previousUnit,
-            priceAtmField: history.priceAtm,
-            roadLightPriceField: history.roadLightPrice,
-            isPaidField: false,
-            isVoidedField: false,
-            serviceChargeField: history.serviceChargeAtm,
-          });
-        },
-      ).then((value) => dev.log("Document submitted successfully."),
-          onError: (e) {
-        dev.log(e.toString());
-        throw UnableToUpdateException();
+          roadLightPrice: await getRoadLightPrice());
+
+      //update the last history field and debt in customer
+      final debt = (await customerDocRef.get())[debtField] + history.cost;
+      batch.update(customerDocRef, {lastHistoryField: customerHistoryDocRef,
+      debtField : debt});
+
+      //creates a new history document
+      batch.set(customerHistoryDocRef, {
+        commentField: comment,
+        costField: history.cost,
+        dateField: history.date,
+        horsePowerPerUnitCostAtmField: history.horsePowerPerUnitCostAtm,
+        horsePowerUnitsField: customer.horsePowerUnits,
+        imageUrlField: imageUrl,
+        inspectorField: history.inspector,
+        meterMultiplierField: customer.meterMultiplier,
+        newUnitField: newReading,
+        previousUnitField: history.previousUnit,
+        priceAtmField: history.priceAtm,
+        roadLightPriceField: history.roadLightPrice,
+        paidAmountField: history.paidAmount,
+        isVoidedField: history.isVoided,
+        serviceChargeField: history.serviceChargeAtm,
       });
 
-      FirebaseFirestore.instance.runTransaction((transaction) async {
-        transaction.update(customerDetailDocRef, {
-          flagField: flag,
-          lastUnitField: newReading,
-          lastHistoryField: customerHistoryDocRef,
-        });
-      }).then((value) => dev.log("Document submitted successfully."),
-          onError: (e) => throw UnableToUpdateException());
+      batch.commit();
     } catch (e) {
       rethrow;
     }
     return history;
   }
 
-  Future<void> resolveIssue({
+  Future<void> resolveRedFlag({
     required CloudCustomer customer,
     required String comment,
   }) async {
@@ -280,12 +406,9 @@ class FirebaseCloudStorage {
       final customerDocRef = firebaseFirestoreInstance
           .collection('$town$customerDetailsCollection')
           .doc(customer.documentId);
-      final customerHistory = await getCustomerHistory(customer: customer);
-      final customerHistoryRef = FirebaseFirestore.instance
-          .collection(
-              '$town$customerDetailsCollection/${customer.documentId}/$historyCollection')
-          // ignore: unnecessary_string_interpolations
-          .doc('${customerHistory.documentId}');
+      final flag = await getFlaggedIssue(customer: customer);
+      final flagDocRef = FirebaseFirestore.instance.doc(
+          '$town$customerDetailsCollection/${customer.documentId}/$flagCollection/${flag.documentId}');
       //unflag customer
       FirebaseFirestore.instance.runTransaction((transaction) async {
         transaction.update(customerDocRef, {
@@ -294,28 +417,28 @@ class FirebaseCloudStorage {
       }).then((value) => dev.log("Document submitted successfully."),
           onError: (e) {
         dev.log("1.");
-        throw UnableToUpdateException();
+        throw UnableToUpdateCustomerDocFlagException();
       });
       //set an issue with a date..
       //issue as Date, comment and reference to the history
       FirebaseFirestore.instance.runTransaction((transaction) async {
-        FirebaseFirestore.instance
+        final issueDocRef = FirebaseFirestore.instance
             .collection(
-                '$town$customerDetailsCollection/${customer.documentId}/$issueCollection')
-            .doc(DateTime.now().toString().substring(0, 7))
-            .set({
+                '$town$customerDetailsCollection/${customer.documentId}/$resolveCollection')
+            .doc(DateTime.now().toString().substring(0, 7));
+        transaction.set(issueDocRef, {
           dateField: DateTime.now().toString(),
           commentField: comment,
-          referenceField: customerHistoryRef,
+          referenceField: flagDocRef,
+          inspectorField: FirebaseAuth.instance.currentUser!.displayName!
         });
       }).then((value) => dev.log("Document submitted successfully."),
           onError: (e) {
         dev.log("2.");
-        throw UnableToUpdateException();
+        throw UnableToCreateResolveDocException();
       });
     } catch (e) {
-      dev.log('message');
-      throw UnableToUpdateException();
+      rethrow;
     }
   }
 
@@ -346,44 +469,6 @@ class FirebaseCloudStorage {
         .delete();
   }
 
-  Future<CloudCustomerHistory> getCustomerHistory(
-      {required CloudCustomer customer}) async {
-    final town = await AppDocumentData.getTownName();
-    final customerHistoryCollection = FirebaseFirestore.instance.collection(
-        '$town$customerDetailsCollection/${customer.documentId}/$historyCollection');
-    final result = await customerHistoryCollection
-        .where(isVoidedField, isEqualTo: false)
-        .orderBy(dateField, descending: true)
-        .get()
-        .then((value) =>
-            value.docs.map((e) => CloudCustomerHistory.fromSnapshot(e)));
-    return result.first;
-  }
-
-  Future<CloudCustomerHistory> getCusomerHistoryFromQrCode(
-      List<String> qrCodeData) async {
-    final town = await AppDocumentData.getTownName();
-    return await FirebaseFirestore.instance
-        .doc(
-            '$town$customerDetailsCollection/${qrCodeData[0]}/$historyCollection/${qrCodeData[1]}')
-        .get()
-        .then((value) => CloudCustomerHistory.fromDocSnapshot(value))
-        .onError((error, stackTrace) {
-      throw NoSuchDocumentException();
-    });
-  }
-
-//problem
-  Future<void> voidCurrentMonthLastHistory({
-    required CloudCustomer customer,
-  }) async {
-    final previousHistory = await customer.lastHistory.get();
-    final previousHistoryDate = previousHistory[dateField];
-    if (isWithinMonth(previousHistoryDate)) {
-      customer.lastHistory.update({isVoidedField: true});
-    }
-  }
-
   Future<Iterable<CloudCustomer>> allFlaggedCustomer() async {
     final town = await AppDocumentData.getTownName();
     return await firebaseFirestoreInstance
@@ -400,19 +485,6 @@ class FirebaseCloudStorage {
   }) async {
     return customers.where((customer) =>
         (customer.bookId == userInput || customer.meterId == userInput));
-  }
-
-  Future<Iterable<CloudCustomerHistory>> getCustomerAllHistory(
-      {required CloudCustomer customer}) async {
-    final town = await AppDocumentData.getTownName();
-    final customerHistoryCollection = FirebaseFirestore.instance.collection(
-        '$town$customerDetailsCollection/${customer.documentId}/$historyCollection');
-    final result = await customerHistoryCollection
-        .orderBy(dateField, descending: true)
-        .get()
-        .then((value) =>
-            value.docs.map((doc) => CloudCustomerHistory.fromSnapshot(doc)));
-    return result;
   }
 
   Future<CloudCustomer> getCustomerFromDocId(String docId) async {
@@ -432,8 +504,8 @@ class FirebaseCloudStorage {
     required String? meterNumber,
   }) async {
     final town = await AppDocumentData.getTownName();
-    final detailsCollection =
-        firebaseFirestoreInstance.collection('$town$customerDetailsCollection');
+    final detailsCollection = firebaseFirestoreInstance
+        .collection('$town$customerDetailsCollection');
     try {
       if (bookId != null) {
         return await (detailsCollection)
@@ -483,6 +555,8 @@ class FirebaseCloudStorage {
           .collection(
               '$town$customerDetailsCollection/${newCustomerDocRef.id}/$historyCollection')
           .doc();
+
+      
       await newCustomerDocRef.set({
         nameField: name,
         addressField: address,
@@ -494,6 +568,7 @@ class FirebaseCloudStorage {
         meterMultiplierField: meterMultiplier,
         horsePowerUnitsField: horsePowerUnits,
         adderField: 0,
+        debtField : 0,
         lastHistoryField: customerHistoryDocRef,
       });
 
@@ -502,18 +577,18 @@ class FirebaseCloudStorage {
           transaction.set(customerHistoryDocRef, {
             previousUnitField: meterReading,
             newUnitField: meterReading,
-            priceAtmField: await getPrice,
-            serviceChargeField: await getServiceCharge,
+            priceAtmField: await getPrice(),
+            serviceChargeField: await getServiceCharge(),
             isVoidedField: false,
             dateField: pastMonthYearDate(),
             costField: 0,
             inspectorField: '',
-            roadLightPriceField: hasRoadLight ? await getRoadLightPrice : 0,
+            roadLightPriceField: hasRoadLight ? await getRoadLightPrice() : 0,
             meterMultiplierField: meterMultiplier,
             horsePowerUnitsField: horsePowerUnits,
-            horsePowerPerUnitCostAtmField: await getHorsePowerPerUnitCost,
+            horsePowerPerUnitCostAtmField: await getHorsePowerPerUnitCost(),
             commentField: '',
-            isPaidField: true,
+            paidAmountField: 0,
             imageUrlField:
                 'https://firebasestorage.googleapis.com/v0/b/electricityplus-a6572.appspot.com/o/newUser%2Fsoil.jpg?alt=media&token=93cdbd32-72a3-4992-a134-226d465c340f',
           });
@@ -545,7 +620,7 @@ class FirebaseCloudStorage {
         FirebaseFirestore.instance.doc(receipt.historyDocRefPath());
     try {
       await FirebaseFirestore.instance.runTransaction((transaction) async {
-        transaction.update(historyRef, {isPaidField: true});
+        transaction.update(historyRef, {paidAmountField: receipt.initialCost});
       });
       await FirebaseFirestore.instance.runTransaction((transaction) async {
         transaction.set(receiptRef, {
@@ -561,7 +636,8 @@ class FirebaseCloudStorage {
           townNameField: receipt.townName,
           meterAllowanceField: receipt.meterAllowance,
           priceAtmField: receipt.priceAtm,
-          initialCostField: receipt.initialCost
+          initialCostField: receipt.initialCost,
+          finalCostField: receipt.finalCost,
         });
       });
     } on Exception {
@@ -585,10 +661,24 @@ class FirebaseCloudStorage {
   }
 
   Future<void> importData(PlatformFile platformFile) async {
+    final town = await AppDocumentData.getTownName();
+    final priceAtm = await getPrice();
+    final serviceCharge = await getServiceCharge();
+    final roadLightPrice = await getRoadLightPrice();
+    final horsePowerPerUnitCost = await getHorsePowerPerUnitCost();
     final file = File(platformFile.path!);
     final lines =
         file.openRead().transform(utf8.decoder).transform(const LineSplitter());
+
+    int count = 0;
+    WriteBatch batch = FirebaseFirestore.instance.batch();
+    final writeCustomerCollection = FirebaseFirestore.instance
+        .collection('$town$customerDetailsCollection/');
     await for (var line in lines) {
+      final customerDoc = writeCustomerCollection.doc();
+      final historyDoc = FirebaseFirestore.instance
+          .collection('${customerDoc.path}/$historyCollection')
+          .doc();
       final splitExpression = RegExp(",(?=(?:[^\"]*\"[^\"]*\")*(?![^\"]*\"))");
       final splittedLine = line.split(splitExpression);
       if (isIntInput(splittedLine[0].trim())) {
@@ -601,33 +691,70 @@ class FirebaseCloudStorage {
           final meterMultiplier = splittedLine[12].trim().isEmpty
               ? 1
               : num.parse(splittedLine[12].trim());
-          final horsePowerUnits = num.parse(splittedLine[18].trim());
+          final horsePowerUnits =
+              num.parse(splittedLine[18].trim()) / horsePowerPerUnitCost;
           final hasRoadLight =
               num.parse(splittedLine[16].trim()) == 0 ? false : true;
-          await createUser(
-            name: name,
-            address: address,
-            bookId: bookId,
-            meterId: meterId,
-            meterReading: meterReading,
-            meterMultiplier: meterMultiplier,
-            horsePowerUnits: horsePowerUnits,
-            hasRoadLight: hasRoadLight,
-          );
+          batch.set(historyDoc, {
+            previousUnitField: meterReading,
+            newUnitField: meterReading,
+            priceAtmField: priceAtm,
+            serviceChargeField: serviceCharge,
+            isVoidedField: false,
+            dateField: pastMonthYearDate(),
+            costField: 0,
+            inspectorField: '',
+            roadLightPriceField: hasRoadLight ? roadLightPrice : 0,
+            meterMultiplierField: meterMultiplier,
+            horsePowerUnitsField: horsePowerUnits,
+            horsePowerPerUnitCostAtmField: horsePowerPerUnitCost,
+            commentField: '',
+            paidAmountField: 0,
+            imageUrlField:
+                'https://firebasestorage.googleapis.com/v0/b/electricityplus-a6572.appspot.com/o/newUser%2Fsoil.jpg?alt=media&token=93cdbd32-72a3-4992-a134-226d465c340f',
+          });
+
+          batch.set(customerDoc, {
+            nameField: name,
+            addressField: address,
+            meterIdField: meterId,
+            bookIdField: bookId,
+            lastUnitField: meterReading,
+            flagField: false,
+            hasRoadLightCostField: hasRoadLight,
+            meterMultiplierField: meterMultiplier,
+            horsePowerUnitsField: horsePowerUnits,
+            adderField: 0,
+            debtField: 0,
+            lastHistoryField: historyDoc,
+          });
+
+          count += 2;
+          if (count % 500 == 0) {
+            batch.commit();
+            batch = FirebaseFirestore.instance.batch();
+          }
         } catch (e) {
           dev.log(splittedLine.toString());
-
-          dev.log((splittedLine[12].trim().isEmpty
-                  ? 0
-                  : num.parse(splittedLine[12].trim()))
-              .toString());
-          dev.log(num.parse(splittedLine[18].trim()).toString());
-          dev.log((num.parse(splittedLine[16].trim()) == 0 ? false : true)
-              .toString());
-          dev.log(num.parse(splittedLine[11].trim()).toString());
         }
       }
     }
+    batch.commit();
+  }
+
+  // Future<void> writeDoc(DocumentReference<Map<String, dynamic>> document, WriteBatch? batch) async {
+  //   if (batch != null) {
+
+  //   }
+  // }
+
+  Future<CloudFlag> getFlaggedIssue({required CloudCustomer customer}) async {
+    final town = await AppDocumentData.getTownName();
+    return FirebaseFirestore.instance
+        .collection(
+            '$town$customerDetailsCollection/${customer.documentId}/$flagCollection')
+        .get()
+        .then((value) => CloudFlag.fromSnapshot(value.docs.first));
   }
 
   static final FirebaseCloudStorage _shared =

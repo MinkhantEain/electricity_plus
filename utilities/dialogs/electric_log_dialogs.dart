@@ -2,7 +2,7 @@ import 'package:electricity_plus/services/models/cloud_customer.dart';
 import 'package:electricity_plus/services/models/cloud_customer_history.dart';
 import 'package:electricity_plus/services/cloud/operation/operation_bloc.dart';
 import 'package:electricity_plus/services/cloud/operation/operation_event.dart';
-import 'package:electricity_plus/views/operations/electric_log/bloc/electric_log_bloc.dart';
+import 'package:electricity_plus/views/operations/read_meter/bloc/read_meter_bloc.dart';
 import 'package:flutter/material.dart';
 import 'package:electricity_plus/utilities/dialogs/generic_dialog.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -44,7 +44,23 @@ Future<void> showLogSubmittedDialog(
   ).then((value) async {
     context.read<OperationBloc>().add(OperationEventBillGeneration(
         customer: customer, customerHistory: history));
-    await BlocProvider.of<ElectricLogBloc>(context).close();
+    await BlocProvider.of<ReadMeterBloc>(context).close();
+  });
+}
+
+Future<void> showFlagReportSubmittedDialog(
+  BuildContext context
+) {
+  return showGenericDialog(
+    context: context,
+    title: "Flag Report Submitted!",
+    content: 'The Flag Report has been successfully submitted',
+    optionsBuilder: () => {
+      'OK': null,
+    },
+  ).then((value) async {
+    context.read<OperationBloc>().add(const OperationEventDefault());
+    await BlocProvider.of<ReadMeterBloc>(context).close();
   });
 }
 

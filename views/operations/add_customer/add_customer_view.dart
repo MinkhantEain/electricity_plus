@@ -83,106 +83,108 @@ class _AddCustomerViewState extends State<AddCustomerView> {
             },
           ),
         ),
-        body: Column(
-          children: [
-            Row(
-              children: [
-                const Text("Name: "),
-                Expanded(
-                    child: TextField(
-                  controller: _nameTextController,
-                )),
-              ],
-            ),
-            Row(
-              children: [
-                const Text("Address: "),
-                Expanded(
-                    child: TextField(
-                  controller: _addressTextController,
-                )),
-              ],
-            ),
-            Row(
-              children: [
-                const Text("MeterID: "),
-                Expanded(
-                    child: TextField(
-                  controller: _meterIdTextController,
-                )),
-              ],
-            ),
-            Row(
-              children: [
-                const Text("BookID: "),
-                Expanded(
-                    child: TextField(
-                  controller: _bookIdTextController,
-                )),
-              ],
-            ),
-            Row(
-              children: [
-                const Text("Current Meter Reading: "),
-                Expanded(
-                    child: TextField(
-                  controller: _meterReadingTextController,
-                  keyboardType: TextInputType.number,
-                )),
-              ],
-            ),
-            Row(
-              children: [
-                const Text("Horse Power Units: "),
-                Expanded(
-                    child: TextField(
-                  controller: _horsePowerUnitTextController,
-                  keyboardType: TextInputType.number,
-                )),
-              ],
-            ),
-            Row(
-              children: [
-                const Text("Meter Multiplier: "),
-                Expanded(
-                    child: TextField(
-                  controller: _meterMultiplierTextController,
-                  keyboardType: TextInputType.number,
-                )),
-              ],
-            ),
-            Row(
-              children: [
-                const Text("Include Road Light Cost:"),
-                Checkbox(
-                  value: isChecked,
-                  activeColor: Colors.black,
-                  onChanged: (value) {
-                    setState(() {
-                      isChecked = value!;
-                    });
-                  },
-                )
-              ],
-            ),
-            ElevatedButton(
-              onPressed: () {
-                context.read<AddCustomerBloc>().add(AddCustomerEventSubmission(
-                      address: _addressTextController.text.trim(),
-                      meterId: _meterIdTextController.text.trim(),
-                      name: _nameTextController.text.trim(),
-                      bookId: _bookIdTextController.text.trim(),
-                      meterReading: _meterReadingTextController.text.trim(),
-                      horsePowerUnits:
-                          _horsePowerUnitTextController.text.trim(),
-                      meterMultiplier:
-                          _meterMultiplierTextController.text.trim(),
-                      hasRoadLight: isChecked,
-                    ));
-              },
-              child: const Text('Submit'),
-            ),
-          ],
+        body: SingleChildScrollView(
+          child: Column(
+            children: [
+              Row(
+                children: [
+                  const Text("Name: "),
+                  Expanded(
+                      child: TextField(
+                    controller: _nameTextController,
+                  )),
+                ],
+              ),
+              Row(
+                children: [
+                  const Text("Address: "),
+                  Expanded(
+                      child: TextField(
+                    controller: _addressTextController,
+                  )),
+                ],
+              ),
+              Row(
+                children: [
+                  const Text("MeterID: "),
+                  Expanded(
+                      child: TextField(
+                    controller: _meterIdTextController,
+                  )),
+                ],
+              ),
+              Row(
+                children: [
+                  const Text("BookID: "),
+                  Expanded(
+                      child: TextField(
+                    controller: _bookIdTextController,
+                  )),
+                ],
+              ),
+              Row(
+                children: [
+                  const Text("Current Meter Reading: "),
+                  Expanded(
+                      child: TextField(
+                    controller: _meterReadingTextController,
+                    keyboardType: TextInputType.number,
+                  )),
+                ],
+              ),
+              Row(
+                children: [
+                  const Text("Horse Power Units: "),
+                  Expanded(
+                      child: TextField(
+                    controller: _horsePowerUnitTextController,
+                    keyboardType: TextInputType.number,
+                  )),
+                ],
+              ),
+              Row(
+                children: [
+                  const Text("Meter Multiplier: "),
+                  Expanded(
+                      child: TextField(
+                    controller: _meterMultiplierTextController,
+                    keyboardType: TextInputType.number,
+                  )),
+                ],
+              ),
+              Row(
+                children: [
+                  const Text("Include Road Light Cost:"),
+                  Checkbox(
+                    value: isChecked,
+                    activeColor: Colors.black,
+                    onChanged: (value) {
+                      setState(() {
+                        isChecked = value!;
+                      });
+                    },
+                  )
+                ],
+              ),
+              ElevatedButton(
+                onPressed: () {
+                  context.read<AddCustomerBloc>().add(AddCustomerEventSubmission(
+                        address: _addressTextController.text.trim(),
+                        meterId: _meterIdTextController.text.trim(),
+                        name: _nameTextController.text.trim(),
+                        bookId: _bookIdTextController.text.trim(),
+                        meterReading: _meterReadingTextController.text.trim(),
+                        horsePowerUnits:
+                            _horsePowerUnitTextController.text.trim(),
+                        meterMultiplier:
+                            _meterMultiplierTextController.text.trim(),
+                        hasRoadLight: isChecked,
+                      ));
+                },
+                child: const Text('Submit'),
+              ),
+            ],
+          ),
         ),
       ),
     );

@@ -2,7 +2,6 @@ part of 'bill_receipt_bloc.dart';
 
 abstract class BillReceiptState extends Equatable {
   const BillReceiptState();
-
   @override
   List<Object> get props => [];
 }
@@ -59,6 +58,11 @@ class BillInitialised extends BillReceiptState {
   final CloudCustomer customer;
   final CloudCustomerHistory history;
   const BillInitialised({required this.customer, required this.history});
+}
+
+class BillInitialisedFromLogHistory extends BillInitialised {
+  const BillInitialisedFromLogHistory({required CloudCustomer customer, required CloudCustomerHistory history})
+  : super(customer: customer, history: history);
 }
 
 class ReceiptInitialised extends BillReceiptState {

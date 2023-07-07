@@ -23,9 +23,9 @@ Widget CustomButton({
   );
 }
 
-Container HomePageButton(
+Widget HomePageButton(
     {
-    required IconData icon,
+    required Icon icon,
     required String text,
     required VoidCallback onPressed}) {
   return Container(
@@ -41,11 +41,7 @@ Container HomePageButton(
             const SizedBox(
               width: 10,
             ),
-            Icon(
-              icon,
-              color: Colors.black54,
-              size: 40,
-            ),
+            icon,
             const SizedBox(
               width: 10,
             ),

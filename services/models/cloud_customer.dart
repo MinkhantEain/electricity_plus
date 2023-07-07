@@ -14,6 +14,7 @@ class CloudCustomer {
   final num adder;
   final num horsePowerUnits;
   final num meterMultiplier;
+  final num debt;
   final bool flag;
   final bool hasRoadLightCost;
 
@@ -25,6 +26,7 @@ class CloudCustomer {
     required this.address,
     required this.lastUnit,
     required this.flag,
+    required this.debt,
     required this.adder,
     required this.horsePowerUnits,
     required this.meterMultiplier,
@@ -41,6 +43,7 @@ class CloudCustomer {
         address = json['address'],
         lastUnit = json['lastUnit'],
         flag = json['flag'],
+        debt = json[debtField],
         adder = json['adder'],
         horsePowerUnits = json['horsePowerUnits'],
         meterMultiplier = json['meterMultiplier'],
@@ -56,6 +59,7 @@ class CloudCustomer {
         'lastUnit': lastUnit,
         'flag': flag,
         'adder': adder,
+        debtField : debt,
         'horsePowerUnits': horsePowerUnits,
         'meterMultiplier': meterMultiplier,
         'hasRoadLightCost': hasRoadLightCost,
@@ -74,6 +78,7 @@ class CloudCustomer {
         horsePowerUnits = snapshot.data()[horsePowerUnitsField],
         meterMultiplier = snapshot.data()[meterMultiplierField],
         hasRoadLightCost = snapshot.data()[hasRoadLightCostField],
+        debt = snapshot.data()[debtField],
         lastHistory = snapshot.data()[lastHistoryField];
   
   CloudCustomer.fromDocSnapshot(
@@ -85,6 +90,7 @@ class CloudCustomer {
         address = snapshot.data()![addressField],
         lastUnit = snapshot.data()![lastUnitField],
         flag = snapshot.data()![flagField],
+        debt = snapshot.data()![debtField],
         adder = snapshot.data()![adderField],
         horsePowerUnits = snapshot.data()![horsePowerUnitsField],
         meterMultiplier = snapshot.data()![meterMultiplierField],

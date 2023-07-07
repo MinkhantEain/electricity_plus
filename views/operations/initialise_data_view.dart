@@ -33,48 +33,50 @@ class _InitialiseDataViewState extends State<InitialiseDataView> {
               ),
               title: const Text("Initialise Data"),
             ),
-            body: Column(
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: [
-                Text(
-                  'File Name: ${state.fileName}',
-                  overflow: TextOverflow.ellipsis,
-                  maxLines: 2,
-                ),
-                Text('File bytes: ${state.fileBytes}'),
-                Text('File extension: ${state.fileExtension}'),
-                Text(
-                  'File path: ${state.filePath}',
-                  overflow: TextOverflow.ellipsis,
-                ),
-                Text('File size: ${state.fileSize}'),
-                CustomButton(
-                  title: 'Choose File',
-                  icon: Icons.file_open,
-                  onClick: () async {
-                    final result = await FilePicker.platform.pickFiles(
-                      type: FileType.any,
-                      withData: false,
-                      allowMultiple: false,
-                    );
-                    if (result != null) {
-                      // ignore: use_build_context_synchronously
-                      context.read<OperationBloc>().add(
-                            OperationEventInitialiseData(
-                                result: result.files.first, submit: false),
-                          );
-                    }
-                  },
-                ),
-                ElevatedButton(
-                    onPressed: () {
-                      context.read<OperationBloc>().add(
-                            OperationEventInitialiseDataSubmission(
-                                result: state.platformFile),
-                          );
+            body: Center(
+              child: Column(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  Text(
+                    'File Name: ${state.fileName}',
+                    overflow: TextOverflow.ellipsis,
+                    maxLines: 2,
+                  ),
+                  Text('File bytes: ${state.fileBytes}'),
+                  Text('File extension: ${state.fileExtension}'),
+                  Text(
+                    'File path: ${state.filePath}',
+                    overflow: TextOverflow.ellipsis,
+                  ),
+                  Text('File size: ${state.fileSize}'),
+                  CustomButton(
+                    title: 'Choose File',
+                    icon: Icons.file_open,
+                    onClick: () async {
+                      final result = await FilePicker.platform.pickFiles(
+                        type: FileType.any,
+                        withData: false,
+                        allowMultiple: false,
+                      );
+                      if (result != null) {
+                        // ignore: use_build_context_synchronously
+                        context.read<OperationBloc>().add(
+                              OperationEventInitialiseData(
+                                  result: result.files.first, submit: false),
+                            );
+                      }
                     },
-                    child: const Text('Submit')),
-              ],
+                  ),
+                  ElevatedButton(
+                      onPressed: () {
+                        context.read<OperationBloc>().add(
+                              OperationEventInitialiseDataSubmission(
+                                  result: state.platformFile),
+                            );
+                      },
+                      child: const Text('Submit')),
+                ],
+              ),
             ),
           );
         } else {

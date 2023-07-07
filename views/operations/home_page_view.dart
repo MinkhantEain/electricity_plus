@@ -1,9 +1,10 @@
-
 import 'package:electricity_plus/services/cloud/operation/operation_bloc.dart';
 import 'package:electricity_plus/services/cloud/operation/operation_event.dart';
 import 'package:electricity_plus/services/cloud/operation/operation_state.dart';
 import 'package:electricity_plus/utilities/custom_button.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
+import 'package:flutter_barcode_scanner/flutter_barcode_scanner.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
 class HomePageView extends StatefulWidget {
@@ -14,6 +15,25 @@ class HomePageView extends StatefulWidget {
 }
 
 class _HomePageViewState extends State<HomePageView> {
+  Future<String> scanQRcode() async {
+    String barCodeScanResult;
+    try {
+      barCodeScanResult = await FlutterBarcodeScanner.scanBarcode(
+        '#ff6666',
+        'Cancel',
+        true,
+        ScanMode.QR,
+      );
+    } on PlatformException {
+      barCodeScanResult = '';
+    }
+
+    if (!mounted) {
+      return '';
+    }
+
+    return barCodeScanResult;
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -23,9 +43,6 @@ class _HomePageViewState extends State<HomePageView> {
         return Scaffold(
           appBar: AppBar(
             actions: [
-              IconButton(onPressed: () {
-                context.read<OperationBloc>().add(const OperationEventChooseBluetooth());
-              }, icon: const Icon(Icons.print_outlined)),
               AppBarMenu(context),
             ],
             title: Text("Town: ${state.townName}"),
@@ -36,28 +53,57 @@ class _HomePageViewState extends State<HomePageView> {
               child: Column(
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
-                  HomePageButton(
-                    icon: Icons.assignment_turned_in_outlined,
-                    text: "Electric Log",
-                    onPressed: () {
-                      context
-                          .read<OperationBloc>()
-                          .add(const OperationEventElectricLog(
-                          ));
-                    },
+                  Visibility(
+                    visible: state.townName != 'Town Not Chosen',
+                    child: HomePageButton(
+                      icon: const Icon(Icons.assignment_outlined),
+                      text: "Read Meter",
+                      onPressed: () {
+                        context.read<OperationBloc>().add(const OperationEventElectricLog());
+                      },
+                    ),
                   ),
-                  HomePageButton(
-                    icon: Icons.flag_outlined,
-                    text: "Flagged Customer",
-                    onPressed: () {
-                      context.read<OperationBloc>().add(
-                          const OperationEventFlagCustomerSearch(
-                              userInput: '', isSearching: false));
-                    },
+                  Visibility(
+                    visible: state.townName != 'Town Not Chosen',
+                    child: HomePageButton(
+                      icon: const Icon(Icons.history_edu_outlined),
+                      text: "Bill History",
+                      onPressed: () {
+                        context.read<OperationBloc>().add(const OperationEventBillHistory());
+                      },
+                    ),
                   ),
+                  Visibility(
+                    visible: state.townName != 'Town Not Chosen',
+                    child: HomePageButton(
+                      icon: const Icon(Icons.flag_outlined),
+                      text: "Flagged",
+                      onPressed: () {
+                        context.read<OperationBloc>().add(const OperationEventFlagged());
+                      },
+                    ),
+                  ),
+                  Visibility(
+                    visible: state.townName != 'Town Not Chosen',
+                    child: HomePageButton(
+                      icon: const Icon(Icons.payments_outlined),
+                      text: "Make Payment",
+                      onPressed: () async {
+                        //scans qr code then redirect to receipt page;
+                        final qrCode = await scanQRcode();
+                        if (qrCode != '-1') {
+                          // ignore: use_build_context_synchronously
+                          context
+                              .read<OperationBloc>()
+                              .add(OperationEventPayment(qrCode: qrCode));
+                        }
+                      },
+                    ),
+                  ),
+                  
                   HomePageButton(
-                    icon: Icons.assignment_ind_outlined,
-                    text: "Admin",
+                    icon: const Icon(Icons.assignment_ind_outlined),
+                    text: "Management",
                     onPressed: () {
                       context
                           .read<OperationBloc>()

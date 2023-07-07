@@ -11,6 +11,7 @@ CloudCustomer customerDummy = CloudCustomer(
     address: '(၁၀)မိုင် တာညုံပါဒ ကော့သောင်း',
     lastUnit: 375,
     flag: false,
+    debt: 300,
     adder: 0,
     horsePowerUnits: 0,
     meterMultiplier: 1,
@@ -28,7 +29,7 @@ CloudCustomerHistory historyDummy = const CloudCustomerHistory(
     imageUrl: '2022-06-01',
     comment: 'comment',
     isVoided: false,
-    isPaid: false,
+    paidAmount: 500,
     inspector: 'paing',
     serviceChargeAtm: 500,
     horsePowerPerUnitCostAtm: 200,
@@ -50,4 +51,5 @@ CloudReceipt receiptDummy = const CloudReceipt(
     townName: 'Dummy Town',
     meterAllowance: 0,
     priceAtm: 30,
-    initialCost: 100);
+    initialCost: 100,
+    finalCost: 100 - 0 * 30);

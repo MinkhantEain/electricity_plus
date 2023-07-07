@@ -36,6 +36,11 @@ class BillReceiptBloc extends Bloc<BillReceiptEvent, BillReceiptState> {
       }
     });
 
+    on<BillInitialiseFromBillHistory>((event, emit) {
+      emit(const BillReceiptLoading());
+      emit(BillInitialisedFromLogHistory(customer: event.customer, history: event.history));
+    },);
+
     on<BillReceiptPaymentEvent>(
       (event, emit) async {
         emit(const BillReceiptLoading());
@@ -51,7 +56,7 @@ class BillReceiptBloc extends Bloc<BillReceiptEvent, BillReceiptState> {
                 meterReadDate: event.history.date,
                 bookId: event.customer.bookId,
                 customerName: event.customer.name,
-                collectorName: FirebaseAuth.instance.currentUser!.email!,
+                collectorName: FirebaseAuth.instance.currentUser!.displayName!,
                 transactionDate: DateTime.now().toString(),
                 paymentDueDate: paymentDueDate(event.history.date),
                 customerDocId: event.customer.documentId,
@@ -59,7 +64,8 @@ class BillReceiptBloc extends Bloc<BillReceiptEvent, BillReceiptState> {
                 townName: await AppDocumentData.getTownName(),
                 meterAllowance: num.parse(meterAllowance),
                 priceAtm: event.history.priceAtm,
-                initialCost: event.history.cost);
+                initialCost: event.history.cost,
+                finalCost: event.history.cost - (num.parse(meterAllowance) * event.history.priceAtm));
             await provider.makePayment(receipt);
             emit(const BillReceiptPaymentRecordedSuccessfully());
             emit(BillReceiptPaymentState(

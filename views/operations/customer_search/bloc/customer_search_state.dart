@@ -2,16 +2,39 @@ part of 'customer_search_bloc.dart';
 
 abstract class CustomerSearchState extends Equatable {
   const CustomerSearchState();
-  
+
   @override
   List<Object> get props => [];
 }
 
 class CustomerSearchInitial extends CustomerSearchState {
   final Iterable<CloudCustomer> customers;
-  const CustomerSearchInitial({required this.customers});
+  final ContextCallBack onTap;
+  final String pageName;
+  const CustomerSearchInitial(
+      {required this.customers, required this.onTap, required this.pageName});
   @override
-  List<Object> get props => [super.props, customers];
+  List<Object> get props => [super.props, customers, onTap, pageName];
+}
+
+//meter read search selected
+class CustomerSearchMeterReadSelected extends CustomerSearchState {
+  final num previousUnit;
+  final CloudCustomer customer;
+  const CustomerSearchMeterReadSelected({
+    required this.customer,
+    required this.previousUnit,
+  });
+}
+
+//bill history search
+class CustomerSearchBillHistorySelected extends CustomerSearchState {
+  final CloudCustomer customer;
+  final Iterable<CloudCustomerHistory> historyList;
+  const CustomerSearchBillHistorySelected({
+    required this.customer,
+    required this.historyList,
+  });
 }
 
 class CustomerSearchLoading extends CustomerSearchState {
@@ -28,7 +51,5 @@ class CustomerSearchNoUserError extends CustomerSearchError {
 
 class CustomerSearchCustomerSelectedState extends CustomerSearchState {
   final CloudCustomer customer;
-  final String previousReading;
-  const CustomerSearchCustomerSelectedState({required this.customer, required this.previousReading});
+  const CustomerSearchCustomerSelectedState({required this.customer});
 }
-
