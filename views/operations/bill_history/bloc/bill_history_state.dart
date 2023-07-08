@@ -16,8 +16,6 @@ class BillHistoryStateInitial extends BillHistoryState {
   });
 }
 
-
-
 class BillHistoryStateSelected extends BillHistoryState {
   final CloudCustomer customer;
   final CloudCustomerHistory history;

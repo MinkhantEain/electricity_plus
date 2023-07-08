@@ -20,6 +20,24 @@ class FlaggedStateLoading extends FlaggedState {
   const FlaggedStateLoading();
 }
 
+class FlaggedStateBlackSelected extends FlaggedState {
+  final CloudCustomer customer;
+  final Iterable<CloudCustomerHistory> history;
+  const FlaggedStateBlackSelected({
+    required this.customer,
+    required this.history,
+  });
+}
+
+class FlaggedStateBillSelected extends FlaggedState {
+  final CloudCustomer customer;
+  final CloudCustomerHistory history;
+  const FlaggedStateBillSelected({
+    required this.customer,
+    required this.history,
+  });
+}
+
 class FlaggedStateRedSelected extends FlaggedState {
   final CloudCustomer customer;
   final CloudFlag flag;
@@ -32,11 +50,11 @@ class FlaggedStateRedSelected extends FlaggedState {
 }
 
 class FlaggedStatePageSelected extends FlaggedState {
-  final Iterable<CloudCustomer> customer;
+  final Iterable<CloudCustomer> customers;
   final ContextualCallBack onTap;
   final String pageName;
   const FlaggedStatePageSelected({
-    required this.customer,
+    required this.customers,
     required this.onTap,
     required this.pageName,
   });

@@ -1,6 +1,6 @@
-import 'package:bloc/bloc.dart';
 import 'package:electricity_plus/services/cloud/firebase_cloud_storage.dart';
 import 'package:electricity_plus/services/models/cloud_customer.dart';
+import 'package:electricity_plus/services/models/cloud_customer_history.dart';
 import 'package:electricity_plus/services/models/cloud_flag.dart';
 import 'package:equatable/equatable.dart';
 import 'package:flutter/material.dart';
@@ -29,7 +29,7 @@ class FlaggedBloc extends Bloc<FlaggedEvent, FlaggedState> {
         final flaggedCustomers = await provider.allFlaggedCustomer();
 
         emit(FlaggedStatePageSelected(
-          customer: flaggedCustomers,
+          customers: flaggedCustomers,
           onTap: (context, customer) {
             context.read<FlaggedBloc>().add(
                   FlaggedEventRedSelect(
@@ -54,15 +54,41 @@ class FlaggedBloc extends Bloc<FlaggedEvent, FlaggedState> {
       },
     );
 
-    // on<FlaggedEventBlack>(
-    //   (event, emit) {
-    //     emit(const FlaggedStateLoading());
-    //     emit(const FlaggedStatePageSelected(
-    //       customer: customer,
-    //       onTap: onTap,
-    //       pageName: 'Unpaid Customer',
-    //     ));
-    //   },
-    // );
+    on<FlaggedEventBlackSelect>(
+      (event, emit) async {
+        emit(const FlaggedStateLoading());
+        final history = await provider.allUnpaidHistory(event.customer);
+        emit(FlaggedStateBlackSelected(
+          customer: event.customer,
+          history: history,
+        ));
+      },
+    );
+
+    on<FLaggedEventBillSelect>(
+      (event, emit) {
+        emit(const FlaggedStateLoading());
+        emit(FlaggedStateBillSelected(
+          customer: event.customer,
+          history: event.history,
+        ));
+      },
+    );
+
+    on<FlaggedEventBlack>(
+      (event, emit) async {
+        emit(const FlaggedStateLoading());
+        final customers = await provider.allInDebtCustomer();
+        emit(FlaggedStatePageSelected(
+          customers: customers,
+          onTap: (context, customer) {
+            context.read<FlaggedBloc>().add(FlaggedEventBlackSelect(
+                  customer: customer,
+                ));
+          },
+          pageName: 'Unpaid Customer',
+        ));
+      },
+    );
   }
 }

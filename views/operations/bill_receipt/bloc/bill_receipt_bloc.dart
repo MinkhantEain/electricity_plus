@@ -20,6 +20,16 @@ class BillReceiptBloc extends Bloc<BillReceiptEvent, BillReceiptState> {
       emit(BillInitialised(customer: event.customer, history: event.history));
     });
 
+    on<BillFromFlaggedInitialise>(
+      (event, emit) {
+        emit(const BillReceiptLoading());
+        emit(BillFromFlaggedInitialised(
+          customer: event.customer,
+          history: event.history,
+        ));
+      },
+    );
+
     on<BillQrInitialise>((event, emit) async {
       emit(const BillReceiptLoading());
       //index 0 is customer doc id, index 1 is history doc id
@@ -36,10 +46,15 @@ class BillReceiptBloc extends Bloc<BillReceiptEvent, BillReceiptState> {
       }
     });
 
-    on<BillInitialiseFromBillHistory>((event, emit) {
-      emit(const BillReceiptLoading());
-      emit(BillInitialisedFromLogHistory(customer: event.customer, history: event.history));
-    },);
+    on<BillFromHistorySearchInitialise>(
+      (event, emit) {
+        emit(const BillReceiptLoading());
+        emit(BillFromHistorySearchInitialised(
+          customer: event.customer,
+          history: event.history,
+        ));
+      },
+    );
 
     on<BillReceiptPaymentEvent>(
       (event, emit) async {
@@ -65,8 +80,9 @@ class BillReceiptBloc extends Bloc<BillReceiptEvent, BillReceiptState> {
                 meterAllowance: num.parse(meterAllowance),
                 priceAtm: event.history.priceAtm,
                 initialCost: event.history.cost,
-                finalCost: event.history.cost - (num.parse(meterAllowance) * event.history.priceAtm));
-            await provider.makePayment(receipt);
+                finalCost: event.history.cost -
+                    (num.parse(meterAllowance) * event.history.priceAtm));
+            await provider.makePayment(receipt: receipt);
             emit(const BillReceiptPaymentRecordedSuccessfully());
             emit(BillReceiptPaymentState(
               customer: event.customer,

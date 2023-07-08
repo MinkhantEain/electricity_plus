@@ -60,9 +60,18 @@ class BillInitialised extends BillReceiptState {
   const BillInitialised({required this.customer, required this.history});
 }
 
-class BillInitialisedFromLogHistory extends BillInitialised {
-  const BillInitialisedFromLogHistory({required CloudCustomer customer, required CloudCustomerHistory history})
-  : super(customer: customer, history: history);
+class BillFromHistorySearchInitialised extends BillInitialised {
+  const BillFromHistorySearchInitialised(
+      {required CloudCustomer customer,
+      required CloudCustomerHistory history,})
+      : super(customer: customer, history: history);
+}
+
+class BillFromFlaggedInitialised extends BillInitialised {
+  const BillFromFlaggedInitialised(
+      {required CloudCustomer customer,
+      required CloudCustomerHistory history,})
+      : super(customer: customer, history: history);
 }
 
 class ReceiptInitialised extends BillReceiptState {
@@ -98,4 +107,3 @@ class ReceiptPrinterNotConnected extends BillReceiptState {
   const ReceiptPrinterNotConnected(
       {required this.customer, required this.history});
 }
-

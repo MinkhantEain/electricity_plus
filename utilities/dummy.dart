@@ -31,6 +31,7 @@ CloudCustomerHistory historyDummy = const CloudCustomerHistory(
     isVoided: false,
     paidAmount: 500,
     inspector: 'paing',
+    isPaid: false,
     serviceChargeAtm: 500,
     horsePowerPerUnitCostAtm: 200,
     horsePowerUnits: 1,

@@ -29,6 +29,7 @@ const paidAmountField = 'PaidAmount';
 const imageUrlField = 'ImageURL';
 const commentField = 'Comment';
 const isVoidedField = 'isVoided';
+const isPaidField= 'isPaid';
 // const isPaidField = 'isPaid';
 const inspectorField = 'Inspector';
 const horsePowerPerUnitCostAtmField = 'HorsePowerPerUnitCostATM';

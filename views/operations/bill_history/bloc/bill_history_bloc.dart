@@ -1,5 +1,4 @@
 import 'package:bloc/bloc.dart';
-import 'package:electricity_plus/services/cloud/firebase_cloud_storage.dart';
 import 'package:electricity_plus/services/models/cloud_customer.dart';
 import 'package:electricity_plus/services/models/cloud_customer_history.dart';
 import 'package:equatable/equatable.dart';
@@ -23,13 +22,11 @@ class BillHistoryBloc extends Bloc<BillHistoryEvent, BillHistoryState> {
       ));
     });
 
-    on<BillHistoryEventReinitialise>(
+    on<BillHistoryEventReinitialiseFromBill>(
       (event, emit) async {
         emit(const BillHistoryStateLoading());
-        final historyList = await FirebaseCloudStorage()
-            .getCustomerAllHistory(customer: event.customer);
         emit(BillHistoryStateInitial(
-            historyList: historyList, customer: event.customer));
+            customer: event.customer, historyList: historyList));
       },
     );
   }

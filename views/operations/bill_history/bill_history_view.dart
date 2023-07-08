@@ -3,11 +3,14 @@ import 'package:electricity_plus/views/operations/bill_history/bloc/bill_history
 import 'package:electricity_plus/views/operations/bill_receipt/bill_view.dart';
 import 'package:electricity_plus/views/operations/bill_receipt/bloc/bill_receipt_bloc.dart';
 import 'package:electricity_plus/views/operations/customer_search/bloc/customer_search_bloc.dart';
+import 'package:electricity_plus/views/operations/flagged/bloc/flagged_bloc.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
 class BillHistoryView extends StatefulWidget {
-  const BillHistoryView({super.key});
+  const BillHistoryView({
+    super.key,
+  });
 
   @override
   State<BillHistoryView> createState() => _BillHistoryViewState();
@@ -65,8 +68,9 @@ isVoided: ${customerReceiptHistory.isVoided},
         } else if (state is BillHistoryStateSelected) {
           return BlocProvider(
             create: (context) => BillReceiptBloc(FirebaseCloudStorage())
-              ..add(BillInitialiseFromBillHistory(
-                  customer: state.customer, history: state.history)),
+              ..add(BillFromHistorySearchInitialise(
+                  customer: state.customer,
+                  history: state.history,)),
             child: const BillView(),
           );
         } else {

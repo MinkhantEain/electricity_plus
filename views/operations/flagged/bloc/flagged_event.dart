@@ -11,7 +11,6 @@ class FlaggedEventInitial extends FlaggedEvent {
   const FlaggedEventInitial();
 }
 
-
 class FlaggedEventRed extends FlaggedEvent {
   const FlaggedEventRed();
 }
@@ -23,13 +22,22 @@ class FlaggedEventRedSelect extends FlaggedEvent {
   });
 }
 
-class FlaggedEventBlack extends FlaggedEvent {
+class FLaggedEventBillSelect extends FlaggedEvent {
+  final CloudCustomerHistory history;
   final CloudCustomer customer;
-  const FlaggedEventBlack({
+  const FLaggedEventBillSelect({
+    required this.history,
     required this.customer,
   });
 }
 
-class FlaggedEventBlackSelected extends FlaggedEvent {
-  const FlaggedEventBlackSelected();
+class FlaggedEventBlack extends FlaggedEvent {
+  const FlaggedEventBlack();
+}
+
+class FlaggedEventBlackSelect extends FlaggedEvent {
+  final CloudCustomer customer;
+  const FlaggedEventBlackSelect({
+    required this.customer,
+  });
 }

@@ -10,7 +10,7 @@ class FlagListView extends StatelessWidget {
     return BlocBuilder<FlaggedBloc, FlaggedState>(
       builder: (context, state) {
         if (state is FlaggedStatePageSelected) {
-          final customers = state.customer;
+          final customers = state.customers;
           return Scaffold(
             appBar: AppBar(
               title: Text(state.pageName),

@@ -14,7 +14,11 @@ class BillHistoryEventSelect extends BillHistoryEvent {
   });
 }
 
-class BillHistoryEventReinitialise extends BillHistoryEvent {
+class BillHistoryEventReinitialiseFromBill extends BillHistoryEvent {
   final CloudCustomer customer;
-  const BillHistoryEventReinitialise({required this.customer});
+  const BillHistoryEventReinitialiseFromBill({
+    required this.customer,
+  });
 }
+
+

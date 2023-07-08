@@ -19,6 +19,7 @@ class CloudCustomerHistory {
   final num meterMultiplier;
   final num roadLightPrice;
   final bool isVoided;
+  final bool isPaid;
   final num paidAmount;
   
 
@@ -35,6 +36,7 @@ class CloudCustomerHistory {
     required this.isVoided,
     required this.paidAmount,
     required this.inspector,
+    required this.isPaid,
     required this.serviceChargeAtm,
     required this.horsePowerPerUnitCostAtm,
     required this.horsePowerUnits,
@@ -42,9 +44,6 @@ class CloudCustomerHistory {
     required this.roadLightPrice,
   });
 
-  bool isPaid() {
-    return paidAmount == cost;
-  }
 
   num basicElectricityPrice() {
     return ((newUnit - previousUnit) * meterMultiplier * priceAtm + horsePowerUnits * horsePowerPerUnitCostAtm);
@@ -60,6 +59,7 @@ class CloudCustomerHistory {
   date = snapshot.data()[dateField],
   imageUrl = snapshot.data()[imageUrlField],
   comment = snapshot.data()[commentField],
+  isPaid = snapshot.data()[isPaidField],
   isVoided = snapshot.data()[isVoidedField],
   paidAmount = snapshot.data()[paidAmountField],
   inspector = snapshot.data()[inspectorField],
@@ -76,6 +76,7 @@ class CloudCustomerHistory {
   serviceChargeAtm = snapshot.data()![serviceChargeAtmField],
   cost = snapshot.data()![costField],
   date = snapshot.data()![dateField],
+  isPaid = snapshot.data()![isPaidField],
   imageUrl = snapshot.data()![imageUrlField],
   comment = snapshot.data()![commentField],
   isVoided = snapshot.data()![isVoidedField],
@@ -100,7 +101,7 @@ imageUrl: $imageUrl
 comment: $comment
 isVoided: $isVoided
 paidAmount: $paidAmount
-isPaid: $isPaid()
+isPaid: $isPaid
 inspector: $inspector
 horsePowerCostAtm = $horsePowerPerUnitCostAtm
 horsePowerUnits = $horsePowerUnits

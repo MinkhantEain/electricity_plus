@@ -9,6 +9,7 @@ import 'package:electricity_plus/views/operations/bill_history/bloc/bill_history
 import 'package:electricity_plus/views/operations/bill_receipt/bloc/bill_receipt_bloc.dart';
 import 'package:electricity_plus/views/operations/bill_receipt/meter_allowance_acquisition_page.dart';
 import 'package:electricity_plus/views/operations/bill_receipt/receipt_page.dart';
+import 'package:electricity_plus/views/operations/flagged/bloc/flagged_bloc.dart';
 import 'package:electricity_plus/views/operations/printer_select_view.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -55,9 +56,12 @@ class _BillViewState extends State<BillView> {
             appBar: AppBar(
               leading: BackButton(
                 onPressed: () async {
-                  if (state is BillInitialisedFromLogHistory) {
+                  if (state is BillFromHistorySearchInitialised) {
                     context.read<BillHistoryBloc>().add(
-                        BillHistoryEventReinitialise(customer: state.customer));
+                        BillHistoryEventReinitialiseFromBill(
+                            customer: state.customer,));
+                  } else if (state is BillFromFlaggedInitialised) {
+                    context.read<FlaggedBloc>().add(FlaggedEventBlackSelect(customer: state.customer));
                   } else {
                     context
                         .read<OperationBloc>()
@@ -90,7 +94,6 @@ class _BillViewState extends State<BillView> {
                                   InheritedTheme.captureAll(
                                     context,
                                     Material(
-                                      //TODO: Needs to correct the billing
                                       //TODO: implement the history for past 3 months
                                       child: Bill(
                                           customer: state.customer,
@@ -119,7 +122,7 @@ class _BillViewState extends State<BillView> {
                         //TODO: implement payment method, implement admin assigning
                         //TODO: must put hasPaymentCollectionRight to make payment
                         Visibility(
-                            visible: !state.history.isPaid() &&
+                            visible: !state.history.isPaid &&
                                 !state.history.isVoided,
                             child: ElevatedButton(
                               child: const Text('Make Payment'),
@@ -133,7 +136,7 @@ class _BillViewState extends State<BillView> {
                             )),
                         Visibility(
                             visible:
-                                state.history.isPaid() && !state.history.isVoided,
+                                state.history.isPaid && !state.history.isVoided,
                             child: ElevatedButton(
                               child: const Text('Receipt'),
                               onPressed: () {

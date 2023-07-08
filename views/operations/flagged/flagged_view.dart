@@ -3,6 +3,11 @@ import 'package:electricity_plus/services/cloud/firebase_cloud_storage.dart';
 import 'package:electricity_plus/services/cloud/operation/operation_bloc.dart';
 import 'package:electricity_plus/services/cloud/operation/operation_event.dart';
 import 'package:electricity_plus/utilities/custom_button.dart';
+import 'package:electricity_plus/views/operations/bill_history/bill_history_view.dart';
+import 'package:electricity_plus/views/operations/bill_history/bloc/bill_history_bloc.dart';
+import 'package:electricity_plus/views/operations/bill_receipt/bill_view.dart';
+import 'package:electricity_plus/views/operations/bill_receipt/bloc/bill_receipt_bloc.dart';
+import 'package:electricity_plus/views/operations/flagged/black_flag_customer_view.dart';
 import 'package:electricity_plus/views/operations/flagged/bloc/flagged_bloc.dart';
 import 'package:electricity_plus/views/operations/flagged/flag_list_view.dart';
 import 'package:electricity_plus/views/operations/flagged/resolve_red_flag/bloc/resolve_red_flag_bloc.dart';
@@ -51,7 +56,6 @@ class FlaggedView extends StatelessWidget {
                     icon: const Icon(Icons.flag, color: Colors.red),
                     text: 'Error Meter',
                     onPressed: () {
-                      //TODO: go to a view with all the flagged customer.
                       context.read<FlaggedBloc>().add(const FlaggedEventRed());
                     },
                   ),
@@ -63,6 +67,9 @@ class FlaggedView extends StatelessWidget {
                     text: 'Unpaid Customer',
                     onPressed: () {
                       //TODO: got to a view with all the unapid customer.
+                      context
+                          .read<FlaggedBloc>()
+                          .add(const FlaggedEventBlack());
                     },
                   )
                 ],
@@ -74,8 +81,22 @@ class FlaggedView extends StatelessWidget {
         } else if (state is FlaggedStateRedSelected) {
           return BlocProvider(
             create: (context) => ResolveRedFlagBloc(FirebaseCloudStorage(),
-            customer: state.customer, flag: state.flag, image: state.image),
+                customer: state.customer, flag: state.flag, image: state.image),
             child: const ResolveRedFlagView(),
+          );
+        } else if (state is FlaggedStateBlackSelected) {
+          return BlocProvider(
+              create: (context) => BillHistoryBloc(
+                  customer: state.customer, historyList: state.history),
+              child: const BlackFlagCustomerView());
+        } else if (state is FlaggedStateBillSelected) {
+          return BlocProvider(
+            create: (context) => BillReceiptBloc(FirebaseCloudStorage())
+              ..add(
+                BillFromFlaggedInitialise(
+                    customer: state.customer, history: state.history),
+              ),
+            child: const BillView(),
           );
         } else {
           return const Scaffold();

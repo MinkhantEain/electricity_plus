@@ -33,10 +33,18 @@ class BillInitialise extends BillReceiptEvent {
   const BillInitialise({required this.customer, required this.history});
 }
 
-class BillInitialiseFromBillHistory extends BillInitialise {
-  const BillInitialiseFromBillHistory(
-      {required CloudCustomer customer, required CloudCustomerHistory history})
-      : super(customer: customer, history: history);
+class BillFromHistorySearchInitialise extends BillInitialise {
+  const BillFromHistorySearchInitialise({
+    required CloudCustomer customer,
+    required CloudCustomerHistory history,
+  }) : super(customer: customer, history: history);
+}
+
+class BillFromFlaggedInitialise extends BillInitialise {
+  const BillFromFlaggedInitialise({
+    required CloudCustomer customer,
+    required CloudCustomerHistory history,
+  }) : super(customer: customer, history: history);
 }
 
 class BillQrInitialise extends BillReceiptEvent {
