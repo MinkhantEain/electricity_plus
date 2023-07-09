@@ -37,7 +37,7 @@ class AddCustomerBloc extends Bloc<AddCustomerEvent, AddCustomerState> {
         if (await provider.customerExists(bookId: event.bookId)) {
           emit(AddCustomerErrorStateAlreadyExists(bookId: event.bookId));
         } else {
-          await provider.createUser(
+          await provider.createCustomer(
               name: event.name,
               address: event.address,
               bookId: event.bookId,

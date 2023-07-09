@@ -63,12 +63,19 @@ const priceDoc = 'PriceDoc';
 const adminCollection = 'Admin';
 const detailsDoc = 'Details';
 const passwordFields = 'Password';
-
+const undecidedtype = 'undecided';
+const meterReaderType = 'meterReader';
+const cashierType = 'cashier';
+const directorType = 'diector';
+const adminType = 'adminType';
 
 const receiptCollection = 'Receipts';
 
 //Town path
 const townCollection = 'Towns';
+const townCountCollection = 'TownCount';
+const townCountDoc = 'TownCountDoc';
+const townCountField = 'TownCount';
 
 const forDateField = 'ForDate';
 const meterReadDateField = 'MeterReadDate';
@@ -91,3 +98,4 @@ const emailField = 'Email';
 const passwordField = 'Password';
 const userTypeField = 'UserType';
 const isStaffField = 'isStaff';
+const staffCollection = 'StaffCollection';

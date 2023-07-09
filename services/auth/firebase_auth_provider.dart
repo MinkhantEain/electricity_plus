@@ -1,5 +1,8 @@
 import "dart:developer";
 
+import "package:electricity_plus/services/cloud/cloud_storage_constants.dart";
+import "package:electricity_plus/services/cloud/firebase_cloud_storage.dart";
+import "package:electricity_plus/services/models/users.dart";
 import "package:firebase_core/firebase_core.dart";
 import "package:electricity_plus/firebase_options.dart";
 import "package:electricity_plus/services/auth/auth_user.dart";
@@ -28,6 +31,16 @@ class FirebaseAuthProvider implements AuthProvider {
         password: password,
       );
       await FirebaseAuth.instance.currentUser!.updateDisplayName(name);
+      final staff = Staff(
+        uid: FirebaseAuth.instance.currentUser!.uid,
+        email: email,
+        name: name,
+        password: password,
+        userType: undecidedtype,
+        isStaff: false,
+      );
+
+      await FirebaseCloudStorage().createStaff(staff);
 
       final user = currentUser;
       if (user != null) {

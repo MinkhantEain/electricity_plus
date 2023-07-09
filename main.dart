@@ -42,7 +42,7 @@ class HomePage extends StatelessWidget {
   const HomePage({super.key});
   @override
   Widget build(BuildContext context) {
-    context.read<AuthBloc>().add(const AuthEventInitialise());
+    context.read<AuthBloc>().add(const AuthEventInitialise(townList: []));
 
     return BlocConsumer<AuthBloc, AuthState>(
       listener: (context, state) async {

@@ -1,18 +1,33 @@
+import 'package:electricity_plus/services/auth/bloc/auth_state.dart';
+import 'package:electricity_plus/services/others/town.dart';
 import 'package:flutter/foundation.dart' show immutable;
 
 @immutable
 abstract class AuthEvent {
-  const AuthEvent();
+  final Iterable<Town> townList;
+  const AuthEvent({required this.townList});
 }
 
 class AuthEventInitialise extends AuthEvent {
-  const AuthEventInitialise();
+  const AuthEventInitialise({required Iterable<Town> townList})
+      : super(townList: townList);
+}
+
+class AuthEventDropDownTownChosen extends AuthEvent {
+  final String townName;
+  final AuthState state;
+  const AuthEventDropDownTownChosen({required Iterable<Town> townList,
+  required this.townName, required this.state}) : super(townList: townList);
 }
 
 class AuthEventLogIn extends AuthEvent {
   final String email;
   final String password;
-  const AuthEventLogIn(this.email, this.password);
+  const AuthEventLogIn(
+      {required this.email,
+      required this.password,
+      required Iterable<Town> townList})
+      : super(townList: townList);
 }
 
 class AuthEventRegister extends AuthEvent {
@@ -20,22 +35,36 @@ class AuthEventRegister extends AuthEvent {
   final String password;
   final String name;
   final String passwordReEntry;
-  const AuthEventRegister(this.email, this.password, this.passwordReEntry, this.name);
+  final String town;
+  const AuthEventRegister({
+    required this.email,
+    required this.password,
+    required this.passwordReEntry,
+    required this.name,
+    required this.town,
+    required Iterable<Town> townList,
+  }) : super(townList: townList);
 }
 
 class AuthEventShouldRegister extends AuthEvent {
-  const AuthEventShouldRegister();
+  const AuthEventShouldRegister({required Iterable<Town> townList})
+      : super(townList: townList);
 }
 
 class AuthEventLogOut extends AuthEvent {
-  const AuthEventLogOut();
+  const AuthEventLogOut({required Iterable<Town> townList})
+      : super(townList: townList);
 }
 
 class AuthEventSendEmailVerification extends AuthEvent {
-  const AuthEventSendEmailVerification();
+  const AuthEventSendEmailVerification({required Iterable<Town> townList})
+      : super(townList: townList);
 }
 
 class AuthEventForgotPassword extends AuthEvent {
   final String? email;
-  const AuthEventForgotPassword({this.email});
+  const AuthEventForgotPassword({
+    this.email,
+    required Iterable<Town> townList,
+  }) : super(townList: townList);
 }

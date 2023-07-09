@@ -31,6 +31,7 @@ class TownSelectionBloc extends Bloc<TownSelectionEvent, TownSelectionState> {
       try {
         await provider.addTown(event.townName);
         final newTownList = await provider.getAllTown();
+        await provider.setTownCount(newTownList.length);
         await AppDocumentData.storeTownList(newTownList);
         emit(const TownSelectionLoaded());
         emit(TownSelectionStateTownAdded(townName: event.townName));
@@ -47,19 +48,21 @@ class TownSelectionBloc extends Bloc<TownSelectionEvent, TownSelectionState> {
       emit(
           const TownSelectionLoading(loadingMessage: 'Please wait a while...'));
       await provider.deleteTown(event.townName);
-        final newTownList = await provider.getAllTown();
-        await AppDocumentData.storeTownList(newTownList);
-        emit(const TownSelectionLoaded());
-        emit(TownSelectionStateDeleted(townName: event.townName));
-        emit(TownSelectionInitialised(towns: newTownList));
+      final newTownList = await provider.getAllTown();
+      await provider.setTownCount(newTownList.length);
+      await AppDocumentData.storeTownList(newTownList);
+      emit(const TownSelectionLoaded());
+      emit(TownSelectionStateDeleted(townName: event.townName));
+      emit(TownSelectionInitialised(towns: newTownList));
     });
 
     on<TownSelectionSelected>((event, emit) async {
-      emit(const TownSelectionError(
-            message: 'Invalid Password',
-            exception: InvalidPasswordException()));
-        emit(TownSelectionInitialised(
-            towns: await AppDocumentData.getTownList()));
+      emit(
+          const TownSelectionLoading(loadingMessage: 'Please wait a while...'));
+      await AppDocumentData.storeTownName(event.townName);
+      emit(NewTownSelected(newTownName: event.townName));
+      emit(
+          TownSelectionInitialised(towns: await AppDocumentData.getTownList()));
     });
   }
 }

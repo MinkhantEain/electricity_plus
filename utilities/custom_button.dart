@@ -1,8 +1,11 @@
 import 'package:electricity_plus/enums/menu_action.dart';
 import 'package:electricity_plus/services/auth/bloc/auth_bloc.dart';
 import 'package:electricity_plus/services/auth/bloc/auth_event.dart';
+import 'package:electricity_plus/services/auth/bloc/auth_state.dart';
 import 'package:electricity_plus/services/cloud/operation/operation_bloc.dart';
 import 'package:electricity_plus/services/cloud/operation/operation_event.dart';
+import 'package:electricity_plus/services/others/local_storage.dart';
+import 'package:electricity_plus/services/others/town.dart';
 import 'package:electricity_plus/utilities/dialogs/home_page_dialog.dart';
 import 'package:electricity_plus/utilities/dialogs/logout_dialog.dart';
 import 'package:flutter/material.dart';
@@ -24,8 +27,7 @@ Widget CustomButton({
 }
 
 Widget HomePageButton(
-    {
-    required Icon icon,
+    {required Icon icon,
     required String text,
     required VoidCallback onPressed}) {
   return Container(
@@ -35,7 +37,7 @@ Widget HomePageButton(
       height: 60,
       child: ElevatedButton(
         onPressed: onPressed,
-        child:  Row(
+        child: Row(
           mainAxisAlignment: MainAxisAlignment.start,
           children: [
             const SizedBox(
@@ -56,48 +58,73 @@ Widget HomePageButton(
   );
 }
 
+DropdownButton<String> TownListDropDown(
+    BuildContext context, Iterable<Town> townList, String currentTown, AuthState state) {
+  String townValue = currentTown;
+  return DropdownButton<String>(
+    value: townValue,
+    items: townList
+        .map(
+          (town) => DropdownMenuItem<String>(
+              value: town.townName, child: Text(town.townName)),
+        )
+        .toList(),
+    onChanged: (value) async {
+      if (value != null) {
+        context.read<AuthBloc>().add(
+            AuthEventDropDownTownChosen(townList: townList, townName: value, state: state));
+        await AppDocumentData.storeTownName(value);
+      }
+    },
+  );
+}
+
 PopupMenuButton<MenuAction> AppBarMenu(BuildContext context) {
-    return PopupMenuButton<MenuAction>(
-                onSelected: (value) async {
-                  switch (value) {
-                    case MenuAction.logout:
-                      final shouldLogout = await showLogOutDialog(context);
-                      if (shouldLogout) {
-                        // ignore: use_build_context_synchronously
-                        context.read<AuthBloc>().add(const AuthEventLogOut());
-                      }
-                      break;
-                    case MenuAction.home:
-                      final shouldGoHome = await showHomePageDialog(context);
-                      if (shouldGoHome) {
-                        // ignore: use_build_context_synchronously
-                        context
-                            .read<OperationBloc>()
-                            .add(const OperationEventDefault());
-                      }
-                      break;
-                  }
-                },
-                itemBuilder: (context) {
-                  return const [
-                    PopupMenuItem(
-                      value: MenuAction.home,
-                      child: Row( children: [
-                        Icon(Icons.home),
-                        SizedBox(width: 5,),
-                        Text('Home')
-                      ]),
-                    ),
-                    PopupMenuItem(
-                      value: MenuAction.logout,
-                      child: Row(
-                        children: [Icon(Icons.logout_sharp),
-                        SizedBox(width: 5,),
-                          Text("Logout"),
-                        ],
-                      ),
-                    ),
-                  ];
-                },
-              );
-  }
+  return PopupMenuButton<MenuAction>(
+    onSelected: (value) async {
+      switch (value) {
+        case MenuAction.logout:
+          final shouldLogout = await showLogOutDialog(context);
+          if (shouldLogout) {
+            // ignore: use_build_context_synchronously
+            context.read<AuthBloc>().add(
+                AuthEventLogOut(townList: await AppDocumentData.getTownList()));
+          }
+          break;
+        case MenuAction.home:
+          final shouldGoHome = await showHomePageDialog(context);
+          if (shouldGoHome) {
+            // ignore: use_build_context_synchronously
+            context.read<OperationBloc>().add(const OperationEventDefault());
+          }
+          break;
+      }
+    },
+    itemBuilder: (context) {
+      return const [
+        PopupMenuItem(
+          value: MenuAction.home,
+          child: Row(children: [
+            Icon(Icons.home),
+            SizedBox(
+              width: 5,
+            ),
+            Text('Home')
+          ]),
+        ),
+        PopupMenuItem(
+          value: MenuAction.logout,
+          child: Row(
+            children: [
+              Icon(Icons.logout_sharp),
+              SizedBox(
+                width: 5,
+              ),
+              Text("Logout"),
+            ],
+          ),
+        ),
+      ];
+    },
+  );
+}

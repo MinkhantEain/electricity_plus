@@ -29,6 +29,11 @@ class AppDocumentData {
     }
   }
 
+  static Future<num> townCount() async {
+    final townList = await getTownList();
+    return townList.length;
+  }
+
   static Future<void> storeTownList(Iterable<Town> towns) async {
     List<String> strTowns = [];
     for (var town in towns) {

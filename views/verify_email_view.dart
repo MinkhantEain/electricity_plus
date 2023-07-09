@@ -1,3 +1,4 @@
+import 'package:electricity_plus/services/others/local_storage.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:electricity_plus/services/auth/bloc/auth_bloc.dart';
@@ -22,18 +23,18 @@ class _VerifyEmailViewState extends State<VerifyEmailView> {
           const Text(
               "If you haven't received a verifiation email yet, press the button below"),
           TextButton(
-            onPressed: () {
+            onPressed: () async {
               context
                   .read<AuthBloc>()
-                  .add(const AuthEventSendEmailVerification());
+                  .add(AuthEventSendEmailVerification(townList: await AppDocumentData.getTownList()));
             },
             child: const Text("Send Email Verification"),
           ),
           TextButton(
-            onPressed: () {
+            onPressed: () async {
               context
                   .read<AuthBloc>()
-                  .add(const AuthEventLogOut());
+                  .add(AuthEventLogOut(townList: await AppDocumentData.getTownList()));
             },
             child: const Text("Restart"),
           ),

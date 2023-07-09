@@ -1,4 +1,5 @@
 
+import 'package:electricity_plus/services/others/local_storage.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:electricity_plus/services/auth/bloc/auth_bloc.dart';
@@ -64,15 +65,15 @@ class _ForgotPassowrdViewState extends State<ForgotPassowrdView> {
                     const InputDecoration(hintText: 'Your email address here'),
               ),
               TextButton(
-                onPressed: () {
+                onPressed: () async {
                   final email = _controller.text;
-                  context.read<AuthBloc>().add(AuthEventForgotPassword(email: email));
+                  context.read<AuthBloc>().add(AuthEventForgotPassword(email: email, townList: await AppDocumentData.getTownList()));
                 },
                 child: const Text("Send me passowrd reset link"),
               ),
               TextButton(
-                onPressed: () {
-                  context.read<AuthBloc>().add(const AuthEventLogOut());
+                onPressed: () async {
+                  context.read<AuthBloc>().add(AuthEventLogOut(townList: await AppDocumentData.getTownList()));
                 },
                 child: const Text("Back to login page"),
               ),

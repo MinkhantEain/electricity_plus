@@ -1,4 +1,6 @@
 import 'package:electricity_plus/helper/loading/loading_screen.dart';
+import 'package:electricity_plus/services/others/local_storage.dart';
+import 'package:electricity_plus/utilities/custom_button.dart';
 import 'package:electricity_plus/utilities/dialogs/auth_dialogs.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -42,7 +44,7 @@ class _RegisterViewState extends State<RegisterView> {
 
   @override
   Widget build(BuildContext context) {
-    return BlocListener<AuthBloc, AuthState>(
+    return BlocConsumer<AuthBloc, AuthState>(
       listener: (context, state) async {
         if (state is AuthStateRegistering) {
           dev.log(state.exception.toString());
@@ -71,7 +73,9 @@ class _RegisterViewState extends State<RegisterView> {
           }
         }
       },
-      child: Scaffold(
+      builder: (context, state) {
+        state as AuthStateRegistering;
+        return Scaffold(
         appBar: AppBar(title: const Text('Register')),
         body: Padding(
           padding: const EdgeInsets.all(16.0),
@@ -109,6 +113,7 @@ class _RegisterViewState extends State<RegisterView> {
                 decoration: const InputDecoration(
                     hintText: "ReEnter your password here"),
               ),
+              TownListDropDown(context, state.townList, state.town, state),
               Center(
                 child: Column(
                   children: [
@@ -119,13 +124,20 @@ class _RegisterViewState extends State<RegisterView> {
                         final passwordReEntry = _passwordReEntry.text;
                         final name = _name.text;
                         context.read<AuthBloc>().add(AuthEventRegister(
-                            email, password, passwordReEntry, name));
+                              email: email,
+                              password: password,
+                              passwordReEntry: passwordReEntry,
+                              name: name,
+                              town: state.town,
+                              townList: state.townList,
+                            ));
                       },
                       child: const Text('Register'),
                     ),
                     TextButton(
-                        onPressed: () {
-                          context.read<AuthBloc>().add(const AuthEventLogOut());
+                        onPressed: () async {
+                          context.read<AuthBloc>().add(AuthEventLogOut(
+                              townList: await AppDocumentData.getTownList()));
                         },
                         child: const Text('Already registered?')),
                   ],
@@ -134,7 +146,8 @@ class _RegisterViewState extends State<RegisterView> {
             ],
           ),
         ),
-      ),
+      );
+      }, 
     );
   }
 }

@@ -11,6 +11,7 @@ import 'package:electricity_plus/services/models/cloud_customer_history.dart';
 import 'package:electricity_plus/services/cloud/cloud_storage_constants.dart';
 import 'package:electricity_plus/services/cloud/cloud_storage_exceptions.dart';
 import 'package:electricity_plus/services/models/progress.dart';
+import 'package:electricity_plus/services/models/users.dart';
 import 'package:electricity_plus/services/others/local_storage.dart';
 import 'package:electricity_plus/services/others/town.dart';
 import 'package:electricity_plus/utilities/helper_functions.dart';
@@ -38,6 +39,35 @@ class FirebaseCloudStorage {
         return false;
       }
     }, onError: (_) => false);
+  }
+
+  Future<num> getTownCount() async {
+    return FirebaseFirestore.instance.doc('$townCountCollection/$townCountDoc').get()
+    .then((value) => value.data()![townCountField]);
+  }
+
+  Future<void> setTownCount(num newCount) async {
+    final townCountDocRef = FirebaseFirestore.instance.doc('$townCountCollection/$townCountDoc');
+    setDoc(document: townCountDocRef, dataFieldMap: {
+      townCountField : newCount
+    });
+  }
+
+  Future<Staff?> getCurrentUser(User user) async {
+    final town = await AppDocumentData.getTownName();
+
+    return FirebaseFirestore.instance
+        .doc('$town$staffCollection/${user.uid}')
+        .get()
+        .then((value) => value != null ? Staff.fromDocSnapshot(value) : null);
+  }
+
+  Future<void> createStaff(Staff staff) async {
+    final town = await AppDocumentData.getTownName();
+    final staffDocRef = FirebaseFirestore.instance
+        .collection('$town$staffCollection')
+        .doc(staff.uid);
+    await setDoc(document: staffDocRef, dataFieldMap: staff.dataFieldMap());
   }
 
   Future<String> get getServerToken => FirebaseFirestore.instance
@@ -112,10 +142,12 @@ class FirebaseCloudStorage {
   }
 
   Future<CloudPriceDoc> getAllPrices() async {
-    final town =  await AppDocumentData.getTownName();
-    return FirebaseFirestore.instance.doc('$town$priceCollection/$priceDoc').get()
-    .then((value) => CloudPriceDoc.fromDocSnapshot(value))
-    .onError((error, stackTrace) => throw NoSuchDocumentException());
+    final town = await AppDocumentData.getTownName();
+    return FirebaseFirestore.instance
+        .doc('$town$priceCollection/$priceDoc')
+        .get()
+        .then((value) => CloudPriceDoc.fromDocSnapshot(value))
+        .onError((error, stackTrace) => throw NoSuchDocumentException());
   }
 
   ///return the service charge
@@ -587,7 +619,7 @@ class FirebaseCloudStorage {
     return true;
   }
 
-  Future<void> createUser({
+  Future<void> createCustomer({
     required String name,
     required String address,
     required String bookId,
@@ -727,9 +759,10 @@ class FirebaseCloudStorage {
     //TODO
   }
 
-  Future<void> importData(
-      {required PlatformFile platformFile,
-      required String importDate,}) async {
+  Future<void> importData({
+    required PlatformFile platformFile,
+    required String importDate,
+  }) async {
     final town = await AppDocumentData.getTownName();
     final priceAtm = await getPrice();
     final serviceCharge = await getServiceCharge();

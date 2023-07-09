@@ -7,6 +7,7 @@ import 'package:electricity_plus/services/auth/bloc/auth_bloc.dart';
 import 'package:electricity_plus/services/auth/bloc/auth_event.dart';
 import 'package:electricity_plus/services/cloud/operation/operation_bloc.dart';
 import 'package:electricity_plus/services/cloud/operation/operation_event.dart';
+import 'package:electricity_plus/services/others/local_storage.dart';
 import 'package:electricity_plus/utilities/custom_button.dart';
 import 'package:electricity_plus/utilities/dialogs/admin_page_dialog.dart';
 import 'package:electricity_plus/utilities/dialogs/home_page_dialog.dart';
@@ -77,7 +78,7 @@ class _AdminViewState extends State<AdminView> {
                       final shouldLogout = await showLogOutDialog(context);
                       if (shouldLogout) {
                         // ignore: use_build_context_synchronously
-                        context.read<AuthBloc>().add(const AuthEventLogOut());
+                        context.read<AuthBloc>().add(AuthEventLogOut(townList: await AppDocumentData.getTownList()));
                       }
                       break;
                     case MenuAction.home:

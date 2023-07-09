@@ -1,3 +1,8 @@
+import 'dart:developer';
+
+import 'package:electricity_plus/services/others/local_storage.dart';
+import 'package:electricity_plus/services/others/town.dart';
+import 'package:electricity_plus/utilities/custom_button.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:electricity_plus/services/auth/auth_exception.dart';
@@ -33,11 +38,12 @@ class _LoginViewState extends State<LoginView> {
 
   @override
   Widget build(BuildContext context) {
-    return BlocListener<AuthBloc, AuthState>(
+    return BlocConsumer<AuthBloc, AuthState>(
       listener: (context, state) async {
         if (state is AuthStateLoggedOut) {
           if (state.exception is UserNotFoundAuthException) {
-            await showErrorDialog(context, 'Cannot find user with the entered credentials');
+            await showErrorDialog(
+                context, 'Cannot find user with the entered credentials');
           } else if (state.exception is WrongPasswordAuthException) {
             await showErrorDialog(context, 'Wrong Credentials');
           } else if (state.exception is GenericAuthException) {
@@ -45,55 +51,66 @@ class _LoginViewState extends State<LoginView> {
           }
         }
       },
-      child: Scaffold(
-        appBar: AppBar(
-          title: const Text("Login"),
-        ),
-        body: Padding(
-          padding: const EdgeInsets.all(16.0),
-          child: Column(
-            children: [
-              TextField(
-                controller: _email,
-                enableSuggestions: false,
-                keyboardType: TextInputType.emailAddress,
-                decoration:
-                    const InputDecoration(hintText: "Enter your email here"),
+      builder: (context, state) {
+        if (state is AuthStateLoggedOut) {
+          return Scaffold(
+            appBar: AppBar(
+              title: const Text("Login"),
+            ),
+            body: Padding(
+              padding: const EdgeInsets.all(16.0),
+              child: Column(
+                children: [
+                  TextField(
+                    controller: _email,
+                    enableSuggestions: false,
+                    keyboardType: TextInputType.emailAddress,
+                    decoration: const InputDecoration(
+                        hintText: "Enter your email here"),
+                  ),
+                  TextField(
+                    controller: _password,
+                    obscureText: true,
+                    enableSuggestions: false,
+                    autocorrect: false,
+                    decoration: const InputDecoration(
+                        hintText: "Enter your password here"),
+                  ),
+                  TownListDropDown(context, state.townList, state.town, state),
+                
+                  TextButton(
+                    onPressed: () async {
+                      final email = _email.text;
+                      final password = _password.text;
+                      context.read<AuthBloc>().add(AuthEventLogIn(
+                          email: email,
+                          password: password,
+                          townList: state.townList));
+                    },
+                    child: const Text('Login'),
+                  ),
+                  TextButton(
+                      onPressed: () {
+                        context.read<AuthBloc>().add(
+                              AuthEventShouldRegister(townList: state.townList),
+                            );
+                      },
+                      child: const Text("Not registered yet?")),
+                  TextButton(
+                      onPressed: () {
+                        context.read<AuthBloc>().add(
+                              AuthEventForgotPassword(townList: state.townList),
+                            );
+                      },
+                      child: const Text("I forgot my passoword")),
+                ],
               ),
-              TextField(
-                controller: _password,
-                obscureText: true,
-                enableSuggestions: false,
-                autocorrect: false,
-                decoration:
-                    const InputDecoration(hintText: "Enter your password here"),
-              ),
-              TextButton(
-                onPressed: () async {
-                  final email = _email.text;
-                  final password = _password.text;
-                  context.read<AuthBloc>().add(AuthEventLogIn(email, password));
-                },
-                child: const Text('Login'),
-              ),
-              TextButton(
-                  onPressed: () {
-                    context.read<AuthBloc>().add(
-                          const AuthEventShouldRegister(),
-                        );
-                  },
-                  child: const Text("Not registered yet?")),
-              TextButton(
-                  onPressed: () {
-                    context.read<AuthBloc>().add(
-                          const AuthEventForgotPassword(),
-                        );
-                  },
-                  child: const Text("I forgot my passoword")),
-            ],
-          ),
-        ),
-      ),
+            ),
+          );
+        } else {
+          return const Scaffold();
+        }
+      },
     );
   }
 }
