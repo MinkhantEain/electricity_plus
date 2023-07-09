@@ -49,11 +49,19 @@ class _SetPriceViewState extends State<SetPriceView> {
         } else if (state is SetPriceStateLoaded) {
           LoadingScreen().hide();
         } else if (state is SetPriceStateInvalidValueError) {
+          LoadingScreen().hide();
           await showErrorDialog(context,
               'Invalid entry: One of the value you have entered is invalid');
+        } else if (state is SetPriceStateNoPriceDocFoundError) {
+          LoadingScreen().hide();
+          await showErrorDialog(context,
+              'Price document not found, price may not have been initialised, try initialise data')
+              .then((value) => context.read<OperationBloc>().add(const OperationEventAdminView()));
         } else if (state is SetPriceStateInvalidPassowrd) {
+          LoadingScreen().hide();
           await showErrorDialog(context, 'Unauthorized to set price');
         } else if (state is SetPriceStateGeneralError) {
+          LoadingScreen().hide();
           await showErrorDialog(
               context, 'Unaccounted error: contact developer');
         }
@@ -73,6 +81,7 @@ class _SetPriceViewState extends State<SetPriceView> {
             ),
             body: SingleChildScrollView(
               child: Column(children: [
+                //TODO: need to change in order to reduce reads, import all prices in one read
                 Text('''
 Current Price is ${state.price}
 Current service charge is ${state.serviceCharge}
@@ -133,8 +142,8 @@ Current Road Light Cost is ${state.roadLightPrice}
           );
         } else {
           return Scaffold(
-              appBar: AppBar(),
-              );
+            appBar: AppBar(),
+          );
         }
       },
     );

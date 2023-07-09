@@ -51,6 +51,8 @@ const customerDetailsCollection = 'CustomerDetails';
 const historyCollection = 'History';
 const priceCollection = 'price';
 const resolveCollection = 'Resolve';
+const recentBillHistoryCollection = 'RecentBillHistory';
+const unpaidBillCollection = 'UnpaidBill';
 const flagCollection = 'Flag';
 
 //doc path
@@ -82,3 +84,10 @@ const meterAllowanceField = 'MeterAllowance';
 const finalCostField = 'FinalCost';
 
 
+//AppUser
+
+const userCollection = 'User';
+const emailField = 'Email';
+const passwordField = 'Password';
+const userTypeField = 'UserType';
+const isStaffField = 'isStaff';

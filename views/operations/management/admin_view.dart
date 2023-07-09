@@ -116,16 +116,21 @@ class _AdminViewState extends State<AdminView> {
                     icon: const Icon(Icons.price_change_outlined),
                     text: 'Set Price',
                     onPressed: () {
-                      context
-                          .read<OperationBloc>()
-                          .add(const OperationEventSetPrice(
-                            price: '',
-                            serviceCharge: '',
-                            tokenInput: '',
-                            isSettingPrice: false,
-                            horsePowerPerUnitCost: '',
-                            roadLightPrice: '',
-                          ));
+                      PasswordEnquiry().show(
+                        context: context,
+                        onTap: () {
+                          context
+                              .read<OperationBloc>()
+                              .add(const OperationEventSetPrice(
+                                price: '',
+                                serviceCharge: '',
+                                tokenInput: '',
+                                isSettingPrice: false,
+                                horsePowerPerUnitCost: '',
+                                roadLightPrice: '',
+                              ));
+                        },
+                      );
                     },
                   ),
                   HomePageButton(
@@ -137,6 +142,15 @@ class _AdminViewState extends State<AdminView> {
                           .add(const OperationEventAddCustomer());
                     },
                   ),
+
+                  HomePageButton(
+                    icon: const Icon(Icons.person_outline_outlined),
+                    text: "App User",
+                    onPressed: () {
+                      context.read<OperationBloc>().add(const OperationEventAppUser());
+                    },
+                  ),
+
                   HomePageButton(
                     icon: const Icon(Icons.download_outlined),
                     text: "Produce Excel",
@@ -154,9 +168,9 @@ class _AdminViewState extends State<AdminView> {
                     icon: const Icon(Icons.import_export_sharp),
                     text: "Initialise Data",
                     onPressed: () {
-                      context.read<OperationBloc>().add(
-                          const OperationEventInitialiseData(
-                              result: null, submit: false));
+                      context
+                          .read<OperationBloc>()
+                          .add(const OperationEventInitialiseData());
                     },
                   ),
                   HomePageButton(
@@ -171,19 +185,6 @@ class _AdminViewState extends State<AdminView> {
                               .add(const OperationEventChooseTown());
                         },
                       );
-                    },
-                  ),
-                  HomePageButton(
-                    icon: const Icon(Icons.payments_outlined),
-                    text: "Payment",
-                    onPressed: () async {
-                      //scans qr code then redirect to receipt page;
-                      final qrCode = await scanQRcode();
-                      if (qrCode != '-1') {
-                        context
-                            .read<OperationBloc>()
-                            .add(OperationEventPayment(qrCode: qrCode));
-                      }
                     },
                   ),
                 ],

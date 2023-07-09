@@ -24,4 +24,14 @@ class SetPriceEventSubmit extends SetPriceEvent {
       required this.horsePowerPerUnitCost,
       required this.roadLightPrice,
       required this.password});
+
+  @override
+  List<Object> get props => [
+        super.props,
+        newPrice,
+        serviceCharge,
+        horsePowerPerUnitCost,
+        roadLightPrice,
+        password,
+      ];
 }

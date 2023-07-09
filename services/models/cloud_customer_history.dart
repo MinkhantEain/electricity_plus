@@ -21,8 +21,6 @@ class CloudCustomerHistory {
   final bool isVoided;
   final bool isPaid;
   final num paidAmount;
-  
-
 
   const CloudCustomerHistory({
     required this.documentId,
@@ -44,48 +42,71 @@ class CloudCustomerHistory {
     required this.roadLightPrice,
   });
 
+  Map<String, dynamic> dataFieldMap() => {
+        previousUnitField: previousUnit,
+        newUnitField: newUnit,
+        priceAtmField: priceAtm,
+        serviceChargeAtmField: serviceChargeAtm,
+        costField: cost,
+        dateField: date,
+        imageUrlField: imageUrl,
+        commentField: comment,
+        isPaidField: isPaid,
+        isVoidedField: isVoided,
+        paidAmountField: paidAmount,
+        inspectorField: inspector,
+        horsePowerPerUnitCostAtmField: horsePowerPerUnitCostAtm,
+        horsePowerUnitsField: horsePowerUnits,
+        meterMultiplierField: meterMultiplier,
+        roadLightPriceField: roadLightPrice
+      };
 
   num basicElectricityPrice() {
-    return ((newUnit - previousUnit) * meterMultiplier * priceAtm + horsePowerUnits * horsePowerPerUnitCostAtm);
+    return ((newUnit - previousUnit) * meterMultiplier * priceAtm +
+        horsePowerUnits * horsePowerPerUnitCostAtm);
   }
 
-  CloudCustomerHistory.fromSnapshot(QueryDocumentSnapshot<Map<String, dynamic>> snapshot) 
-  : documentId = snapshot.id,
-  previousUnit = snapshot.data()[previousUnitField],
-  newUnit = snapshot.data()[newUnitField],
-  priceAtm = snapshot.data()[priceAtmField],
-  serviceChargeAtm = snapshot.data()[serviceChargeAtmField],
-  cost = snapshot.data()[costField],
-  date = snapshot.data()[dateField],
-  imageUrl = snapshot.data()[imageUrlField],
-  comment = snapshot.data()[commentField],
-  isPaid = snapshot.data()[isPaidField],
-  isVoided = snapshot.data()[isVoidedField],
-  paidAmount = snapshot.data()[paidAmountField],
-  inspector = snapshot.data()[inspectorField],
-  horsePowerPerUnitCostAtm = snapshot.data()[horsePowerPerUnitCostAtmField],
-  horsePowerUnits = snapshot.data()[horsePowerUnitsField],
-  meterMultiplier = snapshot.data()[meterMultiplierField],
-  roadLightPrice = snapshot.data()[roadLightPriceField];
+  CloudCustomerHistory.fromSnapshot(
+      QueryDocumentSnapshot<Map<String, dynamic>> snapshot)
+      : documentId = snapshot.id,
+        previousUnit = snapshot.data()[previousUnitField],
+        newUnit = snapshot.data()[newUnitField],
+        priceAtm = snapshot.data()[priceAtmField],
+        serviceChargeAtm = snapshot.data()[serviceChargeAtmField],
+        cost = snapshot.data()[costField],
+        date = snapshot.data()[dateField],
+        imageUrl = snapshot.data()[imageUrlField],
+        comment = snapshot.data()[commentField],
+        isPaid = snapshot.data()[isPaidField],
+        isVoided = snapshot.data()[isVoidedField],
+        paidAmount = snapshot.data()[paidAmountField],
+        inspector = snapshot.data()[inspectorField],
+        horsePowerPerUnitCostAtm =
+            snapshot.data()[horsePowerPerUnitCostAtmField],
+        horsePowerUnits = snapshot.data()[horsePowerUnitsField],
+        meterMultiplier = snapshot.data()[meterMultiplierField],
+        roadLightPrice = snapshot.data()[roadLightPriceField];
 
-  CloudCustomerHistory.fromDocSnapshot(DocumentSnapshot<Map<String, dynamic>> snapshot) 
-  : documentId = snapshot.id,
-  previousUnit = snapshot.data()![previousUnitField],
-  newUnit = snapshot.data()![newUnitField],
-  priceAtm = snapshot.data()![priceAtmField],
-  serviceChargeAtm = snapshot.data()![serviceChargeAtmField],
-  cost = snapshot.data()![costField],
-  date = snapshot.data()![dateField],
-  isPaid = snapshot.data()![isPaidField],
-  imageUrl = snapshot.data()![imageUrlField],
-  comment = snapshot.data()![commentField],
-  isVoided = snapshot.data()![isVoidedField],
-  paidAmount = snapshot.data()![paidAmountField],
-  inspector = snapshot.data()![inspectorField],
-  horsePowerPerUnitCostAtm = snapshot.data()![horsePowerPerUnitCostAtmField],
-  horsePowerUnits = snapshot.data()![horsePowerUnitsField],
-  meterMultiplier = snapshot.data()![meterMultiplierField],
-  roadLightPrice = snapshot.data()![roadLightPriceField];
+  CloudCustomerHistory.fromDocSnapshot(
+      DocumentSnapshot<Map<String, dynamic>> snapshot)
+      : documentId = snapshot.id,
+        previousUnit = snapshot.data()![previousUnitField],
+        newUnit = snapshot.data()![newUnitField],
+        priceAtm = snapshot.data()![priceAtmField],
+        serviceChargeAtm = snapshot.data()![serviceChargeAtmField],
+        cost = snapshot.data()![costField],
+        date = snapshot.data()![dateField],
+        isPaid = snapshot.data()![isPaidField],
+        imageUrl = snapshot.data()![imageUrlField],
+        comment = snapshot.data()![commentField],
+        isVoided = snapshot.data()![isVoidedField],
+        paidAmount = snapshot.data()![paidAmountField],
+        inspector = snapshot.data()![inspectorField],
+        horsePowerPerUnitCostAtm =
+            snapshot.data()![horsePowerPerUnitCostAtmField],
+        horsePowerUnits = snapshot.data()![horsePowerUnitsField],
+        meterMultiplier = snapshot.data()![meterMultiplierField],
+        roadLightPrice = snapshot.data()![roadLightPriceField];
 
   @override
   String toString() {

@@ -10,6 +10,9 @@ abstract class OperationEvent {
   const OperationEvent();
 }
 
+class OperationEventAppUser extends OperationEvent {
+  const OperationEventAppUser();
+}
 
 class OperationEventChooseTown extends OperationEvent {
   const OperationEventChooseTown();
@@ -170,10 +173,7 @@ class OperationEventAdminView extends OperationEvent {
 }
 
 class OperationEventInitialiseData extends OperationEvent {
-  final PlatformFile? result;
-  final bool submit;
-  const OperationEventInitialiseData(
-      {required this.result, required this.submit});
+  const OperationEventInitialiseData();
 }
 
 class OperationEventInitialiseDataSubmission extends OperationEvent {

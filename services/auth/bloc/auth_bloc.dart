@@ -1,3 +1,4 @@
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:electricity_plus/services/auth/auth_provider.dart';
 import 'package:electricity_plus/services/auth/bloc/auth_event.dart';
@@ -117,6 +118,7 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
             email: email,
             password: password,
           );
+          
           if (!user.isEmailVerified) {
             emit(
               const AuthStateLoggedOut(

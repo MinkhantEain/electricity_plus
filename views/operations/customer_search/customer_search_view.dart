@@ -66,7 +66,10 @@ class _CustomerSearchViewState extends State<CustomerSearchView> {
           LoadingScreen().show(context: context, text: 'Loading...');
         } else {
           LoadingScreen().hide();
-          if (state is CustomerSearchError) {
+          if (state is CustomerSearchNotFoundError) {
+            await showErrorDialog(
+                context, 'User not found, make sure the bookID is correct.');
+          } else if (state is CustomerSearchError) {
             await showErrorDialog(
                 context, 'Unexpected error occured. Contact admin');
           }
@@ -75,15 +78,15 @@ class _CustomerSearchViewState extends State<CustomerSearchView> {
       builder: (context, state) {
         dev.log(state.toString());
         if (state is CustomerSearchInitial) {
-          final customers = state.customers;
           return Scaffold(
             appBar: AppBar(
               title: Text(state.pageName),
               leading: BackButton(
-                onPressed: () {
+                onPressed: () async {
                   context
                       .read<OperationBloc>()
                       .add(const OperationEventDefault());
+                  await BlocProvider.of<CustomerSearchBloc>(context).close();
                 },
               ),
               actions: [
@@ -99,7 +102,7 @@ class _CustomerSearchViewState extends State<CustomerSearchView> {
                       child: TextField(
                         controller: _userInputTextController,
                         decoration: const InputDecoration(
-                          hintText: 'BookID/MeterID:',
+                          hintText: 'BookID...:',
                         ),
                       ),
                     ),
@@ -112,8 +115,7 @@ class _CustomerSearchViewState extends State<CustomerSearchView> {
                           // ignore: use_build_context_synchronously
                           context.read<CustomerSearchBloc>().add(
                                 CustomerSearchEventSearch(
-                                  userInput: _userInputTextController.text,
-                                  onTap: state.onTap,
+                                  userInput: _userInputTextController.text.trim(),
                                   pageName: state.pageName,
                                 ),
                               );
@@ -130,7 +132,6 @@ class _CustomerSearchViewState extends State<CustomerSearchView> {
                               CustomerSearchEventSearch(
                                   userInput:
                                       _userInputTextController.text.trim(),
-                                  onTap: state.onTap,
                                   pageName: state.pageName),
                             );
                       },
@@ -138,32 +139,24 @@ class _CustomerSearchViewState extends State<CustomerSearchView> {
                     ),
                   ],
                 ),
-                Expanded(
-                  child: CustomerListView(
-                    customers: customers,
-                    onTap: state.onTap(context),
-                  ),
-                ),
               ],
             ),
           );
-          // } else if (state is CustomerSearchCustomerSelectedState) {
-          //   return BlocProvider(
-          //     create: (context) => CustomerBloc(state.customer),
-          //     child: const CustomerView(),
-          //   );
-        } else if (state is CustomerSearchMeterReadSelected) {
+        } else if (state is CustomerSearchMeterReadSearchSuccessful) {
           return BlocProvider(
             create: (context) => ReadMeterBloc(FirebaseCloudStorage(),
                 state.customer, state.previousUnit.toString()),
             child: const ReadMeterFirstPage(),
           );
-        } else if (state is CustomerSearchBillHistorySelected) {
+        } else if (state is CustomerSearchBillHistorySearchSuccessful) {
           return BlocProvider(
             create: (context) => BillHistoryBloc(
                 historyList: state.historyList, customer: state.customer),
             child: const BillHistoryView(),
           );
+        } else if (state is CustomerSearchEditCustomerSearchSuccessful) {
+          //TODO: implements delete customer
+          return const Scaffold();
         } else {
           return const Scaffold();
         }

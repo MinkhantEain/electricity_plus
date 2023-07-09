@@ -28,63 +28,38 @@ class TownSelectionBloc extends Bloc<TownSelectionEvent, TownSelectionState> {
     on<TownSelectionAdd>((event, emit) async {
       emit(
           const TownSelectionLoading(loadingMessage: 'Please wait a while...'));
-      if (!(await provider.verifyPassword(event.password))) {
-        emit(const TownSelectionError(
-            message: 'Invalid Password',
-            exception: InvalidPasswordException()));
+      try {
+        await provider.addTown(event.townName);
+        final newTownList = await provider.getAllTown();
+        await AppDocumentData.storeTownList(newTownList);
+        emit(const TownSelectionLoaded());
+        emit(TownSelectionStateTownAdded(townName: event.townName));
+        emit(TownSelectionInitialised(towns: newTownList));
+      } on InvalidTownNameException {
+        emit(const TownSelectionLoaded());
+        emit(const TownSelectionEmptyTownNameInput());
         emit(TownSelectionInitialised(
             towns: await AppDocumentData.getTownList()));
-      } else {
-        try {
-          await provider.addTown(event.townName);
-          final newTownList = await provider.getAllTown();
-          await AppDocumentData.storeTownList(newTownList);
-          emit(const TownSelectionLoaded());
-          emit(TownSelectionStateTownAdded(townName: event.townName));
-          emit(TownSelectionInitialised(towns: newTownList));
-        } on InvalidTownNameException {
-          emit(const TownSelectionLoaded());
-          emit(const TownSelectionEmptyTownNameInput());
-          emit(TownSelectionInitialised(
-            towns: await AppDocumentData.getTownList()));
-        }
       }
     });
 
     on<TownSelectionDelete>((event, emit) async {
       emit(
           const TownSelectionLoading(loadingMessage: 'Please wait a while...'));
-      if (!(await provider.verifyPassword(event.password))) {
-        emit(const TownSelectionError(
-            message: 'Invalid Password',
-            exception: InvalidPasswordException()));
-        emit(TownSelectionInitialised(
-            towns: await AppDocumentData.getTownList()));
-      } else {
-        await provider.deleteTown(event.townName);
+      await provider.deleteTown(event.townName);
         final newTownList = await provider.getAllTown();
         await AppDocumentData.storeTownList(newTownList);
         emit(const TownSelectionLoaded());
         emit(TownSelectionStateDeleted(townName: event.townName));
         emit(TownSelectionInitialised(towns: newTownList));
-      }
     });
 
     on<TownSelectionSelected>((event, emit) async {
-      if (await provider.verifyPassword(event.password)) {
-        emit(const TownSelectionLoading(
-            loadingMessage: 'Please wait a while...'));
-        await AppDocumentData.storeTownName(event.townName);
-        emit(NewTownSelected(newTownName: event.townName));
-        emit(TownSelectionInitialised(
-            towns: await AppDocumentData.getTownList()));
-      } else {
-        emit(const TownSelectionError(
+      emit(const TownSelectionError(
             message: 'Invalid Password',
             exception: InvalidPasswordException()));
         emit(TownSelectionInitialised(
             towns: await AppDocumentData.getTownList()));
-      }
     });
   }
 }

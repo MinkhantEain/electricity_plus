@@ -13,33 +13,27 @@ class TownSelectionInitialise extends TownSelectionEvent {
 
 class TownSelectionAdd extends TownSelectionEvent {
   final String townName;
-  final String password;
   const TownSelectionAdd({
     required this.townName,
-    required this.password,
   });
   @override
-  List<Object?> get props => [townName, password];
+  List<Object?> get props => [townName];
 }
 
 class TownSelectionDelete extends TownSelectionEvent {
   final String townName;
-  final String password;
   const TownSelectionDelete({
     required this.townName,
-    required this.password,
   });
   @override
-  List<Object?> get props => [townName, password];
+  List<Object?> get props => [townName];
 }
 
 class TownSelectionSelected extends TownSelectionEvent {
   final String townName;
-  final String password;
   const TownSelectionSelected({
     required this.townName,
-    required this.password,
   });
   @override
-  List<Object?> get props => [townName, password];
+  List<Object?> get props => [townName];
 }

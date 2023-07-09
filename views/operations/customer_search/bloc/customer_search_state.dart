@@ -8,33 +8,54 @@ abstract class CustomerSearchState extends Equatable {
 }
 
 class CustomerSearchInitial extends CustomerSearchState {
-  final Iterable<CloudCustomer> customers;
-  final ContextCallBack onTap;
   final String pageName;
-  const CustomerSearchInitial(
-      {required this.customers, required this.onTap, required this.pageName});
+  const CustomerSearchInitial({required this.pageName});
   @override
-  List<Object> get props => [super.props, customers, onTap, pageName];
+  List<Object> get props => [super.props, pageName];
 }
 
 //meter read search selected
-class CustomerSearchMeterReadSelected extends CustomerSearchState {
+class CustomerSearchMeterReadSearchSuccessful extends CustomerSearchState {
   final num previousUnit;
   final CloudCustomer customer;
-  const CustomerSearchMeterReadSelected({
+  const CustomerSearchMeterReadSearchSuccessful({
     required this.customer,
     required this.previousUnit,
   });
+
+  @override
+  List<Object> get props => [
+        super.props,
+        previousUnit,
+        customer,
+      ];
+}
+
+//Edit Customer search selected
+class CustomerSearchEditCustomerSearchSuccessful extends CustomerSearchState {
+  final CloudCustomer customer;
+  const CustomerSearchEditCustomerSearchSuccessful({
+    required this.customer,
+  });
+
+  @override
+  List<Object> get props => [
+        super.props,
+        customer,
+      ];
 }
 
 //bill history search
-class CustomerSearchBillHistorySelected extends CustomerSearchState {
+class CustomerSearchBillHistorySearchSuccessful extends CustomerSearchState {
   final CloudCustomer customer;
   final Iterable<CloudCustomerHistory> historyList;
-  const CustomerSearchBillHistorySelected({
+  const CustomerSearchBillHistorySearchSuccessful({
     required this.customer,
     required this.historyList,
   });
+
+  @override
+  List<Object> get props => [super.props, customer, historyList];
 }
 
 class CustomerSearchLoading extends CustomerSearchState {
@@ -45,11 +66,6 @@ class CustomerSearchError extends CustomerSearchState {
   const CustomerSearchError();
 }
 
-class CustomerSearchNoUserError extends CustomerSearchError {
-  const CustomerSearchNoUserError();
-}
-
-class CustomerSearchCustomerSelectedState extends CustomerSearchState {
-  final CloudCustomer customer;
-  const CustomerSearchCustomerSelectedState({required this.customer});
+class CustomerSearchNotFoundError extends CustomerSearchError {
+  const CustomerSearchNotFoundError();
 }

@@ -14,6 +14,10 @@ abstract class OperationState {
   });
 }
 
+class OperationStateAppUser extends OperationState {
+  const OperationStateAppUser() : super(isLoading: false);
+}
+
 class OperationStateChooseTown extends OperationState {
   final Iterable<Town> towns;
   final Exception? exception;
@@ -158,25 +162,8 @@ class OperationStateAdminView extends OperationState {
 }
 
 class OperationStateInitialiseData extends OperationState {
-  final Exception? exception;
-  final FilePickerResult? pickedFile;
-  final String fileName;
-  final String fileBytes;
-  final String fileSize;
-  final String fileExtension;
-  final String filePath;
-  final PlatformFile? platformFile;
-  const OperationStateInitialiseData(
-      {required bool isLoading,
-      required this.exception,
-      required this.pickedFile,
-      required this.fileName,
-      required this.fileBytes,
-      required this.fileExtension,
-      required this.filePath,
-      required this.fileSize,
-      this.platformFile})
-      : super(isLoading: isLoading);
+  const OperationStateInitialiseData()
+      : super(isLoading: false);
 }
 
 class OperationStateProduceExcel extends OperationState {

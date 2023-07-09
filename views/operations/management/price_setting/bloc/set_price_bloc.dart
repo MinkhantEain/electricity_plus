@@ -12,12 +12,16 @@ class SetPriceBloc extends Bloc<SetPriceEvent, SetPriceState> {
       : super(const SetPriceStateUninitialised()) {
     on<SetPriceEventInitialise>((event, emit) async {
       emit(const SetPriceStateLoading());
-
-      emit(SetPriceStateLoaded(
-          price: await provider.getPrice(),
-          horsePowerPerUnitCost: await provider.getHorsePowerPerUnitCost(),
-          roadLightPrice: await provider.getRoadLightPrice(),
-          serviceCharge: await provider.getServiceCharge()));
+      try {
+        final priceDoc = await provider.getAllPrices();
+        emit(SetPriceStateLoaded(
+            price: priceDoc.pricePerUnit,
+            horsePowerPerUnitCost: priceDoc.horsePowerPerUnitCost,
+            roadLightPrice: priceDoc.roadLightPrice,
+            serviceCharge: priceDoc.serviceCharge));
+      } on NoSuchDocumentException {
+        emit(const SetPriceStateNoPriceDocFoundError());
+      }
     });
 
     on<SetPriceEventSubmit>((event, emit) async {
@@ -60,10 +64,10 @@ class SetPriceBloc extends Bloc<SetPriceEvent, SetPriceState> {
             );
           }
           emit(SetPriceStateLoaded(
-            price: (await provider.getPrice()),
-            horsePowerPerUnitCost: await provider.getHorsePowerPerUnitCost(),
-            roadLightPrice: await provider.getRoadLightPrice(),
-            serviceCharge: await provider.getServiceCharge()));
+              price: (await provider.getPrice()),
+              horsePowerPerUnitCost: await provider.getHorsePowerPerUnitCost(),
+              roadLightPrice: await provider.getRoadLightPrice(),
+              serviceCharge: await provider.getServiceCharge()));
         } on CouldNotSetPriceException {
           emit(const SetPriceStateInvalidValueError());
           emit(SetPriceStateLoaded(

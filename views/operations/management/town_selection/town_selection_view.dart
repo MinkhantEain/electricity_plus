@@ -15,12 +15,10 @@ class TownSelectionView extends StatefulWidget {
 
 class _TownSelectionViewState extends State<TownSelectionView> {
   late final TextEditingController _newTownTextController;
-  late final TextEditingController _passwordTextController;
 
   @override
   void initState() {
     _newTownTextController = TextEditingController();
-    _passwordTextController = TextEditingController();
     super.initState();
   }
 
@@ -28,7 +26,6 @@ class _TownSelectionViewState extends State<TownSelectionView> {
   void dispose() {
     super.dispose();
     _newTownTextController.dispose();
-    _passwordTextController.dispose();
   }
 
   @override
@@ -48,18 +45,10 @@ class _TownSelectionViewState extends State<TownSelectionView> {
             decoration: const InputDecoration(hintText: 'New Town'),
             controller: _newTownTextController,
           ),
-          TextField(
-            decoration: const InputDecoration(hintText: 'Admin Password'),
-            controller: _passwordTextController,
-            obscureText: true,
-            autocorrect: false,
-            enableSuggestions: false,
-          ),
           ElevatedButton(
               onPressed: () {
                 context.read<TownSelectionBloc>().add(TownSelectionAdd(
-                    townName: _newTownTextController.text,
-                    password: _passwordTextController.text));
+                    townName: _newTownTextController.text,));
               },
               style: const ButtonStyle(fixedSize: MaterialStatePropertyAll(Size.fromWidth(100))),
               child: const Text('Add',style: TextStyle(fontSize: 20),)),
@@ -72,7 +61,7 @@ class _TownSelectionViewState extends State<TownSelectionView> {
                 final town = widget.towns.elementAt(index).toString();
                 return ListTile(
                   onTap: () async {
-                    context.read<TownSelectionBloc>().add(TownSelectionSelected(townName: town, password: _passwordTextController.text));
+                    context.read<TownSelectionBloc>().add(TownSelectionSelected(townName: town,));
                   },
                   title: Row(
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -82,7 +71,6 @@ class _TownSelectionViewState extends State<TownSelectionView> {
                           onPressed: () {
                             context.read<TownSelectionBloc>().add(
                                 TownSelectionDelete(
-                                    password: _passwordTextController.text,
                                     townName: town));
                           },
                           icon: const Icon(Icons.delete_outline_outlined)),

@@ -34,6 +34,7 @@ class _TownSelectionFrameState extends State<TownSelectionFrame> {
 
   @override
   Widget build(BuildContext context) {
+    //TODO: improve the UI
     return BlocConsumer<TownSelectionBloc, TownSelectionState>(
       listener: (context, state) async {
         if (state is TownSelectionError) {

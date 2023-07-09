@@ -57,7 +57,7 @@ class FlaggedBloc extends Bloc<FlaggedEvent, FlaggedState> {
     on<FlaggedEventBlackSelect>(
       (event, emit) async {
         emit(const FlaggedStateLoading());
-        final history = await provider.allUnpaidHistory(event.customer);
+        final history = await provider.getUnpaidBill(customer: event.customer);
         emit(FlaggedStateBlackSelected(
           customer: event.customer,
           history: history,

@@ -84,14 +84,13 @@ class CloudReceipt {
   }
 
   String receiptNo() {
-    return customerDocId.substring(4, 6) +
+    return historyDocId.substring(5, 7) +
         historyDocId.substring(5, 7) +
-        customerDocId.substring(1, 3) +
-        customerDocId.substring(11, 13) +
-        historyDocId.substring(5, 7) +
-        customerDocId.substring(5, 7) +
         historyDocId.substring(3, 5) +
-        historyDocId.substring(11, 13);
+        historyDocId.substring(11, 13) +
+        historyDocId.substring(3, 4) +
+        finalCost.toString().substring(0, 3) + meterReadDate.substring(3, 4)
+        + priceAtm.toString().substring(1, 3);
   }
 
   String finalCostCalculation() {

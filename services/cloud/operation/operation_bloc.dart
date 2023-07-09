@@ -24,6 +24,8 @@ class OperationBloc extends Bloc<OperationEvent, OperationState> {
       },
     );
 
+    on<OperationEventAppUser>((event, emit) => emit(const OperationStateAppUser()),);
+
     //customer receipt history implementation
     on<OperationEventFetchCustomerHistory>(
       (event, emit) async {
@@ -49,48 +51,48 @@ class OperationBloc extends Bloc<OperationEvent, OperationState> {
       },
     );
 
-    on<OperationEventCustomerHistorySearch>(
-      (event, emit) async {
-        if (!event.isSearching) {
-          emit(const OperationStateSearchingCustomerHistory(
-            exception: null,
-            isLoading: false,
-            customerIterable: [],
-          ));
-        } else {
-          //no user input
-          if (event.userInput.isEmpty) {
-            emit(const OperationStateSearchingCustomerHistory(
-              exception: null,
-              isLoading: false,
-              customerIterable: [],
-            ));
-          } else {
-            //has user input
-            Exception? exception;
-            String userInput = event.userInput;
-            Iterable<CloudCustomer> customers;
-            try {
-              if (isBookIdFormat(userInput)) {
-                customers = await provider.getCustomer(
-                    bookId: userInput, meterNumber: null);
-              } else {
-                customers = await provider.getCustomer(
-                    meterNumber: userInput, bookId: null);
-              }
-            } on CouldNotGetCustomerException catch (e) {
-              exception = e;
-              customers = [];
-            }
-            emit(OperationStateSearchingCustomerHistory(
-              exception: exception,
-              isLoading: false,
-              customerIterable: customers,
-            ));
-          }
-        }
-      },
-    );
+    // on<OperationEventCustomerHistorySearch>(
+    //   (event, emit) async {
+    //     if (!event.isSearching) {
+    //       emit(const OperationStateSearchingCustomerHistory(
+    //         exception: null,
+    //         isLoading: false,
+    //         customerIterable: [],
+    //       ));
+    //     } else {
+    //       //no user input
+    //       if (event.userInput.isEmpty) {
+    //         emit(const OperationStateSearchingCustomerHistory(
+    //           exception: null,
+    //           isLoading: false,
+    //           customerIterable: [],
+    //         ));
+    //       } else {
+    //         //has user input
+    //         Exception? exception;
+    //         String userInput = event.userInput;
+    //         Iterable<CloudCustomer> customers;
+    //         try {
+    //           if (isBookIdFormat(userInput)) {
+    //             customers = await provider.getCustomer(
+    //                 bookId: userInput, meterNumber: null);
+    //           } else {
+    //             customers = await provider.getCustomer(
+    //                 meterNumber: userInput, bookId: null);
+    //           }
+    //         } on CouldNotGetCustomerException catch (e) {
+    //           exception = e;
+    //           customers = [];
+    //         }
+    //         emit(OperationStateSearchingCustomerHistory(
+    //           exception: exception,
+    //           isLoading: false,
+    //           customerIterable: customers,
+    //         ));
+    //       }
+    //     }
+    //   },
+    // );
 
     //flagged customer implementation
     on<OperationEventResolveIssue>(
@@ -217,9 +219,11 @@ class OperationBloc extends Bloc<OperationEvent, OperationState> {
       },
     );
 
-    on<OperationEventFlagged>((event, emit) {
-      emit(const OperationStateFlagged());
-    },);
+    on<OperationEventFlagged>(
+      (event, emit) {
+        emit(const OperationStateFlagged());
+      },
+    );
 
     on<OperationEventElectricLog>(
       (event, emit) async {
@@ -334,106 +338,11 @@ class OperationBloc extends Bloc<OperationEvent, OperationState> {
     //import data implementation
     on<OperationEventInitialiseData>(
       (event, emit) async {
-        emit(const OperationStateInitialiseData(
-          isLoading: false,
-          exception: null,
-          pickedFile: null,
-          fileName: '',
-          fileBytes: '',
-          fileExtension: '',
-          filePath: '',
-          fileSize: '',
-        ));
-        final result = event.result;
-        if (result != null) {
-          emit(const OperationStateInitialiseData(
-            isLoading: true,
-            exception: null,
-            pickedFile: null,
-            fileName: '',
-            fileBytes: '',
-            fileExtension: '',
-            filePath: '',
-            fileSize: '',
-          ));
-          await provider.initialisePrices();
-          emit(OperationStateInitialiseData(
-            isLoading: false,
-            exception: null,
-            pickedFile: null,
-            fileName: result.name,
-            fileBytes: result.bytes.toString(),
-            fileExtension: result.extension!,
-            filePath: result.path!,
-            fileSize: result.size.toString(),
-            platformFile: result,
-          ));
-        }
+        emit(const OperationStateInitialiseData());
       },
     );
 
-    on<OperationEventInitialiseDataSubmission>(
-      (event, emit) async {
-        if (event.result == null) {
-          emit(const OperationStateInitialiseData(
-            isLoading: false,
-            exception: null,
-            pickedFile: null,
-            fileName: '',
-            fileBytes: '',
-            fileExtension: '',
-            filePath: '',
-            fileSize: '',
-          ));
-        } else if (event.result!.extension != 'csv') {
-          emit(OperationStateInitialiseData(
-            isLoading: false,
-            exception: InvalidFileTypeException(),
-            pickedFile: null,
-            fileName: '',
-            fileBytes: '',
-            fileExtension: '',
-            filePath: '',
-            fileSize: '',
-          ));
-        } else {
-          try {
-            emit(const OperationStateInitialiseData(
-              isLoading: true,
-              exception: null,
-              pickedFile: null,
-              fileName: '',
-              fileBytes: '',
-              fileExtension: '',
-              filePath: '',
-              fileSize: '',
-            ));
-            await provider.importData(event.result!);
-            emit(const OperationStateInitialiseData(
-              isLoading: false,
-              exception: null,
-              pickedFile: null,
-              fileName: '',
-              fileBytes: '',
-              fileExtension: '',
-              filePath: '',
-              fileSize: '',
-            ));
-          } on Exception catch (e) {
-            emit(OperationStateInitialiseData(
-              isLoading: false,
-              exception: e,
-              pickedFile: null,
-              fileName: '',
-              fileBytes: '',
-              fileExtension: '',
-              filePath: '',
-              fileSize: '',
-            ));
-          }
-        }
-      },
-    );
+    
 
     on<OperationEventChooseTown>(
       (event, emit) async {

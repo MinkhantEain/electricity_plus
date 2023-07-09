@@ -2,7 +2,7 @@ import 'package:electricity_plus/helper/loading/loading_screen.dart';
 import 'package:electricity_plus/services/cloud/operation/operation_bloc.dart';
 import 'package:electricity_plus/services/cloud/operation/operation_event.dart';
 import 'package:electricity_plus/utilities/dialogs/add_customer_dialogs.dart';
-import 'package:electricity_plus/views/operations/add_customer/bloc/add_customer_bloc.dart';
+import 'package:electricity_plus/views/operations/management/add_customer/bloc/add_customer_bloc.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 

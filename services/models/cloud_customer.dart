@@ -34,6 +34,38 @@ class CloudCustomer {
     required this.lastHistory
   });
 
+  Map<String, dynamic> dataFieldMap() => {
+        bookIdField: bookId,
+        meterIdField: meterId,
+        nameField: name,
+        addressField: address,
+        lastUnitField: lastUnit,
+        lastHistoryField : lastHistory,
+        flagField: flag,
+        adderField : adder,
+        debtField : debt,
+        horsePowerUnitsField: horsePowerUnits,
+        meterMultiplierField: meterMultiplier,
+        hasRoadLightCostField: hasRoadLightCost,
+      };
+
+  Map<String, dynamic> toJson() => {
+        'documentId': documentId,
+        bookIdField: bookId,
+        meterIdField: meterId,
+        nameField: name,
+        addressField: address,
+        lastUnitField: lastUnit,
+        lastHistoryField : lastHistory,
+        flagField: flag,
+        adderField : adder,
+        debtField : debt,
+        horsePowerUnitsField: horsePowerUnits,
+        meterMultiplierField: meterMultiplier,
+        hasRoadLightCostField: hasRoadLightCost,
+      };
+  
+
 
   CloudCustomer.fromJson(Map<String, dynamic> json)
       : documentId = json['documentId'],
@@ -49,21 +81,6 @@ class CloudCustomer {
         meterMultiplier = json['meterMultiplier'],
         hasRoadLightCost = json['hasRoadLightCost'],
         lastHistory = json[lastHistoryField];
-
-  Map<String, dynamic> toJson() => {
-        'documentId': documentId,
-        'bookId': bookId,
-        'meterId': meterId,
-        'name': name,
-        'address': address,
-        'lastUnit': lastUnit,
-        'flag': flag,
-        'adder': adder,
-        debtField : debt,
-        'horsePowerUnits': horsePowerUnits,
-        'meterMultiplier': meterMultiplier,
-        'hasRoadLightCost': hasRoadLightCost,
-      };
 
   CloudCustomer.fromSnapshot(
       QueryDocumentSnapshot<Map<String, dynamic>> snapshot)

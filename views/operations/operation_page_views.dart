@@ -2,13 +2,16 @@ import 'package:electricity_plus/helper/loading/loading_screen.dart';
 import 'package:electricity_plus/services/cloud/firebase_cloud_storage.dart';
 import 'package:electricity_plus/services/cloud/operation/operation_bloc.dart';
 import 'package:electricity_plus/views/excel_produce_view.dart';
-import 'package:electricity_plus/views/operations/add_customer/add_customer_view.dart';
-import 'package:electricity_plus/views/operations/add_customer/bloc/add_customer_bloc.dart';
 import 'package:electricity_plus/views/operations/bill_receipt/bloc/bill_receipt_bloc.dart';
 import 'package:electricity_plus/views/operations/flagged/bloc/flagged_bloc.dart';
 import 'package:electricity_plus/views/operations/flagged/flagged_view.dart';
+import 'package:electricity_plus/views/operations/management/add_customer/add_customer_view.dart';
+import 'package:electricity_plus/views/operations/management/add_customer/bloc/add_customer_bloc.dart';
 import 'package:electricity_plus/views/operations/management/admin_view.dart';
+import 'package:electricity_plus/views/operations/management/app_user/app_user_view.dart';
+import 'package:electricity_plus/views/operations/management/app_user/bloc/app_user_bloc.dart';
 import 'package:electricity_plus/views/operations/management/bloc/admin_bloc.dart';
+import 'package:electricity_plus/views/operations/management/import_data/bloc/import_data_bloc.dart';
 import 'package:electricity_plus/views/operations/management/price_setting/bloc/set_price_bloc.dart';
 import 'package:electricity_plus/views/operations/management/price_setting/set_price_view.dart';
 import 'package:electricity_plus/views/operations/management/town_selection/bloc/town_selection_bloc.dart';
@@ -19,7 +22,7 @@ import 'package:electricity_plus/views/operations/customer_search/customer_searc
 import 'package:electricity_plus/services/cloud/operation/operation_event.dart';
 import 'package:electricity_plus/services/cloud/operation/operation_state.dart';
 import 'package:electricity_plus/views/operations/home_page_view.dart';
-import 'package:electricity_plus/views/operations/initialise_data_view.dart';
+import 'package:electricity_plus/views/operations/management/import_data/import_data_view.dart';
 import 'package:electricity_plus/views/operations/bill_receipt/bill_view.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -86,7 +89,10 @@ class _OperationPageViewsState extends State<OperationPageViews> {
             child: const AdminView(),
           );
         } else if (state is OperationStateInitialiseData) {
-          return const InitialiseDataView();
+          return BlocProvider(
+            create: (context) => ImportDataBloc(FirebaseCloudStorage()),
+            child: const ImportDataView(),
+          );
         } else if (state is OperationStateProduceExcel) {
           return const ProduceExcelView();
         } else if (state is OperationStateChooseTown) {
@@ -99,6 +105,11 @@ class _OperationPageViewsState extends State<OperationPageViews> {
           return BlocProvider(
             create: (context) => BillReceiptBloc(FirebaseCloudStorage()),
             child: const PrinterSelectView(),
+          );
+        } else if (state is OperationStateAppUser) {
+          return BlocProvider(
+            create: (context) => AppUserBloc(),
+            child: const AppUserView(),
           );
         } else if (state is OperationStateFlagged) {
           return BlocProvider(

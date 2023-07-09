@@ -82,7 +82,7 @@ class BillReceiptBloc extends Bloc<BillReceiptEvent, BillReceiptState> {
                 initialCost: event.history.cost,
                 finalCost: event.history.cost -
                     (num.parse(meterAllowance) * event.history.priceAtm));
-            await provider.makePayment(receipt: receipt);
+            await provider.makeFullPayment(receipt: receipt);
             emit(const BillReceiptPaymentRecordedSuccessfully());
             emit(BillReceiptPaymentState(
               customer: event.customer,

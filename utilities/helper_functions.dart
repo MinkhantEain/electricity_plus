@@ -89,6 +89,16 @@ String monthYearWordFormat(String date) {
   return '${monthName[month]} $year';
 }
 
+///If now is 2023/07/01, it will output 2023-01
+///if now is 2023/06/01, it will output 2022-12
+String halfYearAgo() {
+  final currentMonth = DateTime.now().month;
+  final resultantMonth = currentMonth - 6;
+  final outPutYear = resultantMonth <= 0 ? DateTime.now().year - 1 : DateTime.now().year;
+  final outPutMonth = resultantMonth <= 0 ? 12 - resultantMonth : resultantMonth;
+  return '$outPutYear-$outPutMonth';
+}
+
 ///change from 2023/05/11 to 11/05/2023
 String dayMonthYearNumericFormat(String date) {
   String day;

@@ -27,6 +27,10 @@ class SetPriceStateGeneralError extends SetPriceStateError {
   const SetPriceStateGeneralError();
 }
 
+class SetPriceStateNoPriceDocFoundError extends SetPriceStateError {
+  const SetPriceStateNoPriceDocFoundError();
+}
+
 class SetPriceStateInvalidValueError extends SetPriceStateError {
   const SetPriceStateInvalidValueError();
 }
@@ -50,6 +54,6 @@ class SetPriceStateLoaded extends SetPriceState {
         price,
         horsePowerPerUnitCost,
         roadLightPrice,
-        serviceCharge
+        serviceCharge,
       ];
 }
