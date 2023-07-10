@@ -1,8 +1,9 @@
+import 'dart:developer';
+
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:electricity_plus/services/cloud/cloud_storage_constants.dart';
 import 'package:electricity_plus/services/cloud/firebase_cloud_storage.dart';
-import 'package:electricity_plus/services/models/users.dart';
 import 'package:electricity_plus/services/others/local_storage.dart';
-import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:electricity_plus/services/auth/auth_provider.dart';
 import 'package:electricity_plus/services/auth/bloc/auth_event.dart';
@@ -26,12 +27,12 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
     );
 
     //send email verification
-    on<AuthEventSendEmailVerification>(
-      (event, emit) async {
-        await provider.sendEmailVerification();
-        emit(state);
-      },
-    );
+    // on<AuthEventSendEmailVerification>(
+    //   (event, emit) async {
+    //     await provider.sendEmailVerification();
+    //     emit(state);
+    //   },
+    // );
 
     //forgot password
     on<AuthEventForgotPassword>(
@@ -89,12 +90,19 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
             email: email,
             password: password,
             passwordReEntry: passwordReEntry,
+            userType: undecidedType,
+            isStaff: false,
           );
-          await provider.sendEmailVerification();
-          emit(AuthStateNeedsVerification(
-            isLoading: false,
-            townList: event.townList,
-          ));
+          // await provider.sendEmailVerification();
+          // emit(AuthStateNeedsVerification(
+          //   isLoading: false,
+          //   townList: event.townList,
+          // ));
+          emit(AuthStateLoggedOut(
+              exception: null,
+              isLoading: false,
+              townList: event.townList,
+              town: event.town));
         } on Exception catch (e) {
           emit(AuthStateRegistering(
               exception: e,
@@ -130,6 +138,10 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
         final townCount = await AppDocumentData.townCount();
         final db = FirebaseCloudStorage();
         final user = provider.currentUser;
+        final town = await AppDocumentData.getTownName();
+        if (town == 'Town Not Chosen') {
+          await AppDocumentData.storeTownName((await db.getAllTown()).first.townName);
+        }
         if (townCount != await db.getTownCount()) {
           await AppDocumentData.storeTownList(await db.getAllTown());
         }
@@ -143,11 +155,11 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
               town: await AppDocumentData.getTownName(),
             ),
           );
-        } else if (!user.isEmailVerified) {
-          emit(AuthStateNeedsVerification(
-            isLoading: false,
-            townList: event.townList,
-          ));
+          // } else if (!user.isEmailVerified) {
+          //   emit(AuthStateNeedsVerification(
+          //     isLoading: false,
+          //     townList: event.townList,
+          //   ));
         } else {
           emit(AuthStateLoggedIn(
             user: user,
@@ -178,36 +190,51 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
             email: email,
             password: password,
           );
-
-          if (!user.isEmailVerified) {
-            emit(
-              AuthStateLoggedOut(
-                exception: null,
-                isLoading: false,
-                townList: event.townList,
-                town: townName,
-              ),
-            );
-
-            emit(AuthStateNeedsVerification(
+          emit(
+            AuthStateLoggedOut(
+              town: townName,
+              exception: null,
               isLoading: false,
               townList: event.townList,
-            ));
+            ),
+          );
+
+          emit(AuthStateLoggedIn(
+            user: user,
+            isLoading: false,
+            townList: event.townList,
+          ));
+
+          final staff = await FirebaseCloudStorage().getCurrentUser(user.id);
+          if (staff == null || !staff.isStaff) {
+            emit(AuthStateNotAStaff(townList: event.townList));
+            emit(AuthStateLoggedOut(
+                exception: null,
+                isLoading: false,
+                town: townName,
+                townList: event.townList,
+                loadingText: 'Loading...'));
+            provider.logOut();
           } else {
-            emit(
-              AuthStateLoggedOut(
-                town: townName,
-                exception: null,
-                isLoading: false,
-                townList: event.townList,
-              ),
-            );
-            emit(AuthStateLoggedIn(
-              user: user,
-              isLoading: false,
-              townList: event.townList,
-            ));
+            await AppDocumentData.storeUserDetails(staff);
+            log((await AppDocumentData.getUserDetails()).toString());
           }
+
+          // if (!user.isEmailVerified) {
+          //   emit(
+          //     AuthStateLoggedOut(
+          //       exception: null,
+          //       isLoading: false,
+          //       townList: event.townList,
+          //       town: townName,
+          //     ),
+          //   );
+
+          //   emit(AuthStateNeedsVerification(
+          //     isLoading: false,
+          //     townList: event.townList,
+          //   ));
+          // } else {}
         } on Exception catch (e) {
           emit(
             AuthStateLoggedOut(

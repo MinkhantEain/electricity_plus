@@ -11,6 +11,8 @@ abstract class AuthProvider {
     required String name,
     required String password,
     required String passwordReEntry,
+    required String userType,
+    required bool isStaff,
   });
   Future<void> logOut();
   Future<void> sendEmailVerification();

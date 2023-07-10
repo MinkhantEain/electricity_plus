@@ -15,7 +15,7 @@ class OperationBloc extends Bloc<OperationEvent, OperationState> {
       : super(const OperationStateUninitialised(isLoading: true)) {
     on<OperationEventDefault>((event, emit) async {
       emit(
-          OperationStateDefault(townName: await AppDocumentData.getTownName()));
+          OperationStateDefault(townName: await AppDocumentData.getTownName(), staff: await AppDocumentData.getUserDetails()));
     });
 
     on<OperationEventPayment>(

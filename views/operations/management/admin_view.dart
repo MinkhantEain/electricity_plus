@@ -48,18 +48,18 @@ class _AdminViewState extends State<AdminView> {
 
   @override
   Widget build(BuildContext context) {
-    return BlocConsumer<AdminBloc, AdminState>(
-      listener: (context, state) async {
-        if (state is AdminStateUnauthorisedUser) {
-          LoadingScreen().hide();
-          await showUnauthorisedUserDialog(context);
-        } else if (state is AdminStateAuthorisedUser) {
-          LoadingScreen().hide();
-        } else {
-          LoadingScreen().show(context: context, text: 'Loading...');
-        }
-      },
-      builder: (context, state) {
+    // return BlocConsumer<AdminBloc, AdminState>(
+    //   listener: (context, state) async {
+        // if (state is AdminStateUnauthorisedUser) {
+        //   LoadingScreen().hide();
+        //   await showUnauthorisedUserDialog(context);
+        // } else if (state is AdminStateAuthorisedUser) {
+        //   LoadingScreen().hide();
+        // } else {
+        //   LoadingScreen().show(context: context, text: 'Loading...');
+        // }
+      // },
+      // builder: (context, state) {
         return Scaffold(
           appBar: AppBar(
             leading: BackButton(
@@ -193,7 +193,7 @@ class _AdminViewState extends State<AdminView> {
             ),
           ),
         );
-      },
-    );
-  }
-}
+      }}
+//     );
+//   }
+// }

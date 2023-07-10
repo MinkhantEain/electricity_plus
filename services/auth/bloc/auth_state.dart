@@ -61,12 +61,17 @@ class AuthStateLoggedOut extends AuthState with EquatableMixin {
   List<Object?> get props => [exception, isLoading, townList, town];
 }
 
-class AuthStateNeedsVerification extends AuthState {
-  const AuthStateNeedsVerification({
-    required bool isLoading,
-    required Iterable<Town> townList,
-  }) : super(isLoading: isLoading, townList: townList);
+
+class AuthStateNotAStaff extends AuthState {
+  const AuthStateNotAStaff({required Iterable<Town> townList}) : super(isLoading: false, townList: townList, loadingText: '');
 }
+
+// class AuthStateNeedsVerification extends AuthState {
+//   const AuthStateNeedsVerification({
+//     required bool isLoading,
+//     required Iterable<Town> townList,
+//   }) : super(isLoading: isLoading, townList: townList);
+// }
 
 class AuthStateForgotPassword extends AuthState {
   final Exception? exception;

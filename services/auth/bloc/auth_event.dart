@@ -56,10 +56,10 @@ class AuthEventLogOut extends AuthEvent {
       : super(townList: townList);
 }
 
-class AuthEventSendEmailVerification extends AuthEvent {
-  const AuthEventSendEmailVerification({required Iterable<Town> townList})
-      : super(townList: townList);
-}
+// class AuthEventSendEmailVerification extends AuthEvent {
+//   const AuthEventSendEmailVerification({required Iterable<Town> townList})
+//       : super(townList: townList);
+// }
 
 class AuthEventForgotPassword extends AuthEvent {
   final String? email;

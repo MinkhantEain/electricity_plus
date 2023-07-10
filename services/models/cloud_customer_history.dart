@@ -42,6 +42,22 @@ class CloudCustomerHistory {
     required this.roadLightPrice,
   });
 
+  num getUnitUsed() {
+    return (newUnit - previousUnit) * meterMultiplier;
+  }
+
+  num getHorsePowerCost() {
+    return (newUnit - previousUnit) == 0 ? 0 : horsePowerUnits * horsePowerPerUnitCostAtm;
+  }
+
+  num getCost() {
+    return getUnitUsed() * priceAtm + getHorsePowerCost();
+  }
+
+  num getTotalCost() {
+    return cost;
+  }
+
   Map<String, dynamic> dataFieldMap() => {
         previousUnitField: previousUnit,
         newUnitField: newUnit,
@@ -61,10 +77,7 @@ class CloudCustomerHistory {
         roadLightPriceField: roadLightPrice
       };
 
-  num basicElectricityPrice() {
-    return ((newUnit - previousUnit) * meterMultiplier * priceAtm +
-        horsePowerUnits * horsePowerPerUnitCostAtm);
-  }
+  
 
   CloudCustomerHistory.fromSnapshot(
       QueryDocumentSnapshot<Map<String, dynamic>> snapshot)

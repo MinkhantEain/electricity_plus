@@ -34,7 +34,9 @@ class AppUserView extends StatelessWidget {
                 HomePageButton(
                     icon: const Icon(Icons.person_add_alt_outlined),
                     text: 'Add new user',
-                    onPressed: () {}),
+                    onPressed: () {
+                      context.read<AppUserBloc>().add(const AppUserEventAddNewUser());
+                    }),
                 HomePageButton(
                     icon: const Icon(Icons.chrome_reader_mode_outlined),
                     text: 'meter Read History',

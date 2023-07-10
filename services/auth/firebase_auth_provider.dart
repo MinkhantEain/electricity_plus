@@ -18,6 +18,8 @@ class FirebaseAuthProvider implements AuthProvider {
     required String name,
     required String password,
     required String passwordReEntry,
+    required String userType,
+    required bool isStaff,
   }) async {
     try {
       if (password != passwordReEntry) {
@@ -36,8 +38,8 @@ class FirebaseAuthProvider implements AuthProvider {
         email: email,
         name: name,
         password: password,
-        userType: undecidedtype,
-        isStaff: false,
+        userType: userType,
+        isStaff: isStaff,
       );
 
       await FirebaseCloudStorage().createStaff(staff);

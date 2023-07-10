@@ -60,11 +60,11 @@ void inputCustomerData(CloudCustomer customer, CloudCustomerHistory history,
     history.newUnit,
     history.meterMultiplier,
     customer.adder,
-    history.newUnit - history.previousUnit,
+    history.getUnitUsed(),
     history.roadLightPrice,
     history.serviceChargeAtm,
-    history.horsePowerPerUnitCostAtm * history.horsePowerUnits,
-    history.cost,
+    history.getHorsePowerCost(),
+    history.getCost(),
     history.cost
   ];
   inputData(excelSheet, style, 1, rowIndex, rowIndex - 7);
@@ -111,7 +111,7 @@ Future<void> inputAllCustomerData(
   for (var customer in customers) {
     CloudCustomerHistory history =
         await provider.getCustomerHistory(customer: customer);
-    totalUnitUsed += (history.newUnit - history.previousUnit);
+    totalUnitUsed += (history.newUnit - history.previousUnit) * history.meterMultiplier;
     totalRoadPrice += history.roadLightPrice;
     totalServiceCharge += history.serviceChargeAtm;
     totalHorsePowerCost +=

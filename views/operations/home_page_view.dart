@@ -1,3 +1,6 @@
+import 'dart:developer';
+
+import 'package:electricity_plus/services/cloud/cloud_storage_constants.dart';
 import 'package:electricity_plus/services/cloud/operation/operation_bloc.dart';
 import 'package:electricity_plus/services/cloud/operation/operation_event.dart';
 import 'package:electricity_plus/services/cloud/operation/operation_state.dart';
@@ -40,6 +43,7 @@ class _HomePageViewState extends State<HomePageView> {
     return BlocBuilder<OperationBloc, OperationState>(
       builder: (context, state) {
         state as OperationStateDefault;
+        log(state.staff.userType);
         return Scaffold(
           appBar: AppBar(
             actions: [
@@ -54,37 +58,66 @@ class _HomePageViewState extends State<HomePageView> {
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
                   Visibility(
-                    visible: state.townName != 'Town Not Chosen',
+                    visible: state.townName != 'Town Not Chosen' &&
+                        ([
+                          meterReaderType,
+                          cashierType,
+                          managerType,
+                          adminType,
+                          directorType
+                        ].contains(state.staff.userType)),
                     child: HomePageButton(
                       icon: const Icon(Icons.assignment_outlined),
                       text: "Read Meter",
                       onPressed: () {
-                        context.read<OperationBloc>().add(const OperationEventElectricLog());
+                        context
+                            .read<OperationBloc>()
+                            .add(const OperationEventElectricLog());
                       },
                     ),
                   ),
                   Visibility(
-                    visible: state.townName != 'Town Not Chosen',
+                    visible: state.townName != 'Town Not Chosen' &&
+                        ([
+                          meterReaderType,
+                          cashierType,
+                          managerType,
+                          adminType,
+                          directorType
+                        ].contains(state.staff.userType)),
                     child: HomePageButton(
                       icon: const Icon(Icons.history_edu_outlined),
                       text: "Bill History",
                       onPressed: () {
-                        context.read<OperationBloc>().add(const OperationEventBillHistory());
+                        context
+                            .read<OperationBloc>()
+                            .add(const OperationEventBillHistory());
                       },
                     ),
                   ),
                   Visibility(
-                    visible: state.townName != 'Town Not Chosen',
+                    visible: state.townName != 'Town Not Chosen' &&
+                        ([
+                          meterReaderType,
+                          cashierType,
+                          managerType,
+                          adminType,
+                          directorType
+                        ].contains(state.staff.userType)),
                     child: HomePageButton(
                       icon: const Icon(Icons.flag_outlined),
                       text: "Flagged",
                       onPressed: () {
-                        context.read<OperationBloc>().add(const OperationEventFlagged());
+                        context
+                            .read<OperationBloc>()
+                            .add(const OperationEventFlagged());
                       },
                     ),
                   ),
                   Visibility(
-                    visible: state.townName != 'Town Not Chosen',
+                    visible: state.townName != 'Town Not Chosen' &&
+                        ([cashierType, managerType, adminType, directorType]
+                            .contains(state.staff.userType)),
                     child: HomePageButton(
                       icon: const Icon(Icons.payments_outlined),
                       text: "Make Payment",
@@ -100,15 +133,22 @@ class _HomePageViewState extends State<HomePageView> {
                       },
                     ),
                   ),
-                  
-                  HomePageButton(
-                    icon: const Icon(Icons.assignment_ind_outlined),
-                    text: "Management",
-                    onPressed: () {
-                      context
-                          .read<OperationBloc>()
-                          .add(const OperationEventAdminView());
-                    },
+                  Visibility(
+                    visible: ([
+                      cashierType,
+                      managerType,
+                      adminType,
+                      directorType
+                    ].contains(state.staff.userType)),
+                    child: HomePageButton(
+                      icon: const Icon(Icons.assignment_ind_outlined),
+                      text: "Management",
+                      onPressed: () {
+                        context
+                            .read<OperationBloc>()
+                            .add(const OperationEventAdminView());
+                      },
+                    ),
                   ),
                 ],
               ),

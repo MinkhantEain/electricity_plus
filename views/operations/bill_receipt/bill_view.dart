@@ -119,7 +119,7 @@ class _BillViewState extends State<BillView> {
                             },
                           ),
                         ),
-                        //TODO: implement payment method, implement admin assigning
+                        //TODO: implement payment method, implement access assigning
                         //TODO: must put hasPaymentCollectionRight to make payment
                         Visibility(
                             visible: !state.history.isPaid &&
@@ -355,23 +355,6 @@ class Bill extends StatelessWidget {
             ],
           ),
         ),
-        // Container(
-        //   width: 360,
-        //   padding: const EdgeInsets.fromLTRB(25, 0, 25, 0),
-        //   child: const Row(
-        //     mainAxisAlignment: MainAxisAlignment.spaceBetween,
-        //     children: [
-        //       Text(
-        //         'ခွင့်ပြုယူနစ်',
-        //         style: TextStyle(fontSize: 22, fontWeight: FontWeight.w500),
-        //       ),
-        //       Text(
-        //         '0',
-        //         style: TextStyle(fontSize: 22, fontWeight: FontWeight.w500),
-        //       ),
-        //     ],
-        //   ),
-        // ),
         Visibility(
           visible: history.meterMultiplier != 1,
           child: Container(
@@ -393,24 +376,6 @@ class Bill extends StatelessWidget {
             ),
           ),
         ),
-        // Container(
-        //   width: 360,
-        //   padding: const EdgeInsets.fromLTRB(25, 0, 25, 0),
-        //   child: Row(
-        //     mainAxisAlignment: MainAxisAlignment.spaceBetween,
-        //     children: [
-        //       const Text(
-        //         'ပေါင်းခြင်း',
-        //         style: TextStyle(fontSize: 22, fontWeight: FontWeight.w500),
-        //       ),
-        //       Text(
-        //         customer.adder.toString(),
-        //         style:
-        //             const TextStyle(fontSize: 22, fontWeight: FontWeight.w500),
-        //       ),
-        //     ],
-        //   ),
-        // ),
         Container(
           width: 360,
           padding: const EdgeInsets.fromLTRB(25, 0, 25, 0),
@@ -422,7 +387,7 @@ class Bill extends StatelessWidget {
                 style: TextStyle(fontSize: 22, fontWeight: FontWeight.w500),
               ),
               Text(
-                (history.newUnit - history.previousUnit).toString(),
+                history.getUnitUsed().toString(),
                 style:
                     const TextStyle(fontSize: 22, fontWeight: FontWeight.w500),
               ),
@@ -479,7 +444,7 @@ class Bill extends StatelessWidget {
                 style: TextStyle(fontSize: 22, fontWeight: FontWeight.w500),
               ),
               Text(
-                history.basicElectricityPrice().toString(),
+                history.getCost().toString(),
                 style:
                     const TextStyle(fontSize: 22, fontWeight: FontWeight.w500),
               ),
@@ -559,7 +524,7 @@ class Bill extends StatelessWidget {
                 style: TextStyle(fontSize: 22, fontWeight: FontWeight.w500),
               ),
               Text(
-                history.cost.toString(),
+                history.getTotalCost().toString(),
                 style:
                     const TextStyle(fontSize: 22, fontWeight: FontWeight.w500),
               ),

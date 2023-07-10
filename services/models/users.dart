@@ -34,4 +34,17 @@ class Staff{
     password = snapshot.data()![passwordField],
     isStaff = snapshot.data()![isStaffField],
     userType = snapshot.data()![userTypeField];
+
+
+  @override
+  String toString() {
+    return '''
+uid: $uid
+name: $name
+email: $email
+password: $password
+isStaff: $isStaff
+userType: $userType
+''';
+  }
 }

@@ -15,12 +15,16 @@ class AuthService implements AuthProvider {
     required String password,
     required String passwordReEntry,
     required String name,
+    required String userType,
+    required bool isStaff,
   }) =>
       provider.createUser(
         email: email,
         name: name,
         password: password,
         passwordReEntry: passwordReEntry,
+        isStaff: isStaff,
+        userType: userType,
       );
 
   @override

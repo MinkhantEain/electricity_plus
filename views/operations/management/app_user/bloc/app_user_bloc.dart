@@ -5,8 +5,8 @@ part 'app_user_event.dart';
 part 'app_user_state.dart';
 
 class AppUserBloc extends Bloc<AppUserEvent, AppUserState> {
-  AppUserBloc() : super(AppUserInitial()) {
-    on<AppUserEventAppUser>((event, emit) => emit(const AppUserStateAppUser()));
+  AppUserBloc() : super(const AppUserInitial()) {
+    on<AppUserEventAppUser>((event, emit) => emit(const AppUserInitial()));
 
     on<AppUserEventAddNewUser>(
         (event, emit) => emit(const AppUserStateAddNewUser()));
@@ -24,23 +24,3 @@ class AppUserBloc extends Bloc<AppUserEvent, AppUserState> {
         (event, emit) => emit(const AppUserStateActivateUser()));
   }
 }
-
-// class AppUserEventAddNewUser extends AppUserEvent {
-//   const AppUserEventAddNewUser();
-// }
-
-// class AppUserEventUserMeterReadHisotry extends AppUserEvent {
-//   const AppUserEventUserMeterReadHisotry();
-// }
-
-// class AppUserEventUserPaymentCollectedHistory extends AppUserEvent {
-//   const AppUserEventUserPaymentCollectedHistory();
-// }
-
-// class AppUserEventSuspendUser extends AppUserEvent {
-//   const AppUserEventSuspendUser();
-// }
-
-// class AppUserEventActivateUser extends AppUserEvent {
-//   const AppUserEventActivateUser();
-// }

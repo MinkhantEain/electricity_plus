@@ -10,7 +10,6 @@ import 'package:electricity_plus/services/models/cloud_customer.dart';
 import 'package:electricity_plus/services/models/cloud_customer_history.dart';
 import 'package:electricity_plus/services/cloud/cloud_storage_constants.dart';
 import 'package:electricity_plus/services/cloud/cloud_storage_exceptions.dart';
-import 'package:electricity_plus/services/models/progress.dart';
 import 'package:electricity_plus/services/models/users.dart';
 import 'package:electricity_plus/services/others/local_storage.dart';
 import 'package:electricity_plus/services/others/town.dart';
@@ -26,40 +25,42 @@ class FirebaseCloudStorage {
 
   final firebaseStorage = FirebaseStorage.instance.ref();
 
-  Future<bool> isAdminPersonnel(String uid) async {
-    return FirebaseFirestore.instance
-        .collection('AdminPersonnelList')
-        .doc(uid)
-        .get()
-        .then((DocumentSnapshot doc) {
-      if (doc.data() != null) {
-        final snapshot = doc.data() as Map<String, dynamic>;
-        return snapshot['AdminPage'];
-      } else {
-        return false;
-      }
-    }, onError: (_) => false);
-  }
+  // Future<bool> isAdminPersonnel(String uid) async {
+  //   return FirebaseFirestore.instance
+  //       .collection('AdminPersonnelList')
+  //       .doc(uid)
+  //       .get()
+  //       .then((DocumentSnapshot doc) {
+  //     if (doc.data() != null) {
+  //       final snapshot = doc.data() as Map<String, dynamic>;
+  //       return snapshot['AdminPage'];
+  //     } else {
+  //       return false;
+  //     }
+  //   }, onError: (_) => false);
+  // }
 
   Future<num> getTownCount() async {
-    return FirebaseFirestore.instance.doc('$townCountCollection/$townCountDoc').get()
-    .then((value) => value.data()![townCountField]);
+    return FirebaseFirestore.instance
+        .doc('$townCountCollection/$townCountDoc')
+        .get()
+        .then((value) => value.data()![townCountField]);
   }
 
   Future<void> setTownCount(num newCount) async {
-    final townCountDocRef = FirebaseFirestore.instance.doc('$townCountCollection/$townCountDoc');
-    setDoc(document: townCountDocRef, dataFieldMap: {
-      townCountField : newCount
-    });
+    final townCountDocRef =
+        FirebaseFirestore.instance.doc('$townCountCollection/$townCountDoc');
+    setDoc(document: townCountDocRef, dataFieldMap: {townCountField: newCount});
   }
 
-  Future<Staff?> getCurrentUser(User user) async {
+  Future<Staff?> getCurrentUser(String uid) async {
     final town = await AppDocumentData.getTownName();
 
     return FirebaseFirestore.instance
-        .doc('$town$staffCollection/${user.uid}')
+        .doc('$town$staffCollection/$uid')
         .get()
-        .then((value) => value != null ? Staff.fromDocSnapshot(value) : null);
+        .then((value) => Staff.fromDocSnapshot(value))
+        .onError((error, stackTrace) => throw Exception());
   }
 
   Future<void> createStaff(Staff staff) async {
@@ -85,8 +86,9 @@ class FirebaseCloudStorage {
   Future<String> storeImage(String customerDocumentId, File file,
       {String fileName = ''}) async {
     try {
+      final town = await AppDocumentData.getTownName();
       final uploadTask = firebaseStorage
-          .child(customerDocumentId)
+          .child('$town$customerDocumentId')
           .child(currentMonthYearDate() + fileName)
           .putFile(file);
       //deletes file from a year ago if present
@@ -221,16 +223,20 @@ class FirebaseCloudStorage {
   // }
 
   Future<num> calculateCost(CloudCustomer customer, num newReading) async {
-    final price = await getPrice();
+    final prices = await getAllPrices();
+    final price = prices.pricePerUnit;
     final previousUnit = await getPreviousValidUnit(customer);
-    final serviceCharge = await getServiceCharge();
+    final serviceCharge = prices.serviceCharge;
     final meterMultiplier = customer.meterMultiplier;
-    final roadLightPrice = await getRoadLightPrice();
-    final horsePowerPerUnitCost = await getHorsePowerPerUnitCost();
+    final roadLightPrice = prices.roadLightPrice;
+    final horsePowerPerUnitCost = prices.horsePowerPerUnitCost;
     final horsePowerUnits = customer.horsePowerUnits;
     final hasRoadLight = customer.hasRoadLightCost ? 1 : 0;
+    final calculatedHorsePowerCost = (newReading - previousUnit) == 0
+        ? 0
+        : horsePowerUnits * horsePowerPerUnitCost;
     final result = price * (newReading - previousUnit) * meterMultiplier +
-        horsePowerUnits * horsePowerPerUnitCost +
+        calculatedHorsePowerCost +
         serviceCharge +
         hasRoadLight * roadLightPrice;
     return result;
@@ -633,7 +639,7 @@ class FirebaseCloudStorage {
       final town = await AppDocumentData.getTownName();
       final detailsCollection = firebaseFirestoreInstance
           .collection('$town$customerDetailsCollection');
-      final newCustomerDocRef = detailsCollection.doc();
+      final newCustomerDocRef = detailsCollection.doc(bookIdToDocId(bookId));
       final customerHistoryDocRef = FirebaseFirestore.instance
           .collection(
               '$town$customerDetailsCollection/${newCustomerDocRef.id}/$historyCollection')
@@ -654,32 +660,30 @@ class FirebaseCloudStorage {
         lastHistoryField: customerHistoryDocRef,
       });
 
-      FirebaseFirestore.instance.runTransaction(
-        (transaction) async {
-          transaction.set(customerHistoryDocRef, {
-            previousUnitField: meterReading,
-            newUnitField: meterReading,
-            priceAtmField: await getPrice(),
-            serviceChargeField: await getServiceCharge(),
-            isVoidedField: false,
-            dateField: pastMonthYearDate(),
-            costField: 0,
-            isPaidField: true,
-            inspectorField: '',
-            roadLightPriceField: hasRoadLight ? await getRoadLightPrice() : 0,
-            meterMultiplierField: meterMultiplier,
-            horsePowerUnitsField: horsePowerUnits,
-            horsePowerPerUnitCostAtmField: await getHorsePowerPerUnitCost(),
-            commentField: '',
-            paidAmountField: 0,
-            imageUrlField:
-                'https://firebasestorage.googleapis.com/v0/b/electricityplus-a6572.appspot.com/o/newUser%2Fsoil.jpg?alt=media&token=93cdbd32-72a3-4992-a134-226d465c340f',
-          });
-        },
-      ).then((value) => dev.log("Document submitted successfully."),
-          onError: (e) {
-        throw CouldNotCreateCustomerException();
-      });
+      final history = CloudCustomerHistory(
+        documentId: customerHistoryDocRef.id,
+        previousUnit: meterReading,
+        newUnit: meterReading,
+        priceAtm: await getPrice(),
+        cost: 0,
+        date: pastMonthYearDate(),
+        imageUrl:
+            'https://firebasestorage.googleapis.com/v0/b/electricityplus-a6572.appspot.com/o/newUser%2Fsoil.jpg?alt=media&token=93cdbd32-72a3-4992-a134-226d465c340f',
+        comment: 'Creation',
+        isVoided: false,
+        paidAmount: 0,
+        inspector: FirebaseAuth.instance.currentUser!.displayName!,
+        isPaid: true,
+        serviceChargeAtm: await getServiceCharge(),
+        horsePowerPerUnitCostAtm: await getHorsePowerPerUnitCost(),
+        horsePowerUnits: horsePowerUnits,
+        meterMultiplier: meterMultiplier,
+        roadLightPrice: hasRoadLight ? await getRoadLightPrice() : 0,
+      );
+
+      setDoc(
+          document: customerHistoryDocRef,
+          dataFieldMap: history.dataFieldMap());
     } on Exception {
       rethrow;
     }

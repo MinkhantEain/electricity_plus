@@ -63,11 +63,12 @@ const priceDoc = 'PriceDoc';
 const adminCollection = 'Admin';
 const detailsDoc = 'Details';
 const passwordFields = 'Password';
-const undecidedtype = 'undecided';
+const undecidedType = 'undecided';
 const meterReaderType = 'meterReader';
 const cashierType = 'cashier';
+const managerType = 'manager';
 const directorType = 'diector';
-const adminType = 'adminType';
+const adminType = 'admin';
 
 const receiptCollection = 'Receipts';
 

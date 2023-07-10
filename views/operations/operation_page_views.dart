@@ -83,11 +83,12 @@ class _OperationPageViewsState extends State<OperationPageViews> {
             child: const AddCustomerView(),
           );
         } else if (state is OperationStateAdminView) {
-          return BlocProvider(
-            create: (context) => AdminBloc(FirebaseCloudStorage())
-              ..add(const AdminEventCheckAuthorisation()),
-            child: const AdminView(),
-          );
+          return const AdminView();
+          // return BlocProvider(
+          //   create: (context) => AdminBloc(FirebaseCloudStorage())
+          //     ..add(const AdminEventCheckAuthorisation()),
+          //   child: const AdminView(),
+          // );
         } else if (state is OperationStateInitialiseData) {
           return BlocProvider(
             create: (context) => ImportDataBloc(FirebaseCloudStorage()),

@@ -1,17 +1,21 @@
 import 'package:electricity_plus/services/models/cloud_customer.dart';
 import 'package:electricity_plus/services/models/cloud_customer_history.dart';
+import 'package:electricity_plus/services/models/users.dart';
 import 'package:electricity_plus/services/others/town.dart';
+import 'package:equatable/equatable.dart';
 import 'package:file_picker/file_picker.dart';
 import 'package:flutter/foundation.dart';
 
 @immutable
-abstract class OperationState {
+abstract class OperationState extends Equatable{
   final bool isLoading;
   final String? loadingText;
   const OperationState({
     required this.isLoading,
     this.loadingText,
   });
+  @override
+  List<Object?> get props => [isLoading, loadingText];
 }
 
 class OperationStateAppUser extends OperationState {
@@ -26,12 +30,16 @@ class OperationStateChooseTown extends OperationState {
     required this.towns,
     required this.exception,
   }) : super(isLoading: isLoading);
+
 }
 
 class OperationStateDefault extends OperationState {
   final String townName;
-  const OperationStateDefault({required this.townName})
+  final Staff staff;
+  const OperationStateDefault({required this.townName, required this.staff})
       : super(isLoading: false);
+  @override
+  List<Object?> get props => [super.props, townName, staff];
 }
 
 class OperationStateUninitialised extends OperationState {
