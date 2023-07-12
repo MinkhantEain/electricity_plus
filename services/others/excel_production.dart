@@ -106,7 +106,8 @@ Future<void> inputAllCustomerData(
   num totalHorsePowerCost = 0;
   num totalCost = 0;
   int rowIndex = 8;
-  final customers = await provider.allCustomer();
+  //TODO: get all customer with input date of the month chosen.
+  final customers = await provider.allReadCustomer();
   dev.log(customers.toString());
   for (var customer in customers) {
     CloudCustomerHistory history =

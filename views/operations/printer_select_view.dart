@@ -234,10 +234,10 @@ class _PrinterSelectViewState extends State<PrinterSelectView> {
                   context.read<BillReceiptBloc>().add(BillInitialise(
                       customer: state.customer, history: state.history));
                 } else if (state is ReceiptPrinterNotConnected) {
-                  context.read<BillReceiptBloc>().add(BillReceiptPaymentEvent(
-                      customer: customerDummy,
-                      history: historyDummy,
-                      meterAllowance: '2'));
+                  context.read<BillReceiptBloc>().add(ReopenReceiptEvent(
+                      customer: state.customer,
+                      history: state.history,
+                      recentHistory: state.recentHistory,));
                 } else {
                   context
                       .read<OperationBloc>()

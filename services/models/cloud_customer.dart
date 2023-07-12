@@ -8,6 +8,7 @@ class CloudCustomer {
   final String bookId;
   final String meterId;
   final String name;
+  final String lastReadDate;
   final String address;
   final DocumentReference<Map<String, dynamic>> lastHistory;
   final num lastUnit;
@@ -26,6 +27,7 @@ class CloudCustomer {
     required this.address,
     required this.lastUnit,
     required this.flag,
+    required this.lastReadDate,
     required this.debt,
     required this.adder,
     required this.horsePowerUnits,
@@ -41,6 +43,7 @@ class CloudCustomer {
         addressField: address,
         lastUnitField: lastUnit,
         lastHistoryField : lastHistory,
+        lastReadDateField : lastReadDate,
         flagField: flag,
         adderField : adder,
         debtField : debt,
@@ -77,6 +80,7 @@ class CloudCustomer {
         flag = json['flag'],
         debt = json[debtField],
         adder = json['adder'],
+        lastReadDate = json[lastReadDateField].toString(),
         horsePowerUnits = json['horsePowerUnits'],
         meterMultiplier = json['meterMultiplier'],
         hasRoadLightCost = json['hasRoadLightCost'],
@@ -92,6 +96,7 @@ class CloudCustomer {
         lastUnit = snapshot.data()[lastUnitField],
         flag = snapshot.data()[flagField],
         adder = snapshot.data()[adderField],
+        lastReadDate = snapshot.data()[lastReadDateField].toString(),
         horsePowerUnits = snapshot.data()[horsePowerUnitsField],
         meterMultiplier = snapshot.data()[meterMultiplierField],
         hasRoadLightCost = snapshot.data()[hasRoadLightCostField],
@@ -107,6 +112,7 @@ class CloudCustomer {
         address = snapshot.data()![addressField],
         lastUnit = snapshot.data()![lastUnitField],
         flag = snapshot.data()![flagField],
+        lastReadDate = snapshot.data()![lastReadDateField],
         debt = snapshot.data()![debtField],
         adder = snapshot.data()![adderField],
         horsePowerUnits = snapshot.data()![horsePowerUnitsField],

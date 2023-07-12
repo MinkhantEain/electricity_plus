@@ -56,7 +56,7 @@ class _FlagCustomerViewState extends State<FlagCustomerView> {
       builder: (context, state) {
         return Scaffold(
           appBar: AppBar(
-            title: const Text('Flag Customer'),
+            title: const Text('Red Flag Customer'),
             leading: BackButton(
               onPressed: () {
                 context
@@ -98,6 +98,7 @@ class _FlagCustomerViewState extends State<FlagCustomerView> {
                   maxLines: 3,
                   controller: _commentTextController,
                   decoration: const InputDecoration(
+                    hintText: 'Write Comment Here...',
                       focusedBorder: OutlineInputBorder(
                         borderSide: BorderSide(color: Colors.green, width: 1.0),
                       ),

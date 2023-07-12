@@ -1,13 +1,10 @@
 import 'package:bloc/bloc.dart';
 import 'package:electricity_plus/services/cloud/cloud_storage_exceptions.dart';
-import 'package:electricity_plus/services/cloud/operation/operation_bloc.dart';
-import 'package:electricity_plus/services/cloud/operation/operation_event.dart';
 import 'package:electricity_plus/services/models/cloud_customer.dart';
 import 'package:electricity_plus/services/cloud/firebase_cloud_storage.dart';
 import 'package:electricity_plus/services/models/cloud_customer_history.dart';
 import 'package:electricity_plus/utilities/helper_functions.dart';
 import 'package:equatable/equatable.dart';
-import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
 part 'customer_search_event.dart';

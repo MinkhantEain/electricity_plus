@@ -14,8 +14,6 @@ import 'package:electricity_plus/views/operations/management/bloc/admin_bloc.dar
 import 'package:electricity_plus/views/operations/management/import_data/bloc/import_data_bloc.dart';
 import 'package:electricity_plus/views/operations/management/price_setting/bloc/set_price_bloc.dart';
 import 'package:electricity_plus/views/operations/management/price_setting/set_price_view.dart';
-import 'package:electricity_plus/views/operations/management/town_selection/bloc/town_selection_bloc.dart';
-import 'package:electricity_plus/views/operations/management/town_selection/town_selection_frame.dart';
 import 'package:electricity_plus/views/operations/printer_select_view.dart';
 import 'package:electricity_plus/views/operations/customer_search/bloc/customer_search_bloc.dart';
 import 'package:electricity_plus/views/operations/customer_search/customer_search_view.dart';
@@ -83,12 +81,10 @@ class _OperationPageViewsState extends State<OperationPageViews> {
             child: const AddCustomerView(),
           );
         } else if (state is OperationStateAdminView) {
-          return const AdminView();
-          // return BlocProvider(
-          //   create: (context) => AdminBloc(FirebaseCloudStorage())
-          //     ..add(const AdminEventCheckAuthorisation()),
-          //   child: const AdminView(),
-          // );
+          return BlocProvider(
+            create: (context) => AdminBloc(FirebaseCloudStorage()),
+            child: const AdminView(),
+          );
         } else if (state is OperationStateInitialiseData) {
           return BlocProvider(
             create: (context) => ImportDataBloc(FirebaseCloudStorage()),
@@ -96,12 +92,6 @@ class _OperationPageViewsState extends State<OperationPageViews> {
           );
         } else if (state is OperationStateProduceExcel) {
           return const ProduceExcelView();
-        } else if (state is OperationStateChooseTown) {
-          return BlocProvider<TownSelectionBloc>(
-            create: (context) => TownSelectionBloc(FirebaseCloudStorage())
-              ..add(const TownSelectionInitialise()),
-            child: const TownSelectionFrame(),
-          );
         } else if (state is OperationStateChooseBluetooth) {
           return BlocProvider(
             create: (context) => BillReceiptBloc(FirebaseCloudStorage()),

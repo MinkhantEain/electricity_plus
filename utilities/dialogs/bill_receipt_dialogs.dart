@@ -50,7 +50,7 @@ Future<void> showReceiptRetrievalErrorDialog(
   return showGenericDialog(
     context: context,
     title: "Receipt Retrieval Error",
-    content: 'Something went wrong during payment process. Is the town correct? Ask Admin for help.',
+    content: 'Something went wrong during payment process. Is the town correct? There is no receipt for imported or created bills, otherwise, Ask Admin for help.',
     optionsBuilder: () => {
       'OK' : null,
     },

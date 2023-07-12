@@ -7,6 +7,7 @@ const meterIdField = 'MeterID';
 const bookIdField = 'BookID';
 const nameField = 'Name';
 const addressField = 'Address';
+const lastReadDateField = 'LastReadDate';
 const debtField = 'Debt';
 const lastUnitField = 'LastUnit';
 const flagField = 'Flag';
@@ -51,8 +52,6 @@ const customerDetailsCollection = 'CustomerDetails';
 const historyCollection = 'History';
 const priceCollection = 'price';
 const resolveCollection = 'Resolve';
-const recentBillHistoryCollection = 'RecentBillHistory';
-const unpaidBillCollection = 'UnpaidBill';
 const flagCollection = 'Flag';
 
 //doc path

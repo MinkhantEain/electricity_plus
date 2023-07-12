@@ -1,9 +1,11 @@
 import 'dart:developer' as dev show log;
 
 import 'package:electricity_plus/helper/loading/loading_screen.dart';
+import 'package:electricity_plus/services/models/cloud_customer.dart';
 import 'package:electricity_plus/utilities/dialogs/electric_log_dialogs.dart';
 import 'package:electricity_plus/utilities/dialogs/error_dialog.dart';
 import 'package:electricity_plus/views/operations/customer_search/bloc/customer_search_bloc.dart';
+import 'package:electricity_plus/views/operations/flagged/bloc/flagged_bloc.dart';
 import 'package:electricity_plus/views/operations/read_meter/bloc/read_meter_bloc.dart';
 import 'package:electricity_plus/views/operations/read_meter/flag_customer_view.dart';
 import 'package:electricity_plus/views/operations/read_meter/read_meter_second_page.dart';
@@ -11,7 +13,9 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
 class ReadMeterFirstPage extends StatefulWidget {
-  const ReadMeterFirstPage({super.key});
+  final Iterable<CloudCustomer>? customers;
+  final String? fromPage;
+  const ReadMeterFirstPage({super.key, this.fromPage, this.customers});
 
   @override
   State<ReadMeterFirstPage> createState() => _ReadMeterFirstPageState();
@@ -66,9 +70,15 @@ class _ReadMeterFirstPageState extends State<ReadMeterFirstPage> {
             appBar: AppBar(
               leading: BackButton(
                 onPressed: () async {
-                  context
-                      .read<CustomerSearchBloc>()
-                      .add(const CustomerSearchMeterReadSearchInitialise());
+                  if (widget.fromPage == 'Unread Customers') {
+                    context.read<FlaggedBloc>().add(FlaggedEventUnreadCustomers(
+                        customers: widget.customers));
+                  } else {
+                    context
+                        .read<CustomerSearchBloc>()
+                        .add(const CustomerSearchMeterReadSearchInitialise());
+                  }
+
                   await BlocProvider.of<ReadMeterBloc>(context).close();
                 },
               ),
@@ -82,7 +92,7 @@ class _ReadMeterFirstPageState extends State<ReadMeterFirstPage> {
                   },
                   icon: const Icon(Icons.flag_sharp),
                   color: Colors.red,
-                  iconSize: 30,
+                  iconSize: 40,
                 ),
               ],
             ),
@@ -167,7 +177,8 @@ class _ReadMeterFirstPageState extends State<ReadMeterFirstPage> {
                       child: TextField(
                         keyboardType: TextInputType.number,
                         decoration: const InputDecoration(
-                          hintText: 'New Reading',
+                          hintText: '????????',
+                          
                         ),
                         controller: _newReadingTextController,
                         enabled: !state.customer.flag,
@@ -197,13 +208,13 @@ class _ReadMeterFirstPageState extends State<ReadMeterFirstPage> {
                   ),
                 ),
                 Visibility(
-                  visible: state.customer.flag,
+                    visible: state.customer.flag,
                     child: ElevatedButton(
-                  child: const Text('Resolve Flag'),
-                  onPressed: () {
-                    //TODO: redirect to resolve issue with the customer.
-                  },
-                ))
+                      child: const Text('Resolve Flag'),
+                      onPressed: () {
+                        //TODO: redirect to resolve issue with the customer.
+                      },
+                    ))
               ],
             ),
           );

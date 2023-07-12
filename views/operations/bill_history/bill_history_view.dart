@@ -48,7 +48,8 @@ class _BillHistoryViewState extends State<BillHistoryView> {
                   title: Text(
                     """
 Date: ${customerReceiptHistory.date},
-isVoided: ${customerReceiptHistory.isVoided},
+isPaid: ${customerReceiptHistory.isPaid},
+cost: ${customerReceiptHistory.cost}
                   """,
                     maxLines: 3,
                     softWrap: true,

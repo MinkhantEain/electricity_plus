@@ -27,6 +27,8 @@ class FlaggedStateBlackSelected extends FlaggedState {
     required this.customer,
     required this.history,
   });
+  @override
+  List<Object> get props => [super.props, customer, history];
 }
 
 class FlaggedStateBillSelected extends FlaggedState {
@@ -36,6 +38,8 @@ class FlaggedStateBillSelected extends FlaggedState {
     required this.customer,
     required this.history,
   });
+  @override
+  List<Object> get props => [super.props, customer, history];
 }
 
 class FlaggedStateRedSelected extends FlaggedState {
@@ -47,6 +51,22 @@ class FlaggedStateRedSelected extends FlaggedState {
     required this.flag,
     required this.image,
   });
+  @override
+  // TODO: implement props
+  List<Object> get props => [super.props, customer, flag];
+}
+
+class FlaggedStateUnreadCustomerSelected extends FlaggedState {
+  final Iterable<CloudCustomer> customers;
+  final CloudCustomer customer;
+  final String previousReading;
+  const FlaggedStateUnreadCustomerSelected({
+    required this.customers,
+    required this.customer,
+    required this.previousReading,
+  });
+  @override
+  List<Object> get props => [super.props, customer, previousReading, customers];
 }
 
 class FlaggedStatePageSelected extends FlaggedState {
@@ -58,4 +78,7 @@ class FlaggedStatePageSelected extends FlaggedState {
     required this.onTap,
     required this.pageName,
   });
+  @override
+  // TODO: implement props
+  List<Object> get props => [super.props, onTap, pageName];
 }

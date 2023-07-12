@@ -46,6 +46,8 @@ class CouldNotGetCustomerHistoryException extends CloudStorageException {}
 
 class NoSuchDocumentException extends CloudStorageException {}
 
+class QueryFailsException extends CloudStorageException {}
+
 class CouldNotGetPasswordException extends CloudStorageException {}
 
 class NonAdminUserException extends CloudStorageException {}

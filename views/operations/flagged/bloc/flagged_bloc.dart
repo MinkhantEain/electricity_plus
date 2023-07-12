@@ -65,7 +65,40 @@ class FlaggedBloc extends Bloc<FlaggedEvent, FlaggedState> {
       },
     );
 
-    on<FLaggedEventBillSelect>(
+    on<FlaggedEventUnreadCustomers>(
+      (event, emit) async {
+        emit(const FlaggedStateLoading());
+        late final Iterable<CloudCustomer> customers;
+        if (event.customers != null) {
+          customers = event.customers!;
+        } else {
+          customers = await provider.getUnreadCustomer();
+        }
+        emit(FlaggedStatePageSelected(
+          customers: customers,
+          onTap: (context, customer) {
+            context
+                .read<FlaggedBloc>()
+                .add(FlaggedEventUnreadCustomersSelect(customer: customer, customers: customers));
+          },
+          pageName: 'Unread Customers',
+        ));
+      },
+    );
+
+    on<FlaggedEventUnreadCustomersSelect>(
+      (event, emit) async {
+        emit(const FlaggedStateLoading());
+        emit(FlaggedStateUnreadCustomerSelected(
+          customers: event.customers,
+            customer: event.customer,
+            previousReading:
+                (await provider.getPreviousValidUnit(event.customer))
+                    .toString()));
+      },
+    );
+
+    on<FlaggedEventBillSelect>(
       (event, emit) {
         emit(const FlaggedStateLoading());
         emit(FlaggedStateBillSelected(

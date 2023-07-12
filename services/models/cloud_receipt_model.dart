@@ -35,6 +35,25 @@ class CloudReceipt {
     required this.initialCost,
     required this.finalCost,
   });
+  
+  Map<String, dynamic> dataFieldMap() {
+    return {
+      forDateField : forDate,
+      meterReadDate : meterReadDate,
+      bookIdField : bookId,
+      customerNameField : customerName,
+      collectorNameField : collectorName,
+      transactionDateField : transactionDate,
+      paymentDueDateField : paymentDueDate,
+      customerDocIdField : customerDocId,
+      historyDocIdField : historyDocId,
+      townNameField : townName,
+      meterAllowanceField : meterAllowance,
+      priceAtmField : priceAtm,
+      initialCostField : initialCost,
+      finalCostField : finalCost,
+    };
+  }
 
   String customerDocRefPath() {
     return '$townName$customerDetailsCollection/$customerDocId';

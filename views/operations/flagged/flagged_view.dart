@@ -12,6 +12,8 @@ import 'package:electricity_plus/views/operations/flagged/bloc/flagged_bloc.dart
 import 'package:electricity_plus/views/operations/flagged/flag_list_view.dart';
 import 'package:electricity_plus/views/operations/flagged/resolve_red_flag/bloc/resolve_red_flag_bloc.dart';
 import 'package:electricity_plus/views/operations/flagged/resolve_red_flag/resolve_red_flag_view.dart';
+import 'package:electricity_plus/views/operations/read_meter/bloc/read_meter_bloc.dart';
+import 'package:electricity_plus/views/operations/read_meter/read_meter_first_page.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
@@ -64,14 +66,26 @@ class FlaggedView extends StatelessWidget {
                       Icons.flag_sharp,
                       color: Colors.black,
                     ),
-                    text: 'Unpaid Customer',
+                    text: 'Unpaid Customers',
                     onPressed: () {
                       //TODO: got to a view with all the unapid customer.
                       context
                           .read<FlaggedBloc>()
                           .add(const FlaggedEventBlack());
                     },
-                  )
+                  ),
+                  HomePageButton(
+                    icon: const Icon(
+                      Icons.crisis_alert_sharp,
+                      color: Colors.redAccent,
+                    ),
+                    text: 'Unread Customers',
+                    onPressed: () {
+                      context
+                          .read<FlaggedBloc>()
+                          .add(const FlaggedEventUnreadCustomers(customers: null));
+                    },
+                  ),
                 ],
               ),
             ),
@@ -97,6 +111,15 @@ class FlaggedView extends StatelessWidget {
                     customer: state.customer, history: state.history),
               ),
             child: const BillView(),
+          );
+        } else if (state is FlaggedStateUnreadCustomerSelected) {
+          return BlocProvider(
+            create: (context) => ReadMeterBloc(
+              FirebaseCloudStorage(),
+              state.customer,
+              state.previousReading,
+            ),
+            child: ReadMeterFirstPage(customers: state.customers, fromPage: 'Unread Customers'),
           );
         } else {
           return const Scaffold();

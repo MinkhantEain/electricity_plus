@@ -36,7 +36,7 @@ bool isWithinMonth(String date) {
 
 ///return the previous month date of given date
 ///eg valid format 2023/05...
-///if not valid date then return the previous month date
+///if not valid date then return the date of the previous month date
 String previousMonthYearDateNumericFormat({String? date}) {
   date ??= DateTime.now().toString();
   if (date.length < 7) {
@@ -52,9 +52,9 @@ String previousMonthYearDateNumericFormat({String? date}) {
   }
   String result;
   if (month < 10) {
-    result = '$year/0$month';
+    result = '$year-0$month';
   } else {
-    result = '$year/$month';
+    result = '$year-$month';
   }
   return result;
 }

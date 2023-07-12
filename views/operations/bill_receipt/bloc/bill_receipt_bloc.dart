@@ -15,18 +15,22 @@ part 'bill_receipt_state.dart';
 class BillReceiptBloc extends Bloc<BillReceiptEvent, BillReceiptState> {
   BillReceiptBloc(FirebaseCloudStorage provider)
       : super(const BillReceiptInitial()) {
-    on<BillInitialise>((event, emit) {
+    on<BillInitialise>((event, emit) async {
       emit(const BillReceiptLoading());
-      emit(BillInitialised(customer: event.customer, history: event.history));
+      emit(BillInitialised(
+          customer: event.customer,
+          history: event.history,
+          recentHistory:
+              await provider.getRecentBillHistory(customer: event.customer)));
     });
 
     on<BillFromFlaggedInitialise>(
       (event, emit) {
         emit(const BillReceiptLoading());
         emit(BillFromFlaggedInitialised(
-          customer: event.customer,
-          history: event.history,
-        ));
+            customer: event.customer,
+            history: event.history,
+            recentHistory: const []));
       },
     );
 
@@ -37,7 +41,12 @@ class BillReceiptBloc extends Bloc<BillReceiptEvent, BillReceiptState> {
       try {
         final customer = await provider.getCustomerFromDocId(qrCodeData[0]);
         final history = await provider.getCusomerHistoryFromQrCode(qrCodeData);
-        emit(BillInitialised(customer: customer, history: history));
+        final recentHistory = await provider.getRecentBillHistory(
+            customer: customer, upperDateThreshold: history.date);
+        emit(BillInitialised(
+            customer: customer,
+            history: recentHistory.first,
+            recentHistory: recentHistory));
       } on Exception catch (e) {
         if (e is NoSuchDocumentException) {
           emit(const BillReceiptErrorNotFound());
@@ -47,12 +56,14 @@ class BillReceiptBloc extends Bloc<BillReceiptEvent, BillReceiptState> {
     });
 
     on<BillFromHistorySearchInitialise>(
-      (event, emit) {
+      (event, emit) async {
         emit(const BillReceiptLoading());
         emit(BillFromHistorySearchInitialised(
-          customer: event.customer,
-          history: event.history,
-        ));
+            customer: event.customer,
+            history: event.history,
+            recentHistory: await provider.getRecentBillHistory(
+                customer: event.customer,
+                upperDateThreshold: event.history.date)));
       },
     );
 
@@ -87,17 +98,24 @@ class BillReceiptBloc extends Bloc<BillReceiptEvent, BillReceiptState> {
             emit(BillReceiptPaymentState(
               customer: event.customer,
               history: event.history,
+              recentHistory: event.recentHistory,
               receipt: receipt,
             ));
           } on CouldNotMakePaymentException {
             emit(const PaymentError());
             emit(BillInitialised(
-                customer: event.customer, history: event.history));
+              customer: event.customer,
+              history: event.history,
+              recentHistory: event.recentHistory,
+            ));
           }
         } else {
           emit(InvalidMeterAllowanceInput(input: meterAllowance));
           emit(MeterAllowanceAcquisitonState(
-              customer: event.customer, history: event.history));
+            customer: event.customer,
+            history: event.history,
+            recentHistory: event.recentHistory,
+          ));
         }
       },
     );
@@ -108,12 +126,16 @@ class BillReceiptBloc extends Bloc<BillReceiptEvent, BillReceiptState> {
           emit(BillReceiptPaymentState(
               customer: event.customer,
               history: event.history,
+              recentHistory: event.recentHistory,
               receipt: await provider.getReceipt(
                   customer: event.customer, history: event.history)));
         } on CouldNotFindReceiptDocException {
           emit(const ReceiptRetrievalUnsuccessful());
           emit(BillInitialised(
-              customer: event.customer, history: event.history));
+            customer: event.customer,
+            history: event.history,
+            recentHistory: event.recentHistory,
+          ));
         }
       },
     );
@@ -122,7 +144,10 @@ class BillReceiptBloc extends Bloc<BillReceiptEvent, BillReceiptState> {
       (event, emit) async {
         //This will direct the page to meter allowance aquisition page
         emit(MeterAllowanceAcquisitonState(
-            customer: event.customer, history: event.history));
+          customer: event.customer,
+          history: event.history,
+          recentHistory: event.recentHistory,
+        ));
       },
     );
 
@@ -130,7 +155,10 @@ class BillReceiptBloc extends Bloc<BillReceiptEvent, BillReceiptState> {
       (event, emit) {
         emit(const BillReceiptLoading());
         emit(BillPrinterNotConnected(
-            customer: event.customer, history: event.history));
+          customer: event.customer,
+          history: event.history,
+          recentHistory: event.recentHistory,
+        ));
       },
     );
 
@@ -140,6 +168,7 @@ class BillReceiptBloc extends Bloc<BillReceiptEvent, BillReceiptState> {
         emit(ReceiptPrinterNotConnected(
           customer: event.customer,
           history: event.history,
+          recentHistory: event.recentHistory,
         ));
       },
     );

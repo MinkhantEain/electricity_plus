@@ -7,13 +7,11 @@ import 'package:electricity_plus/services/auth/bloc/auth_state.dart';
 import 'package:electricity_plus/services/auth/firebase_auth_provider.dart';
 import 'package:electricity_plus/services/cloud/firebase_cloud_storage.dart';
 import 'package:electricity_plus/services/cloud/operation/operation_bloc.dart';
-import 'package:electricity_plus/utilities/dialogs/auth_dialogs.dart';
 import 'package:electricity_plus/utilities/dialogs/error_dialog.dart';
 import 'package:electricity_plus/views/forgot_password_view.dart';
 import 'package:electricity_plus/views/login_view.dart';
 import 'package:electricity_plus/views/operations/operation_page_views.dart';
 import 'package:electricity_plus/views/register_view.dart';
-import 'package:electricity_plus/views/verify_email_view.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -53,7 +51,7 @@ class HomePage extends StatelessWidget {
               text: state.loadingText ?? 'Plase wait a moment');
         } else {
           LoadingScreen().hide();
-          if (state is AuthStateNotAStaff) {
+          if (state is AuthStateNotAStaff) {  
             await showErrorDialog(
                 context, 'You are not a user. Seek assistance from admin');
           }

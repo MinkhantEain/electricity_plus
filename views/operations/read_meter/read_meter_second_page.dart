@@ -102,6 +102,7 @@ class _ReadMeterSecondPageViewState extends State<ReadMeterSecondPageView> {
                     maxLines: 3,
                     controller: _commentTextController,
                     decoration: const InputDecoration(
+                      hintText: 'Write Comment Here...',
                         focusedBorder: OutlineInputBorder(
                           borderSide:
                               BorderSide(color: Colors.green, width: 1.0),

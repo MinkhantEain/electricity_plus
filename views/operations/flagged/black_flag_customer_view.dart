@@ -27,7 +27,7 @@ class BlackFlagCustomerView extends StatelessWidget {
                 final history = historyList.elementAt(index);
                 return ListTile(
                   onTap: () {
-                    context.read<FlaggedBloc>().add(FLaggedEventBillSelect(
+                    context.read<FlaggedBloc>().add(FlaggedEventBillSelect(
                         history: history, customer: state.customer));
                   },
                   title: Row(

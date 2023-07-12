@@ -7,6 +7,7 @@ import 'package:electricity_plus/services/cloud/operation/operation_exception.da
 import 'package:electricity_plus/services/cloud/operation/operation_state.dart';
 import 'package:electricity_plus/services/others/excel_production.dart';
 import 'package:electricity_plus/services/others/local_storage.dart';
+import 'package:electricity_plus/services/others/town.dart';
 import 'package:electricity_plus/utilities/helper_functions.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
@@ -232,6 +233,8 @@ class OperationBloc extends Bloc<OperationEvent, OperationState> {
     );
 
     //set price implementation
+
+    //TODO: needs to be changed as it reads too much for single operation
     on<OperationEventSetPrice>(
       (event, emit) async {
         emit(const OperationStateSettingPrice(
@@ -344,21 +347,6 @@ class OperationBloc extends Bloc<OperationEvent, OperationState> {
 
     
 
-    on<OperationEventChooseTown>(
-      (event, emit) async {
-        final towns = await provider.getAllTown();
-        emit(OperationStateChooseTown(
-          isLoading: true,
-          towns: towns,
-          exception: null,
-        ));
-        emit(OperationStateChooseTown(
-          isLoading: false,
-          towns: towns,
-          exception: null,
-        ));
-      },
-    );
 
     on<OperationEventProduceExcel>(
       (event, emit) async {

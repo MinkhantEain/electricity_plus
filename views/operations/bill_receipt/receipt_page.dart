@@ -228,11 +228,14 @@ class _ReceiptPageState extends State<ReceiptPage> {
                             BTStatus.connected) {
                           await printReceipt(capturedImage, printerManager);
                         } else {
-                          context.read<BillReceiptBloc>().add(
-                              ReceiptPrinterConnectEvent(
-                                  customer: state.customer,
-                                  history: state.history,
-                                  receipt: state.receipt));
+                          context
+                              .read<BillReceiptBloc>()
+                              .add(ReceiptPrinterConnectEvent(
+                                customer: state.customer,
+                                history: state.history,
+                                receipt: state.receipt,
+                                recentHistory: state.recentHistory,
+                              ));
                         }
                       });
                     },

@@ -12,6 +12,7 @@ CloudCustomer customerDummy = CloudCustomer(
     lastUnit: 375,
     flag: false,
     debt: 300,
+    lastReadDate: DateTime.now().toString(),
     adder: 0,
     horsePowerUnits: 0,
     meterMultiplier: 1,

@@ -13,8 +13,20 @@ class BillReceiptInitial extends BillReceiptState {
 class BillPrinterNotConnected extends BillReceiptState {
   final CloudCustomer customer;
   final CloudCustomerHistory history;
-  const BillPrinterNotConnected(
-      {required this.customer, required this.history});
+  final Iterable<CloudCustomerHistory> recentHistory;
+  const BillPrinterNotConnected({
+    required this.customer,
+    required this.history,
+    required this.recentHistory,
+  });
+
+  @override
+  List<Object> get props => [
+        super.props,
+        customer,
+        history,
+        recentHistory,
+      ];
 }
 
 class BillReceiptLoading extends BillReceiptState {
@@ -25,11 +37,22 @@ class BillReceiptPaymentState extends BillReceiptState {
   final CloudCustomer customer;
   final CloudCustomerHistory history;
   final CloudReceipt receipt;
+  final Iterable<CloudCustomerHistory> recentHistory;
   const BillReceiptPaymentState({
     required this.customer,
     required this.history,
     required this.receipt,
+    required this.recentHistory,
   });
+
+  @override
+  List<Object> get props => [
+        super.props,
+        customer,
+        recentHistory,
+        history,
+        receipt,
+      ];
 }
 
 class BillReceiptPaymentRecordedSuccessfully extends BillReceiptState {
@@ -40,11 +63,21 @@ class MeterAllowanceAcquisitonState extends BillReceiptState {
   final num meterAllowance;
   final CloudCustomer customer;
   final CloudCustomerHistory history;
+  final Iterable<CloudCustomerHistory> recentHistory;
   const MeterAllowanceAcquisitonState({
     this.meterAllowance = 0,
     required this.customer,
     required this.history,
+    required this.recentHistory,
   });
+
+  @override
+  List<Object> get props => [
+        super.props,
+        meterAllowance,
+        customer,
+        history,
+      ];
 }
 
 // class PrintReceiptState extends BillReceiptPaymentState {
@@ -57,27 +90,73 @@ class MeterAllowanceAcquisitonState extends BillReceiptState {
 class BillInitialised extends BillReceiptState {
   final CloudCustomer customer;
   final CloudCustomerHistory history;
-  const BillInitialised({required this.customer, required this.history});
+  final Iterable<CloudCustomerHistory> recentHistory;
+  const BillInitialised({
+    required this.customer,
+    required this.history,
+    required this.recentHistory,
+  });
+
+  @override
+  List<Object> get props => [
+        super.props,
+        customer,
+        history,
+        recentHistory,
+      ];
 }
 
 class BillFromHistorySearchInitialised extends BillInitialised {
-  const BillFromHistorySearchInitialised(
-      {required CloudCustomer customer,
-      required CloudCustomerHistory history,})
-      : super(customer: customer, history: history);
+  const BillFromHistorySearchInitialised({
+    required CloudCustomer customer,
+    required CloudCustomerHistory history,
+    required Iterable<CloudCustomerHistory> recentHistory,
+  }) : super(
+          customer: customer,
+          history: history,
+          recentHistory: recentHistory,
+        );
+  @override
+  List<Object> get props => [
+        super.props,
+        customer,
+        history,
+        recentHistory,
+      ];
 }
 
 class BillFromFlaggedInitialised extends BillInitialised {
-  const BillFromFlaggedInitialised(
-      {required CloudCustomer customer,
-      required CloudCustomerHistory history,})
-      : super(customer: customer, history: history);
+  const BillFromFlaggedInitialised({
+    required CloudCustomer customer,
+    required CloudCustomerHistory history,
+    required Iterable<CloudCustomerHistory> recentHistory,
+  }) : super(
+          customer: customer,
+          history: history,
+          recentHistory: recentHistory,
+        );
+  @override
+  List<Object> get props => [
+        super.props,
+        customer,
+        history,
+        recentHistory,
+      ];
 }
 
 class ReceiptInitialised extends BillReceiptState {
   final CloudCustomer customer;
   final CloudCustomerHistory history;
-  const ReceiptInitialised({required this.customer, required this.history});
+  const ReceiptInitialised({
+    required this.customer,
+    required this.history,
+  });
+  @override
+  List<Object> get props => [
+        super.props,
+        customer,
+        history,
+      ];
 }
 
 class BillReceiptErrorNotFound extends BillReceiptError {
@@ -95,6 +174,8 @@ class PaymentError extends BillReceiptError {
 class InvalidMeterAllowanceInput extends BillReceiptError {
   final String input;
   const InvalidMeterAllowanceInput({required this.input});
+  @override
+  List<Object> get props => [super.props, input];
 }
 
 class BillReceiptError extends BillReceiptState {
@@ -104,6 +185,17 @@ class BillReceiptError extends BillReceiptState {
 class ReceiptPrinterNotConnected extends BillReceiptState {
   final CloudCustomer customer;
   final CloudCustomerHistory history;
-  const ReceiptPrinterNotConnected(
-      {required this.customer, required this.history});
+  final Iterable<CloudCustomerHistory> recentHistory;
+  const ReceiptPrinterNotConnected({
+    required this.customer,
+    required this.history,
+    required this.recentHistory,
+  });
+  @override
+  List<Object> get props => [
+        super.props,
+        customer,
+        history,
+        recentHistory,
+      ];
 }

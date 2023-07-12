@@ -57,6 +57,7 @@ class _MeterAllowanceAcquisitionPageState
                       //TODO: make payment
                       context.read<BillReceiptBloc>().add(
                           BillReceiptPaymentEvent(
+                            recentHistory: state.recentHistory,
                               customer: state.customer,
                               history: state.history,
                               meterAllowance: meterAllowanceController.text));

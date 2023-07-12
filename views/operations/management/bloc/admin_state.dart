@@ -1,25 +1,37 @@
-// part of 'admin_bloc.dart';
+part of 'admin_bloc.dart';
 
-// abstract class AdminState extends Equatable {
-//   const AdminState();
-// }
+abstract class AdminState extends Equatable {
+  const AdminState();
 
-// class AdminInitial extends AdminState {
-//   const AdminInitial();
-  
-//   @override
-//   List<Object?> get props => [];
-// }
+  @override
+  List<Object?> get props => [];
+}
 
-// class AdminStateUnauthorisedUser extends AdminState {
-//   const AdminStateUnauthorisedUser();
+class AdminInitial extends AdminState {
+  const AdminInitial();
+}
 
-//   @override
-//   List<Object?> get props => [];
-// }
+class AdminLoading extends AdminState {
+  const AdminLoading();
+}
 
-// class AdminStateAuthorisedUser extends AdminState {
-//   @override
-//   List<Object?> get props => [];
-//   const AdminStateAuthorisedUser();
-// }
+class AdminStateAddCustomer extends AdminState {
+  const AdminStateAddCustomer();
+}
+
+class AdminStateAppUser extends AdminState {
+  const AdminStateAppUser();
+}
+
+class AdminStateProduceExcel extends AdminState {
+  const AdminStateProduceExcel();
+}
+
+class AdminStateInitialiseData extends AdminState {
+  const AdminStateInitialiseData();
+}
+
+class AdminStateChooseTown extends AdminState {
+  final Iterable<Town> towns;
+  const AdminStateChooseTown({required this.towns});
+}
