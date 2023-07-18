@@ -9,16 +9,26 @@ abstract class BillHistoryEvent extends Equatable {
 
 class BillHistoryEventSelect extends BillHistoryEvent {
   final CloudCustomerHistory history;
+  final CloudCustomer customer;
+  final BillHistoryState currentState;
   const BillHistoryEventSelect({
     required this.history,
-  });
-}
-
-class BillHistoryEventReinitialiseFromBill extends BillHistoryEvent {
-  final CloudCustomer customer;
-  const BillHistoryEventReinitialiseFromBill({
+    required this.currentState,
     required this.customer,
   });
+
+  @override
+  List<Object> get props => [
+        super.props,
+        history,
+        currentState,
+        customer,
+      ];
 }
 
-
+class BillHistoryEventEmitState extends BillHistoryEvent {
+  final BillHistoryState currentState;
+  const BillHistoryEventEmitState({required this.currentState});
+  @override
+  List<Object> get props => [super.props, currentState];
+}

@@ -57,3 +57,35 @@ Future<T?> showGenericOptionDialog<T>({
     },
   );
 }
+
+Future<T?> showGenericInputEnquirerDialog<T>({
+  required BuildContext context,
+  required String title,
+}) {
+  final textController = TextEditingController();
+  return showDialog(
+    context: context,
+    builder: (context) {
+      return AlertDialog(
+        title: Text(title),
+        actionsAlignment: MainAxisAlignment.center,
+        actions: [
+          TextField(
+            controller: textController,
+            keyboardType: TextInputType.number,
+            decoration: const InputDecoration(
+              hintText: 'Meter Allowance',
+            ),
+          ),
+          TextButton(onPressed: () {
+            Navigator.of(context).pop(textController.text.trim());
+          }, child: const Text('Enter')),
+          TextButton(onPressed: () {
+            Navigator.of(context).pop();
+          }, child: const Text('Cancel')),
+        ],
+      );
+    },
+  );
+}
+

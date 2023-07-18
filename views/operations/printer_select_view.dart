@@ -1,14 +1,9 @@
 import 'dart:async';
 import 'dart:developer';
 import 'dart:io';
-import 'package:electricity_plus/services/cloud/operation/operation_bloc.dart';
-import 'package:electricity_plus/services/cloud/operation/operation_event.dart';
 import 'package:electricity_plus/services/models/bluetooth_printer.dart';
-import 'package:electricity_plus/utilities/dummy.dart';
 import 'package:electricity_plus/utilities/image_utils.dart';
-import 'package:electricity_plus/views/operations/bill_receipt/bloc/bill_receipt_bloc.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_pos_printer_platform/esc_pos_utils_platform/esc_pos_utils_platform.dart';
 import 'package:flutter_pos_printer_platform/flutter_pos_printer_platform.dart';
 import 'package:image/image.dart' as img;
@@ -223,130 +218,112 @@ class _PrinterSelectViewState extends State<PrinterSelectView> {
 
   @override
   Widget build(BuildContext context) {
-    return BlocBuilder<BillReceiptBloc, BillReceiptState>(
-      builder: (context, state) {
-        return Scaffold(
-          appBar: AppBar(
-            title: const Text('Flutter Pos Plugin Platform example app'),
-            leading: BackButton(
-              onPressed: () async {
-                if (state is BillPrinterNotConnected) {
-                  context.read<BillReceiptBloc>().add(BillInitialise(
-                      customer: state.customer, history: state.history));
-                } else if (state is ReceiptPrinterNotConnected) {
-                  context.read<BillReceiptBloc>().add(ReopenReceiptEvent(
-                      customer: state.customer,
-                      history: state.history,
-                      recentHistory: state.recentHistory,));
-                } else {
-                  context
-                      .read<OperationBloc>()
-                      .add(const OperationEventDefault());
-                }
-              },
-            ),
-          ),
-          body: Center(
-            child: Container(
-              height: double.infinity,
-              constraints: const BoxConstraints(maxWidth: 400),
-              child: SingleChildScrollView(
-                padding: EdgeInsets.zero,
-                child: Column(
-                  children: [
-                    Padding(
-                      padding: const EdgeInsets.all(8.0),
-                      child: Row(
-                        children: [
-                          Expanded(
-                            child: ElevatedButton(
-                              onPressed: selectedPrinter == null || _isConnected
-                                  ? null
-                                  : () {
-                                      _connectDevice();
-                                    },
-                              child: const Text("Connect",
-                                  textAlign: TextAlign.center),
-                            ),
-                          ),
-                          const SizedBox(width: 8),
-                          Expanded(
-                            child: ElevatedButton(
-                              onPressed: selectedPrinter == null ||
-                                      !_isConnected
-                                  ? null
-                                  : () {
-                                      if (selectedPrinter != null) {
-                                        printerManager.disconnect(
-                                            type: selectedPrinter!.typePrinter);
-                                      }
-                                      setState(() {
-                                        _isConnected = false;
-                                      });
-                                    },
-                              child: const Text("Disconnect",
-                                  textAlign: TextAlign.center),
-                            ),
-                          ),
-                        ],
-                      ),
-                    ),
-                    Column(
-                        children: devices
-                            .map(
-                              (device) => ListTile(
-                                title: Text('${device.deviceName}'),
-                                subtitle: Platform.isAndroid == true
-                                    ? Visibility(
-                                        visible: !Platform.isWindows,
-                                        child: Text("${device.address}"))
-                                    : null,
-                                onTap: () {
-                                  // do something
-                                  selectDevice(device);
+    return Scaffold(
+      appBar: AppBar(
+        title: const Text('Flutter Pos Plugin Platform example app'),
+        leading: BackButton(
+          onPressed: () {
+            Navigator.of(context).pop();
+          },
+        ),
+      ),
+      body: Center(
+        child: Container(
+          height: double.infinity,
+          constraints: const BoxConstraints(maxWidth: 400),
+          child: SingleChildScrollView(
+            padding: EdgeInsets.zero,
+            child: Column(
+              children: [
+                Padding(
+                  padding: const EdgeInsets.all(8.0),
+                  child: Row(
+                    children: [
+                      Expanded(
+                        child: ElevatedButton(
+                          onPressed: selectedPrinter == null || _isConnected
+                              ? null
+                              : () {
+                                  _connectDevice();
                                 },
-                                leading: selectedPrinter != null &&
-                                        ((device.typePrinter ==
-                                                        PrinterType.usb &&
-                                                    Platform.isWindows
-                                                ? device.deviceName ==
-                                                    selectedPrinter!.deviceName
-                                                : device.vendorId != null &&
-                                                    selectedPrinter!.vendorId ==
-                                                        device.vendorId) ||
-                                            (device.address != null &&
-                                                selectedPrinter!.address ==
-                                                    device.address))
-                                    ? const Icon(
-                                        Icons.check,
-                                        color: Colors.green,
-                                      )
-                                    : null,
-                                trailing: OutlinedButton(
-                                  onPressed: selectedPrinter == null ||
-                                          device.deviceName !=
-                                              selectedPrinter?.deviceName
-                                      ? null
-                                      : () async {
-                                          printReceiveTest();
-                                        },
-                                  child: const Padding(
-                                    padding: EdgeInsets.symmetric(
-                                        vertical: 2, horizontal: 20),
-                                    child: Text("Print test ticket",
-                                        textAlign: TextAlign.center),
-                                  ),
-                                ),
-                              ),
-                            )
-                            .toList()),
-                  ],
+                          child: const Text("Connect",
+                              textAlign: TextAlign.center),
+                        ),
+                      ),
+                      const SizedBox(width: 8),
+                      Expanded(
+                        child: ElevatedButton(
+                          onPressed: selectedPrinter == null || !_isConnected
+                              ? null
+                              : () {
+                                  if (selectedPrinter != null) {
+                                    printerManager.disconnect(
+                                        type: selectedPrinter!.typePrinter);
+                                  }
+                                  setState(() {
+                                    _isConnected = false;
+                                  });
+                                },
+                          child: const Text("Disconnect",
+                              textAlign: TextAlign.center),
+                        ),
+                      ),
+                    ],
+                  ),
                 ),
-              ),
+                Column(
+                    children: devices
+                        .map(
+                          (device) => ListTile(
+                            title: Text('${device.deviceName}'),
+                            subtitle: Platform.isAndroid == true
+                                ? Visibility(
+                                    visible: !Platform.isWindows,
+                                    child: Text("${device.address}"))
+                                : null,
+                            onTap: () {
+                              // do something
+                              selectDevice(device);
+                            },
+                            leading: selectedPrinter != null &&
+                                    ((device.typePrinter == PrinterType.usb &&
+                                                Platform.isWindows
+                                            ? device.deviceName ==
+                                                selectedPrinter!.deviceName
+                                            : device.vendorId != null &&
+                                                selectedPrinter!.vendorId ==
+                                                    device.vendorId) ||
+                                        (device.address != null &&
+                                            selectedPrinter!.address ==
+                                                device.address))
+                                ? const Icon(
+                                    Icons.check,
+                                    color: Colors.green,
+                                  )
+                                : null,
+                            trailing: OutlinedButton(
+                              onPressed: selectedPrinter == null ||
+                                      device.deviceName !=
+                                          selectedPrinter?.deviceName
+                                  ? null
+                                  : () async {
+                                      printReceiveTest();
+                                    },
+                              child: const Padding(
+                                padding: EdgeInsets.symmetric(
+                                    vertical: 2, horizontal: 20),
+                                child: Text("Print test ticket",
+                                    textAlign: TextAlign.center),
+                              ),
+                            ),
+                          ),
+                        )
+                        .toList()),
+              ],
             ),
           ),
-        );
-      },
+        ),
+      ),
     );
   }
 }

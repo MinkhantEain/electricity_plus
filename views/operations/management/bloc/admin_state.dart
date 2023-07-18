@@ -11,12 +11,16 @@ class AdminInitial extends AdminState {
   const AdminInitial();
 }
 
-class AdminLoading extends AdminState {
-  const AdminLoading();
+class AdminStateLoading extends AdminState {
+  const AdminStateLoading();
 }
 
 class AdminStateAddCustomer extends AdminState {
   const AdminStateAddCustomer();
+}
+
+class AdminStateExchangeMeter extends AdminState {
+  const AdminStateExchangeMeter();
 }
 
 class AdminStateAppUser extends AdminState {

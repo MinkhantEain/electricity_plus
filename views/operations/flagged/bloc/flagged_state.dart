@@ -34,9 +34,11 @@ class FlaggedStateBlackSelected extends FlaggedState {
 class FlaggedStateBillSelected extends FlaggedState {
   final CloudCustomer customer;
   final CloudCustomerHistory history;
+  final Iterable<CloudCustomerHistory> historyList;
   const FlaggedStateBillSelected({
     required this.customer,
     required this.history,
+    required this.historyList,
   });
   @override
   List<Object> get props => [super.props, customer, history];

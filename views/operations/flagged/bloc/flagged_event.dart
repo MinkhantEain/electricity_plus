@@ -26,13 +26,28 @@ class FlaggedEventRedSelect extends FlaggedEvent {
 
 class FlaggedEventBillSelect extends FlaggedEvent {
   final CloudCustomerHistory history;
+  final FlaggedState currentState;
   final CloudCustomer customer;
   const FlaggedEventBillSelect({
     required this.history,
+    required this.currentState,
     required this.customer,
   });
   @override
-  List<Object> get props => [super.props, history, customer];
+  List<Object> get props => [
+        super.props,
+        history,
+        customer,
+        currentState,
+      ];
+}
+
+class FlaggedEventEmitState extends FlaggedEvent {
+  final FlaggedState currentState;
+  const FlaggedEventEmitState({required this.currentState});
+
+  @override
+  List<Object> get props => [super.props, currentState];
 }
 
 class FlaggedEventBlack extends FlaggedEvent {
@@ -45,7 +60,7 @@ class FlaggedEventBlackSelect extends FlaggedEvent {
     required this.customer,
   });
   @override
-  List<Object> get props => [super.props,customer];
+  List<Object> get props => [super.props, customer];
 }
 
 class FlaggedEventUnreadCustomers extends FlaggedEvent {
@@ -56,10 +71,8 @@ class FlaggedEventUnreadCustomers extends FlaggedEvent {
 class FlaggedEventUnreadCustomersSelect extends FlaggedEvent {
   final Iterable<CloudCustomer> customers;
   final CloudCustomer customer;
-  const FlaggedEventUnreadCustomersSelect({
-    required this.customers,
-    required this.customer
-  });
+  const FlaggedEventUnreadCustomersSelect(
+      {required this.customers, required this.customer});
 
   @override
   List<Object> get props => [super.props, customer, customers];

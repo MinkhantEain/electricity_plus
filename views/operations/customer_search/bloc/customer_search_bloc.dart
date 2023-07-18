@@ -6,6 +6,7 @@ import 'package:electricity_plus/services/models/cloud_customer_history.dart';
 import 'package:electricity_plus/utilities/helper_functions.dart';
 import 'package:equatable/equatable.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'dart:developer' as dev show log;
 
 part 'customer_search_event.dart';
 part 'customer_search_state.dart';
@@ -14,7 +15,6 @@ class CustomerSearchBloc
     extends Bloc<CustomerSearchEvent, CustomerSearchState> {
   CustomerSearchBloc(FirebaseCloudStorage provider)
       : super(const CustomerSearchInitial(pageName: '')) {
-
     on<CustomerSearchEventSearch>((event, emit) async {
       emit(const CustomerSearchLoading());
       if (event.userInput.isEmpty) {
@@ -27,16 +27,36 @@ class CustomerSearchBloc
             final customer =
                 await provider.getCustomer(bookId: event.userInput);
             if (event.pageName == 'Bill Search') {
-              emit(CustomerSearchBillHistorySearchSuccessful(
-                  customer: customer,
-                  historyList:
-                      await provider.getRecentBillHistory(customer: customer)));
+              final historyList = await provider.getRecentBillHistory(
+                customer: customer,
+              );
+              emit(
+                CustomerSearchBillHistorySearchSuccessful(
+                    customer: customer, historyList: historyList),
+              );
             } else if (event.pageName == 'Meter Read') {
-              emit(CustomerSearchMeterReadSearchSuccessful(
-                  customer: customer,
-                  previousUnit: await provider.getPreviousValidUnit(customer)));
+              final lastHistory = await customer.lastHistory.get().then(
+                    (value) => CloudCustomerHistory.fromDocSnapshot(value),
+                  );
+              if (isWithinMonth(lastHistory.date) && lastHistory.isPaid) {
+                emit(const CustomerSearchMeterReadAlreadyReadAndPaid());
+                emit(CustomerSearchInitial(pageName: event.pageName));
+              } else if (isWithinMonth(lastHistory.date) && lastHistory.priceAtm == 0) {
+                emit(const CustomerSearchMeterReadExchangeMeterWasDone());
+                emit(CustomerSearchInitial(pageName: event.pageName));
+              } else {
+                emit(CustomerSearchMeterReadSearchSuccessful(
+                    customer: customer,
+                    previousUnit:
+                        await provider.getPreviousValidUnit(customer)));
+              }
             } else if (event.pageName == 'Edit Customer') {
-              emit(CustomerSearchEditCustomerSearchSuccessful(customer: customer));
+              emit(CustomerSearchEditCustomerSearchSuccessful(
+                  customer: customer));
+            } else if (event.pageName == 'Exchange Meter') {
+              emit(CustomerSearchExchangeMeterSearchSuccessful(
+                customer: customer,
+              ));
             } else {
               emit(CustomerSearchInitial(pageName: event.pageName));
             }
@@ -49,7 +69,6 @@ class CustomerSearchBloc
         }
       }
     });
-
 
     //initialising
     on<CustomerSearchBillHistorySearchInitialise>(
@@ -75,6 +94,15 @@ class CustomerSearchBloc
         emit(const CustomerSearchLoading());
         emit(const CustomerSearchInitial(
           pageName: 'Meter Read',
+        ));
+      },
+    );
+
+    on<CustomerSearchExchangeMeterSearchInitialise>(
+      (event, emit) {
+        emit(const CustomerSearchLoading());
+        emit(const CustomerSearchInitial(
+          pageName: 'Exchange Meter',
         ));
       },
     );

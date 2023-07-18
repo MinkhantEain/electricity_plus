@@ -1,7 +1,10 @@
+import 'package:electricity_plus/services/cloud/firebase_cloud_storage.dart';
 import 'package:electricity_plus/services/models/cloud_customer.dart';
 import 'package:electricity_plus/services/models/cloud_customer_history.dart';
 import 'package:electricity_plus/services/cloud/operation/operation_bloc.dart';
 import 'package:electricity_plus/services/cloud/operation/operation_event.dart';
+import 'package:electricity_plus/views/operations/bill_receipt/bill_view.dart';
+import 'package:electricity_plus/views/operations/bill_receipt/bloc/bill_bloc.dart';
 import 'package:electricity_plus/views/operations/read_meter/bloc/read_meter_bloc.dart';
 import 'package:flutter/material.dart';
 import 'package:electricity_plus/utilities/dialogs/generic_dialog.dart';
@@ -31,9 +34,9 @@ Future<void> showInvalidInputDialog(BuildContext context, String input) {
   );
 }
 
-Future<void> showLogSubmittedDialog(
-  BuildContext context, {required CloudCustomer customer, required CloudCustomerHistory history}
-) {
+Future<void> showLogSubmittedDialog(BuildContext context,
+    {required CloudCustomer customer, required CloudCustomerHistory history,
+    required Iterable<CloudCustomerHistory> historyList}) {
   return showGenericDialog(
     context: context,
     title: "Log Submitted!",
@@ -42,15 +45,22 @@ Future<void> showLogSubmittedDialog(
       'OK': null,
     },
   ).then((value) async {
-    context.read<OperationBloc>().add(OperationEventBillGeneration(
-        customer: customer, customerHistory: history));
+    Navigator.of(context).push(MaterialPageRoute(
+      builder: (context) => BlocProvider(
+        create: (context) => BillBloc(provider: FirebaseCloudStorage())
+          ..add(BillEventInitialise(
+            customer: customer,
+            customerHistory: history, historyList: historyList,
+          )),
+        child: const BillView(),
+      ),
+    ));
+    context.read<OperationBloc>().add(const OperationEventDefault());
     await BlocProvider.of<ReadMeterBloc>(context).close();
   });
 }
 
-Future<void> showFlagReportSubmittedDialog(
-  BuildContext context
-) {
+Future<void> showFlagReportSubmittedDialog(BuildContext context) {
   return showGenericDialog(
     context: context,
     title: "Flag Report Submitted!",

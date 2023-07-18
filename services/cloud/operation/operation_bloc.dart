@@ -7,8 +7,6 @@ import 'package:electricity_plus/services/cloud/operation/operation_exception.da
 import 'package:electricity_plus/services/cloud/operation/operation_state.dart';
 import 'package:electricity_plus/services/others/excel_production.dart';
 import 'package:electricity_plus/services/others/local_storage.dart';
-import 'package:electricity_plus/services/others/town.dart';
-import 'package:electricity_plus/utilities/helper_functions.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
 class OperationBloc extends Bloc<OperationEvent, OperationState> {
@@ -51,49 +49,6 @@ class OperationBloc extends Bloc<OperationEvent, OperationState> {
         emit(const OperationStateBillHistory());
       },
     );
-
-    // on<OperationEventCustomerHistorySearch>(
-    //   (event, emit) async {
-    //     if (!event.isSearching) {
-    //       emit(const OperationStateSearchingCustomerHistory(
-    //         exception: null,
-    //         isLoading: false,
-    //         customerIterable: [],
-    //       ));
-    //     } else {
-    //       //no user input
-    //       if (event.userInput.isEmpty) {
-    //         emit(const OperationStateSearchingCustomerHistory(
-    //           exception: null,
-    //           isLoading: false,
-    //           customerIterable: [],
-    //         ));
-    //       } else {
-    //         //has user input
-    //         Exception? exception;
-    //         String userInput = event.userInput;
-    //         Iterable<CloudCustomer> customers;
-    //         try {
-    //           if (isBookIdFormat(userInput)) {
-    //             customers = await provider.getCustomer(
-    //                 bookId: userInput, meterNumber: null);
-    //           } else {
-    //             customers = await provider.getCustomer(
-    //                 meterNumber: userInput, bookId: null);
-    //           }
-    //         } on CouldNotGetCustomerException catch (e) {
-    //           exception = e;
-    //           customers = [];
-    //         }
-    //         emit(OperationStateSearchingCustomerHistory(
-    //           exception: exception,
-    //           isLoading: false,
-    //           customerIterable: customers,
-    //         ));
-    //       }
-    //     }
-    //   },
-    // );
 
     //flagged customer implementation
     on<OperationEventResolveIssue>(
@@ -237,6 +192,7 @@ class OperationBloc extends Bloc<OperationEvent, OperationState> {
     //TODO: needs to be changed as it reads too much for single operation
     on<OperationEventSetPrice>(
       (event, emit) async {
+        final prices = await provider.getAllPrices();
         emit(const OperationStateSettingPrice(
           exception: null,
           currentPrice: '',
@@ -248,24 +204,24 @@ class OperationBloc extends Bloc<OperationEvent, OperationState> {
         if (!event.isSettingPrice) {
           emit(OperationStateSettingPrice(
             exception: null,
-            currentPrice: (await provider.getPrice).toString(),
-            currentServiceCharge: (await provider.getServiceCharge).toString(),
+            currentPrice: (prices.pricePerUnit).toString(),
+            currentServiceCharge: (prices.serviceCharge).toString(),
             isLoading: false,
             currentHorsePowerPerUnitCost:
-                (await provider.getHorsePowerPerUnitCost).toString(),
+                (prices.horsePowerPerUnitCost).toString(),
             currentRoadLightPrice:
-                (await provider.getRoadLightPrice).toString(),
+                (prices.roadLightPrice).toString(),
           ));
         } else {
           emit(OperationStateSettingPrice(
             exception: null,
-            currentPrice: (await provider.getPrice).toString(),
-            currentServiceCharge: (await provider.getServiceCharge).toString(),
+            currentPrice: (prices.pricePerUnit).toString(),
+            currentServiceCharge: (prices.serviceCharge).toString(),
             isLoading: true,
             currentHorsePowerPerUnitCost:
-                (await provider.getHorsePowerPerUnitCost).toString(),
+                (prices.horsePowerPerUnitCost).toString(),
             currentRoadLightPrice:
-                (await provider.getRoadLightPrice).toString(),
+                (prices.roadLightPrice).toString(),
           ));
           Exception? exception;
           try {
@@ -308,13 +264,13 @@ class OperationBloc extends Bloc<OperationEvent, OperationState> {
           }
           emit(OperationStateSettingPrice(
             exception: exception,
-            currentPrice: (await provider.getPrice).toString(),
-            currentServiceCharge: (await provider.getServiceCharge).toString(),
+            currentPrice: (prices.pricePerUnit).toString(),
+            currentServiceCharge: (prices.serviceCharge).toString(),
             isLoading: false,
             currentHorsePowerPerUnitCost:
-                (await provider.getHorsePowerPerUnitCost).toString(),
+                (prices.horsePowerPerUnitCost).toString(),
             currentRoadLightPrice:
-                (await provider.getRoadLightPrice).toString(),
+                (prices.roadLightPrice).toString(),
           ));
         }
       },

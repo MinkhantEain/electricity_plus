@@ -77,9 +77,8 @@ class FlaggedBloc extends Bloc<FlaggedEvent, FlaggedState> {
         emit(FlaggedStatePageSelected(
           customers: customers,
           onTap: (context, customer) {
-            context
-                .read<FlaggedBloc>()
-                .add(FlaggedEventUnreadCustomersSelect(customer: customer, customers: customers));
+            context.read<FlaggedBloc>().add(FlaggedEventUnreadCustomersSelect(
+                customer: customer, customers: customers));
           },
           pageName: 'Unread Customers',
         ));
@@ -90,7 +89,7 @@ class FlaggedBloc extends Bloc<FlaggedEvent, FlaggedState> {
       (event, emit) async {
         emit(const FlaggedStateLoading());
         emit(FlaggedStateUnreadCustomerSelected(
-          customers: event.customers,
+            customers: event.customers,
             customer: event.customer,
             previousReading:
                 (await provider.getPreviousValidUnit(event.customer))
@@ -99,12 +98,17 @@ class FlaggedBloc extends Bloc<FlaggedEvent, FlaggedState> {
     );
 
     on<FlaggedEventBillSelect>(
-      (event, emit) {
+      (event, emit) async {
         emit(const FlaggedStateLoading());
         emit(FlaggedStateBillSelected(
           customer: event.customer,
+          historyList: await provider.getRecentBillHistory(
+            customer: event.customer,
+            upperDateThreshold: event.history.date,
+          ),
           history: event.history,
         ));
+        emit(event.currentState);
       },
     );
 
@@ -119,7 +123,7 @@ class FlaggedBloc extends Bloc<FlaggedEvent, FlaggedState> {
                   customer: customer,
                 ));
           },
-          pageName: 'Unpaid Customer',
+          pageName: 'Unpaid Customers',
         ));
       },
     );

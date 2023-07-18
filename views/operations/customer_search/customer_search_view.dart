@@ -6,8 +6,9 @@ import 'package:electricity_plus/utilities/custom_button.dart';
 import 'package:electricity_plus/utilities/dialogs/error_dialog.dart';
 import 'package:electricity_plus/views/operations/bill_history/bloc/bill_history_bloc.dart';
 import 'package:electricity_plus/views/operations/bill_history/bill_history_view.dart';
-import 'package:electricity_plus/views/operations/customer_list_view.dart';
 import 'package:electricity_plus/views/operations/customer_search/bloc/customer_search_bloc.dart';
+import 'package:electricity_plus/views/operations/management/exchange_meter/bloc/exchange_meter_bloc.dart';
+import 'package:electricity_plus/views/operations/management/exchange_meter/exchange_meter_view.dart';
 import 'package:electricity_plus/views/operations/read_meter/bloc/read_meter_bloc.dart';
 import 'package:electricity_plus/views/operations/read_meter/read_meter_first_page.dart';
 import 'package:flutter/material.dart';
@@ -69,6 +70,10 @@ class _CustomerSearchViewState extends State<CustomerSearchView> {
           if (state is CustomerSearchNotFoundError) {
             await showErrorDialog(
                 context, 'User not found, make sure the bookID is correct.');
+          } else if (state is CustomerSearchMeterReadAlreadyReadAndPaid) {
+            await showErrorDialog(context, 'Customer has been read and paid for the month');
+          } else if (state is CustomerSearchMeterReadExchangeMeterWasDone) {
+            await showErrorDialog(context, 'Exchange meter was done, cannot read this month.');
           } else if (state is CustomerSearchError) {
             await showErrorDialog(
                 context, 'Unexpected error occured. Contact admin');
@@ -154,9 +159,12 @@ class _CustomerSearchViewState extends State<CustomerSearchView> {
                 historyList: state.historyList, customer: state.customer),
             child: const BillHistoryView(),
           );
-        } else if (state is CustomerSearchEditCustomerSearchSuccessful) {
-          //TODO: implements delete customer
-          return const Scaffold();
+        } else if (state is CustomerSearchExchangeMeterSearchSuccessful) {
+          return BlocProvider(
+            create: (context) => ExchangeMeterBloc(
+                provider: FirebaseCloudStorage(), customer: state.customer),
+            child: const ExchangeMeterView(),
+          );
         } else {
           return const Scaffold();
         }

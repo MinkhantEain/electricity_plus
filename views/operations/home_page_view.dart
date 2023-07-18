@@ -129,6 +129,9 @@ class _HomePageViewState extends State<HomePageView> {
                           context
                               .read<OperationBloc>()
                               .add(OperationEventPayment(qrCode: qrCode));
+                          // context
+                          //     .read<OperationBloc>()
+                          //     .add(const OperationEventDefault());
                         }
                       },
                     ),

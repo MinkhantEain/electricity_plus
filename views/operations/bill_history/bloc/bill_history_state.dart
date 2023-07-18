@@ -1,30 +1,35 @@
 part of 'bill_history_bloc.dart';
 
 abstract class BillHistoryState extends Equatable {
-  const BillHistoryState();
+  final Iterable<CloudCustomerHistory> historyList;
+  const BillHistoryState({
+    required this.historyList,
+  });
 
   @override
-  List<Object> get props => [];
+  List<Object> get props => [historyList];
 }
 
 class BillHistoryStateInitial extends BillHistoryState {
-  final Iterable<CloudCustomerHistory> historyList;
   final CloudCustomer customer;
   const BillHistoryStateInitial({
-    required this.historyList,
+    required Iterable<CloudCustomerHistory> historyList,
     required this.customer,
-  });
+  }) : super(historyList: historyList);
 }
 
 class BillHistoryStateSelected extends BillHistoryState {
   final CloudCustomer customer;
   final CloudCustomerHistory history;
   const BillHistoryStateSelected({
+    required Iterable<CloudCustomerHistory> historyList,
     required this.customer,
     required this.history,
-  });
+  }) : super(historyList: historyList);
 }
 
 class BillHistoryStateLoading extends BillHistoryState {
-  const BillHistoryStateLoading();
+  const BillHistoryStateLoading({
+    required Iterable<CloudCustomerHistory> historyList,
+  }) : super(historyList: historyList);
 }

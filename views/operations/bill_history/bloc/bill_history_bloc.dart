@@ -7,27 +7,25 @@ part 'bill_history_event.dart';
 part 'bill_history_state.dart';
 
 class BillHistoryBloc extends Bloc<BillHistoryEvent, BillHistoryState> {
-  BillHistoryBloc(
-      {required Iterable<CloudCustomerHistory> historyList,
-      required CloudCustomer customer})
-      : super(BillHistoryStateInitial(
+  BillHistoryBloc({
+    required Iterable<CloudCustomerHistory> historyList,
+    required CloudCustomer customer,
+  }) : super(BillHistoryStateInitial(
           historyList: historyList,
           customer: customer,
         )) {
+
     on<BillHistoryEventSelect>((event, emit) {
-      emit(const BillHistoryStateLoading());
+      emit(BillHistoryStateLoading(historyList: historyList));
       emit(BillHistoryStateSelected(
-        history: event.history,
-        customer: customer,
-      ));
+          history: event.history,
+          customer: event.customer,
+          historyList: historyList));
+      emit(event.currentState);
     });
 
-    on<BillHistoryEventReinitialiseFromBill>(
-      (event, emit) async {
-        emit(const BillHistoryStateLoading());
-        emit(BillHistoryStateInitial(
-            customer: event.customer, historyList: historyList));
-      },
+    on<BillHistoryEventEmitState>(
+      (event, emit) => emit(event.currentState),
     );
   }
 }

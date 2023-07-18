@@ -2,7 +2,7 @@ part of 'read_meter_bloc.dart';
 
 abstract class ReadMeterState extends Equatable {
   const ReadMeterState();
-  
+
   @override
   List<Object> get props => [];
 }
@@ -10,7 +10,16 @@ abstract class ReadMeterState extends Equatable {
 class ReadMeterStateFirstPage extends ReadMeterState {
   final CloudCustomer customer;
   final String previousReading;
-  const ReadMeterStateFirstPage({required this.customer, required this.previousReading});
+  const ReadMeterStateFirstPage({
+    required this.customer,
+    required this.previousReading,
+  });
+  @override
+  List<Object> get props => [
+        super.props,
+        customer,
+        previousReading,
+      ];
 }
 
 class ReadMeterStateError extends ReadMeterState {
@@ -24,9 +33,20 @@ class ReadMeterStateLoading extends ReadMeterState {
 class ReadMeterStateSubmitted extends ReadMeterState {
   final CloudCustomerHistory history;
   final CloudCustomer customer;
-  const ReadMeterStateSubmitted({required this.customer, required this.history});
+  final Iterable<CloudCustomerHistory> historyList;
+  const ReadMeterStateSubmitted({
+    required this.customer,
+    required this.history,
+    required this.historyList,
+  });
+  @override
+  List<Object> get props => [
+        super.props,
+        customer,
+        history,
+        historyList,
+      ];
 }
-
 
 class ReadMeterStateErrorInvalidInput extends ReadMeterStateError {
   final String invalidInput;
@@ -36,7 +56,6 @@ class ReadMeterStateErrorInvalidInput extends ReadMeterStateError {
 class ReadMeterStateErrorEmptyInput extends ReadMeterStateError {
   const ReadMeterStateErrorEmptyInput();
 }
-
 
 class ReadMeterStateErrorUnableToUpdate extends ReadMeterStateError {
   const ReadMeterStateErrorUnableToUpdate();
@@ -53,7 +72,8 @@ class ReadMeterStateFlagReportSubmitted extends ReadMeterState {
 class ReadMeterStateSecondPage extends ReadMeterState {
   final CloudCustomer customer;
   final num newReading;
-  const ReadMeterStateSecondPage({required this.newReading, required this.customer});
+  const ReadMeterStateSecondPage(
+      {required this.newReading, required this.customer});
 }
 
 class ReadMeterStateFlagReport extends ReadMeterState {

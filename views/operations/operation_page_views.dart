@@ -2,7 +2,8 @@ import 'package:electricity_plus/helper/loading/loading_screen.dart';
 import 'package:electricity_plus/services/cloud/firebase_cloud_storage.dart';
 import 'package:electricity_plus/services/cloud/operation/operation_bloc.dart';
 import 'package:electricity_plus/views/excel_produce_view.dart';
-import 'package:electricity_plus/views/operations/bill_receipt/bloc/bill_receipt_bloc.dart';
+import 'package:electricity_plus/views/operations/bill_receipt/bloc/bill_bloc.dart';
+
 import 'package:electricity_plus/views/operations/flagged/bloc/flagged_bloc.dart';
 import 'package:electricity_plus/views/operations/flagged/flagged_view.dart';
 import 'package:electricity_plus/views/operations/management/add_customer/add_customer_view.dart';
@@ -14,7 +15,6 @@ import 'package:electricity_plus/views/operations/management/bloc/admin_bloc.dar
 import 'package:electricity_plus/views/operations/management/import_data/bloc/import_data_bloc.dart';
 import 'package:electricity_plus/views/operations/management/price_setting/bloc/set_price_bloc.dart';
 import 'package:electricity_plus/views/operations/management/price_setting/set_price_view.dart';
-import 'package:electricity_plus/views/operations/printer_select_view.dart';
 import 'package:electricity_plus/views/operations/customer_search/bloc/customer_search_bloc.dart';
 import 'package:electricity_plus/views/operations/customer_search/customer_search_view.dart';
 import 'package:electricity_plus/services/cloud/operation/operation_event.dart';
@@ -45,18 +45,36 @@ class _OperationPageViewsState extends State<OperationPageViews> {
               text: state.loadingText ?? 'Plase wait a moment');
         } else {
           LoadingScreen().hide();
+          if (state is OperationStatePayment) {
+            Navigator.of(context)
+                .push(
+                  MaterialPageRoute(
+                    builder: (context) => BlocProvider(
+                      create: (context) => BillBloc(
+                          provider: FirebaseCloudStorage())
+                        ..add(BillEventQrCodeInitialise(qrCode: state.qrCode)),
+                      child: const BillView(),
+                    ),
+                  ),
+                )
+                .then((value) => context
+                    .read<OperationBloc>()
+                    .add(const OperationEventDefault()));
+          }
         }
       },
       builder: (context, state) {
         if (state is OperationStateDefault) {
           return const HomePageView();
-        } else if (state is OperationStateGeneratingBill) {
-          return BlocProvider(
-            create: (context) => BillReceiptBloc(FirebaseCloudStorage())
-              ..add(BillInitialise(
-                  customer: state.customer, history: state.history)),
-            child: const BillView(),
-          );
+          // } else if (state is OperationStateGeneratingBill) {
+          //   return BlocProvider(
+          //     create: (context) => BillBloc(provider: FirebaseCloudStorage())
+          //       ..add(BillEventInitialise(
+          //         customer: state.customer,
+          //         customerHistory: state.history,
+          //       )),
+          //     child: const BillView(),
+          //   );
         } else if (state is OperationStateSettingPrice) {
           return BlocProvider(
             create: (context) => SetPriceBloc(FirebaseCloudStorage())
@@ -92,26 +110,10 @@ class _OperationPageViewsState extends State<OperationPageViews> {
           );
         } else if (state is OperationStateProduceExcel) {
           return const ProduceExcelView();
-        } else if (state is OperationStateChooseBluetooth) {
-          return BlocProvider(
-            create: (context) => BillReceiptBloc(FirebaseCloudStorage()),
-            child: const PrinterSelectView(),
-          );
-        } else if (state is OperationStateAppUser) {
-          return BlocProvider(
-            create: (context) => AppUserBloc(),
-            child: const AppUserView(),
-          );
         } else if (state is OperationStateFlagged) {
           return BlocProvider(
             create: (context) => FlaggedBloc(FirebaseCloudStorage()),
             child: const FlaggedView(),
-          );
-        } else if (state is OperationStatePayment) {
-          return BlocProvider(
-            create: (context) => BillReceiptBloc(FirebaseCloudStorage())
-              ..add(BillQrInitialise(qrCode: state.qrCode)),
-            child: const BillView(),
           );
         } else {
           return const Scaffold();

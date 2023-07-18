@@ -53,6 +53,7 @@ const historyCollection = 'History';
 const priceCollection = 'price';
 const resolveCollection = 'Resolve';
 const flagCollection = 'Flag';
+const exchangeHistoryCollection = 'ExchangeHistory';
 
 //doc path
 const priceDoc = 'PriceDoc';
@@ -77,6 +78,7 @@ const townCountCollection = 'TownCount';
 const townCountDoc = 'TownCountDoc';
 const townCountField = 'TownCount';
 
+//receipt model
 const forDateField = 'ForDate';
 const meterReadDateField = 'MeterReadDate';
 const customerNameField = 'CustomerName';
@@ -86,16 +88,32 @@ const paymentDueDateField = 'PaymentDueDate';
 const customerDocIdField = 'CustomerDocID';
 const historyDocIdField = 'HistoryDocID';
 const townNameField = 'TownName';
+const paymentMethodField = 'PaymentMethod';
+const transactionIdField = 'TransactionID';
+const bankTransactionDateField = 'BankTransactionDate';
+const bankField = 'Bank';
+const paidAmount = 'PaidAmount';
 const initialCostField = 'InitialCost';
 const meterAllowanceField = 'MeterAllowance';
 const finalCostField = 'FinalCost';
 
 
 //AppUser
-
 const userCollection = 'User';
 const emailField = 'Email';
 const passwordField = 'Password';
 const userTypeField = 'UserType';
 const isStaffField = 'isStaff';
 const staffCollection = 'StaffCollection';
+
+//CloudExchangeHistory
+const tempBookIdField = 'TempBookId';
+const oldMeterIdField = 'OldMeterId';
+const newMeterIdField = 'newMeterId';
+const exchangeReasonField = 'ExchangeReason';
+const finalUnitField = 'FinalUnit';
+const unitUsedField = 'UnitUsed';
+const calculationDetailsField = 'CalculationDetails';
+const newMeterInitialReadingField = 'NewMeterInitialReading';
+const costOfNewMeterField = 'CostOfNewMeter';
+const totalCostField = 'TotalCost';

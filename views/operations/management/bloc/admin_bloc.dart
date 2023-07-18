@@ -9,10 +9,12 @@ part 'admin_state.dart';
 
 class AdminBloc extends Bloc<AdminEvent, AdminState> {
   AdminBloc(FirebaseCloudStorage provider) : super(const AdminInitial()) {
-    on<AdminEventAdminView>((event, emit) => emit(const AdminInitial()),);
+    on<AdminEventAdminView>(
+      (event, emit) => emit(const AdminInitial()),
+    );
     on<AdminEventChooseTown>(
       (event, emit) async {
-        emit(const AdminLoading());
+        emit(const AdminStateLoading());
         late final Iterable<Town> cloudTowns;
         final localCount = await AppDocumentData.townCount();
         final dbCount = await provider.getTownCount();
@@ -23,6 +25,18 @@ class AdminBloc extends Bloc<AdminEvent, AdminState> {
           await AppDocumentData.storeTownList(cloudTowns);
         }
         emit(AdminStateChooseTown(towns: cloudTowns));
+      },
+    );
+    on<AdminEventAppUser>(
+      (event, emit) {
+        emit(const AdminStateLoading());
+        emit(const AdminStateAppUser());
+      },
+    );
+    on<AdminEventExchangeMeter>(
+      (event, emit) {
+        emit(const AdminStateLoading());
+        emit(const AdminStateExchangeMeter());
       },
     );
   }

@@ -4,6 +4,7 @@ import 'package:electricity_plus/helper/loading/loading_screen.dart';
 import 'package:electricity_plus/services/models/cloud_customer.dart';
 import 'package:electricity_plus/utilities/dialogs/electric_log_dialogs.dart';
 import 'package:electricity_plus/utilities/dialogs/error_dialog.dart';
+import 'package:electricity_plus/utilities/helper_functions.dart';
 import 'package:electricity_plus/views/operations/customer_search/bloc/customer_search_bloc.dart';
 import 'package:electricity_plus/views/operations/flagged/bloc/flagged_bloc.dart';
 import 'package:electricity_plus/views/operations/read_meter/bloc/read_meter_bloc.dart';
@@ -40,7 +41,6 @@ class _ReadMeterFirstPageState extends State<ReadMeterFirstPage> {
   Widget build(BuildContext context) {
     return BlocConsumer<ReadMeterBloc, ReadMeterState>(
       listener: (context, state) async {
-        dev.log(state.toString());
         if (state is ReadMeterStateLoading) {
           LoadingScreen().show(context: context, text: 'Loading...');
         } else {
@@ -57,8 +57,12 @@ class _ReadMeterFirstPageState extends State<ReadMeterFirstPage> {
             await showGenericLogErrorDialog(context);
           } else if (state is ReadMeterStateSubmitted) {
             ///goes to bill view on clicking submit
-            await showLogSubmittedDialog(context,
-                customer: state.customer, history: state.history);
+            await showLogSubmittedDialog(
+              context,
+              customer: state.customer,
+              history: state.history,
+              historyList: state.historyList,
+            );
           } else if (state is ReadMeterStateFlagReportSubmitted) {
             await showFlagReportSubmittedDialog(context);
           }
@@ -178,7 +182,6 @@ class _ReadMeterFirstPageState extends State<ReadMeterFirstPage> {
                         keyboardType: TextInputType.number,
                         decoration: const InputDecoration(
                           hintText: '????????',
-                          
                         ),
                         controller: _newReadingTextController,
                         enabled: !state.customer.flag,

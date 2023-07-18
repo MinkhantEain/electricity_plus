@@ -21,6 +21,7 @@ class CloudCustomerHistory {
   final bool isVoided;
   final bool isPaid;
   final num paidAmount;
+  final num meterAllowance;
 
   const CloudCustomerHistory({
     required this.documentId,
@@ -40,14 +41,45 @@ class CloudCustomerHistory {
     required this.horsePowerUnits,
     required this.meterMultiplier,
     required this.roadLightPrice,
+    required this.meterAllowance,
   });
+
+  static CloudCustomerHistory getBlankHistory({
+    num? previousUnit,
+    num? newUnit,
+    required String inspector,
+    required String documentId,
+  }) {
+    return CloudCustomerHistory(
+      documentId: documentId,
+      previousUnit: previousUnit ?? 0,
+      newUnit: newUnit ?? 0,
+      priceAtm: 0,
+      cost: 0,
+      date: DateTime.now().toString(),
+      imageUrl: 'https://firebasestorage.googleapis.com/v0/b/electricityplus-a6572.appspot.com/o/newUser%2Fsoil.jpg?alt=media&token=93cdbd32-72a3-4992-a134-226d465c340f',
+      comment: 'Blank history',
+      isVoided: false,
+      paidAmount: 0,
+      inspector: inspector,
+      isPaid: true,
+      serviceChargeAtm: 0,
+      horsePowerPerUnitCostAtm: 0,
+      horsePowerUnits: 0,
+      meterMultiplier: 0,
+      roadLightPrice: 0,
+      meterAllowance: 0,
+    );
+  }
 
   num getUnitUsed() {
     return (newUnit - previousUnit) * meterMultiplier;
   }
 
   num getHorsePowerCost() {
-    return (newUnit - previousUnit) == 0 ? 0 : horsePowerUnits * horsePowerPerUnitCostAtm;
+    return (newUnit - previousUnit) == 0
+        ? 0
+        : horsePowerUnits * horsePowerPerUnitCostAtm;
   }
 
   num getCost() {
@@ -56,6 +88,63 @@ class CloudCustomerHistory {
 
   num getTotalCost() {
     return cost;
+  }
+
+  num meterAllowanceDebtChangeAmt({required num newMeterAllowance}) {
+    return (newMeterAllowance - meterAllowance) * priceAtm;
+  }
+
+  ///Note: before calling this function, it is advised to cann deductMeterAllowanceBill
+  ///to see how much the bill is deducted before adding meter allowance.
+  ///changes the cost, meterallowance value
+  CloudCustomerHistory changeMeterAllowance({required num newMeterAllowance}) {
+    return CloudCustomerHistory(
+      documentId: documentId,
+      previousUnit: previousUnit,
+      newUnit: newUnit,
+      priceAtm: priceAtm,
+      cost: cost - (newMeterAllowance - meterAllowance) * priceAtm,
+      date: date,
+      imageUrl: imageUrl,
+      comment: comment,
+      isVoided: isVoided,
+      paidAmount: paidAmount,
+      inspector: inspector,
+      isPaid: isPaid,
+      serviceChargeAtm: serviceChargeAtm,
+      horsePowerPerUnitCostAtm: horsePowerPerUnitCostAtm,
+      horsePowerUnits: horsePowerUnits,
+      meterMultiplier: meterMultiplier,
+      roadLightPrice: roadLightPrice,
+      meterAllowance: newMeterAllowance,
+    );
+  }
+
+  num unpaidAmount() {
+    return cost - paidAmount;
+  }
+
+  CloudCustomerHistory updatePaidAmount({required num receiptPaidAmount}) {
+    final hasPaid = receiptPaidAmount >= cost ? true : false;
+    return CloudCustomerHistory(
+        documentId: documentId,
+        previousUnit: previousUnit,
+        newUnit: newUnit,
+        priceAtm: priceAtm,
+        cost: cost,
+        date: date,
+        imageUrl: imageUrl,
+        comment: comment,
+        isVoided: isVoided,
+        paidAmount: receiptPaidAmount,
+        inspector: inspector,
+        isPaid: hasPaid,
+        serviceChargeAtm: serviceChargeAtm,
+        horsePowerPerUnitCostAtm: horsePowerPerUnitCostAtm,
+        horsePowerUnits: horsePowerUnits,
+        meterMultiplier: meterMultiplier,
+        roadLightPrice: roadLightPrice,
+        meterAllowance: meterAllowance);
   }
 
   Map<String, dynamic> dataFieldMap() => {
@@ -74,10 +163,9 @@ class CloudCustomerHistory {
         horsePowerPerUnitCostAtmField: horsePowerPerUnitCostAtm,
         horsePowerUnitsField: horsePowerUnits,
         meterMultiplierField: meterMultiplier,
-        roadLightPriceField: roadLightPrice
+        roadLightPriceField: roadLightPrice,
+        meterAllowanceField: meterAllowance,
       };
-
-  
 
   CloudCustomerHistory.fromSnapshot(
       QueryDocumentSnapshot<Map<String, dynamic>> snapshot)
@@ -98,6 +186,7 @@ class CloudCustomerHistory {
             snapshot.data()[horsePowerPerUnitCostAtmField],
         horsePowerUnits = snapshot.data()[horsePowerUnitsField],
         meterMultiplier = snapshot.data()[meterMultiplierField],
+        meterAllowance = snapshot.data()[meterAllowanceField],
         roadLightPrice = snapshot.data()[roadLightPriceField];
 
   CloudCustomerHistory.fromDocSnapshot(
@@ -119,6 +208,7 @@ class CloudCustomerHistory {
             snapshot.data()![horsePowerPerUnitCostAtmField],
         horsePowerUnits = snapshot.data()![horsePowerUnitsField],
         meterMultiplier = snapshot.data()![meterMultiplierField],
+        meterAllowance = snapshot.data()![meterAllowanceField],
         roadLightPrice = snapshot.data()![roadLightPriceField];
 
   @override
@@ -137,6 +227,7 @@ isVoided: $isVoided
 paidAmount: $paidAmount
 isPaid: $isPaid
 inspector: $inspector
+meterAllowance: $meterAllowance
 horsePowerCostAtm = $horsePowerPerUnitCostAtm
 horsePowerUnits = $horsePowerUnits
 meterMultiplier = $meterMultiplier

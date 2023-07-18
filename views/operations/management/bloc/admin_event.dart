@@ -14,6 +14,10 @@ class AdminEventAppUser extends AdminEvent {
   const AdminEventAppUser();
 }
 
+class AdminEventExchangeMeter extends AdminEvent {
+  const AdminEventExchangeMeter();
+}
+
 class AdminEventAdminView extends AdminEvent {
   const AdminEventAdminView();
 }

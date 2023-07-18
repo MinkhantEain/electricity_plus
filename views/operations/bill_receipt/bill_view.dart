@@ -1,19 +1,19 @@
 import 'package:electricity_plus/helper/loading/loading_screen.dart';
+import 'package:electricity_plus/services/cloud/firebase_cloud_storage.dart';
 import 'package:electricity_plus/services/models/cloud_customer.dart';
 import 'package:electricity_plus/services/models/cloud_customer_history.dart';
-import 'package:electricity_plus/services/cloud/operation/operation_bloc.dart';
-import 'package:electricity_plus/services/cloud/operation/operation_event.dart';
-import 'package:electricity_plus/utilities/dialogs/bill_receipt_dialogs.dart';
 import 'package:electricity_plus/utilities/helper_functions.dart';
-import 'package:electricity_plus/views/operations/bill_history/bloc/bill_history_bloc.dart';
-import 'package:electricity_plus/views/operations/bill_receipt/bloc/bill_receipt_bloc.dart';
-import 'package:electricity_plus/views/operations/bill_receipt/meter_allowance_acquisition_page.dart';
+import 'package:electricity_plus/views/operations/bill_receipt/bill_receipt_dialogs.dart';
+import 'package:electricity_plus/views/operations/bill_receipt/bloc/bill_bloc.dart';
+import 'package:electricity_plus/views/operations/bill_receipt/bloc/receipt_bloc.dart';
+import 'package:electricity_plus/views/operations/bill_receipt/payment_details_acquisition.dart';
+import 'package:electricity_plus/views/operations/bill_receipt/receipt_frame.dart';
 import 'package:electricity_plus/views/operations/bill_receipt/receipt_page.dart';
-import 'package:electricity_plus/views/operations/flagged/bloc/flagged_bloc.dart';
 import 'package:electricity_plus/views/operations/printer_select_view.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_pos_printer_platform/flutter_pos_printer_platform.dart';
+import 'package:intl/intl.dart';
 import 'package:screenshot/screenshot.dart';
 import 'dart:developer' as dev show log;
 
@@ -31,22 +31,50 @@ class _BillViewState extends State<BillView> {
   var printerManager = PrinterManager.instance;
   @override
   Widget build(BuildContext context) {
-    return BlocConsumer<BillReceiptBloc, BillReceiptState>(
+    return BlocConsumer<BillBloc, BillState>(
       listener: (context, state) async {
-        if (state is BillReceiptLoading) {
+        if (state is BillStateLoading) {
           LoadingScreen().show(context: context, text: 'Loading...');
         } else {
           LoadingScreen().hide();
-          if (state is BillReceiptErrorNotFound) {
+          if (state is BillStateNotFoundError) {
             await showNoHistoryDocumentErrorDialog(context);
-          } else if (state is InvalidMeterAllowanceInput) {
-            await showInvalidAllowanceErrorDialog(context, input: state.input);
-          } else if (state is PaymentError) {
-            await showPaymentErrorDialog(context);
-          } else if (state is ReceiptRetrievalUnsuccessful) {
-            await showReceiptRetrievalErrorDialog(context);
-          } else if (state is BillReceiptPaymentRecordedSuccessfully) {
-            await showPaymentRecordedSuccessfullyDialog(context);
+          } else if (state is BillStatePrinterNotConnected) {
+            Navigator.of(context).push(MaterialPageRoute(
+              builder: (context) => const PrinterSelectView(),
+            ));
+          } else if (state is BillStateMakePayment) {
+            Navigator.of(context)
+                .push(
+                  MaterialPageRoute(
+                    builder: (context) => BlocProvider(
+                      create: (context) =>
+                          ReceiptBloc(provider: FirebaseCloudStorage())
+                            ..add(
+                              ReceiptEventPaymentDetailAcquisition(
+                                customer: state.customer,
+                                customerHistory: state.customerHistory,
+                              ),
+                            ),
+                      child: const ReceiptFrameView(),
+                    ),
+                  ),
+                )
+                .then((value) => Navigator.of(context).pop(value));
+          } else if (state is BillStateReopenReceipt) {
+            Navigator.of(context).push(MaterialPageRoute(
+              builder: (context) => BlocProvider(
+                create: (context) =>
+                    ReceiptBloc(provider: FirebaseCloudStorage())
+                      ..add(ReceiptEventReopenReceipt(
+                        customer: state.customer,
+                        customerHistory: state.customerHistory,
+                      )),
+                child: const ReceiptFrameView(),
+              ),
+            ));
+          } else if (state is BillStateInvalidMeterAllowance) {
+            await showInvalidAllowanceErrorDialog(context, state.errorMessage);
           }
         }
       },
@@ -56,24 +84,26 @@ class _BillViewState extends State<BillView> {
             appBar: AppBar(
               leading: BackButton(
                 onPressed: () async {
-                  if (state is BillFromHistorySearchInitialised) {
-                    context
-                        .read<BillHistoryBloc>()
-                        .add(BillHistoryEventReinitialiseFromBill(
-                          customer: state.customer,
-                        ));
-                  } else if (state is BillFromFlaggedInitialised) {
-                    context
-                        .read<FlaggedBloc>()
-                        .add(FlaggedEventBlackSelect(customer: state.customer));
-                  } else {
-                    context
-                        .read<OperationBloc>()
-                        .add(const OperationEventDefault());
-                  }
+                  Navigator.of(context).pop([state.customer, state.history]);
                 },
               ),
               title: const Text("Bill"),
+              actions: [
+                Visibility(
+                  visible: !state.history.isPaid,
+                  child: IconButton(
+                      onPressed: () async {
+                        await showAskForMeterAllowanceDialog(context).then(
+                            (value) => context.read<BillBloc>().add(
+                                BillEventMeterAllowanceRecliberation(
+                                    customer: state.customer,
+                                    customerHistory: state.history,
+                                    meterAllowance: value,
+                                    historyList: state.historyList)));
+                      },
+                      icon: const Icon(Icons.settings)),
+                )
+              ],
             ),
             body: Row(
               children: [
@@ -81,9 +111,10 @@ class _BillViewState extends State<BillView> {
                     child: Column(
                   children: [
                     Bill(
+                      phoneScreenSize: MediaQuery.sizeOf(context),
                       customer: state.customer,
                       history: state.history,
-                      recentHistory: state.recentHistory,
+                      historyList: state.historyList,
                     ),
                     Row(
                       children: [
@@ -101,16 +132,19 @@ class _BillViewState extends State<BillView> {
                                     Material(
                                       //TODO: implement the history for past 3 months
                                       child: Bill(
-                                        recentHistory: state.recentHistory,
-                                          customer: state.customer,
-                                          history: state.history),
+                                        phoneScreenSize:
+                                            MediaQuery.sizeOf(context),
+                                        customer: state.customer,
+                                        history: state.history,
+                                        historyList: state.historyList,
+                                      ),
                                       // billWidget(state.customer, state.history),
                                     ),
                                   ),
                                   context: context,
                                 )
                                     .then((capturedImage) async {
-                                  await printBillReceipt(
+                                  await printBillReceipt80mm(
                                       capturedImage,
                                       printerManager,
                                       state.customer,
@@ -118,11 +152,9 @@ class _BillViewState extends State<BillView> {
                                 });
                               } else {
                                 context
-                                    .read<BillReceiptBloc>()
-                                    .add(BillPrinterConnectEvent(
-                                      customer: state.customer,
-                                      history: state.history,
-                                      recentHistory: state.recentHistory,
+                                    .read<BillBloc>()
+                                    .add(BillEventConnectPrinter(
+                                      resumeState: state,
                                     ));
                               }
                             },
@@ -136,11 +168,10 @@ class _BillViewState extends State<BillView> {
                             child: ElevatedButton(
                               child: const Text('Make Payment'),
                               onPressed: () {
-                                context.read<BillReceiptBloc>().add(
-                                      MeterAllowanceAcquisitionEvent(
+                                context.read<BillBloc>().add(
+                                      BillEventMakePayment(
                                         customer: state.customer,
-                                        history: state.history,
-                                        recentHistory: state.recentHistory,
+                                        customerHistory: state.history,
                                       ),
                                     );
                               },
@@ -151,11 +182,10 @@ class _BillViewState extends State<BillView> {
                             child: ElevatedButton(
                               child: const Text('Receipt'),
                               onPressed: () {
-                                context.read<BillReceiptBloc>().add(
-                                      ReopenReceiptEvent(
+                                context.read<BillBloc>().add(
+                                      BillEventReopenReceipt(
                                         customer: state.customer,
-                                        history: state.history,
-                                        recentHistory: state.recentHistory,
+                                        customerHistory: state.history,
                                       ),
                                     );
                               },
@@ -167,13 +197,17 @@ class _BillViewState extends State<BillView> {
               ],
             ),
           );
-        } else if (state is BillPrinterNotConnected ||
-            state is ReceiptPrinterNotConnected) {
-          return const PrinterSelectView();
-        } else if (state is BillReceiptPaymentState) {
-          return const ReceiptPage();
-        } else if (state is MeterAllowanceAcquisitonState) {
-          return const MeterAllowanceAcquisitionPage();
+        } else if (state is BillStateReopenReceipt) {
+          return BlocProvider(
+            create: (context) => ReceiptBloc(provider: FirebaseCloudStorage())
+              ..add(
+                ReceiptEventReopenReceipt(
+                  customer: state.customer,
+                  customerHistory: state.customerHistory,
+                ),
+              ),
+            child: const ReceiptFrameView(),
+          );
         } else {
           return const Scaffold();
         }
@@ -185,13 +219,19 @@ class _BillViewState extends State<BillView> {
 class Bill extends StatelessWidget {
   final CloudCustomer customer;
   final CloudCustomerHistory history;
-  final Iterable<CloudCustomerHistory> recentHistory;
-  const Bill({super.key, required this.customer, required this.history,
-  required this.recentHistory,});
+  final Iterable<CloudCustomerHistory> historyList;
+  final Size phoneScreenSize;
+  const Bill({
+    super.key,
+    required this.customer,
+    required this.history,
+    required this.phoneScreenSize,
+    required this.historyList,
+  });
 
   @override
   Widget build(BuildContext context) {
-    dev.log(recentHistory.toString());
+    var f = NumberFormat('#,###,###,###,###,###', 'en_US');
     return Column(
       children: [
         Column(
@@ -220,7 +260,7 @@ class Bill extends StatelessWidget {
                       Text(
                         'Phoe Thee Cho Co.Ltd',
                         style: TextStyle(
-                          fontSize: 22,
+                          fontSize: 22,fontWeight: FontWeight.w900
                         ),
                       ),
                     ],
@@ -239,16 +279,16 @@ class Bill extends StatelessWidget {
         ),
         Text(
           customer.name,
-          style: const TextStyle(fontSize: 22, fontWeight: FontWeight.w900),
+          style: const TextStyle(fontSize: 22,fontWeight: FontWeight.w900),
         ),
         Text(
           customer.address,
           maxLines: 2,
           overflow: TextOverflow.ellipsis,
-          style: const TextStyle(fontSize: 22, fontWeight: FontWeight.w900),
+          style: const TextStyle(fontSize: 22,fontWeight: FontWeight.w900),
         ),
         Container(
-          width: 360,
+          width: phoneScreenSize.width,
           padding: const EdgeInsets.fromLTRB(25, 0, 25, 0),
           child: Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -256,20 +296,20 @@ class Bill extends StatelessWidget {
               const Text(
                 'ငွေစာရင်းမှတ်',
                 style: TextStyle(
-                  fontSize: 22,
+                  fontSize: 22,fontWeight: FontWeight.w900
                 ),
               ),
               Text(
                 customer.bookId,
                 style: const TextStyle(
-                  fontSize: 22,
+                  fontSize: 22,fontWeight: FontWeight.w900
                 ),
               ),
             ],
           ),
         ),
         Container(
-          width: 360,
+          width: phoneScreenSize.width,
           padding: const EdgeInsets.fromLTRB(25, 0, 25, 0),
           child: Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -277,20 +317,20 @@ class Bill extends StatelessWidget {
               const Text(
                 'အသုံးပြုသည့်လ',
                 style: TextStyle(
-                  fontSize: 22,
+                  fontSize: 22,fontWeight: FontWeight.w900
                 ),
               ),
               Text(
                 monthYearWordFormat(history.date),
                 style: const TextStyle(
-                  fontSize: 22,
+                  fontSize: 22,fontWeight: FontWeight.w900
                 ),
               ),
             ],
           ),
         ),
         Container(
-          width: 360,
+          width: phoneScreenSize.width,
           padding: const EdgeInsets.fromLTRB(25, 0, 25, 0),
           child: Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -298,20 +338,20 @@ class Bill extends StatelessWidget {
               const Text(
                 'မီတာဖတ်သည့်နေ့',
                 style: TextStyle(
-                  fontSize: 22,
+                  fontSize: 22,fontWeight: FontWeight.w900
                 ),
               ),
               Text(
                 dayMonthYearNumericFormat(history.date),
                 style: const TextStyle(
-                  fontSize: 22,
+                  fontSize: 22,fontWeight: FontWeight.w900
                 ),
               ),
             ],
           ),
         ),
         Container(
-          width: 360,
+          width: phoneScreenSize.width,
           padding: const EdgeInsets.fromLTRB(25, 0, 25, 0),
           child: Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -319,20 +359,20 @@ class Bill extends StatelessWidget {
               const Text(
                 'မီတာအမှတ်',
                 style: TextStyle(
-                  fontSize: 22,
+                  fontSize: 22,fontWeight: FontWeight.w900
                 ),
               ),
               Text(
                 customer.meterId,
                 style: const TextStyle(
-                  fontSize: 22,
+                  fontSize: 22,fontWeight: FontWeight.w900
                 ),
               ),
             ],
           ),
         ),
         Container(
-          width: 360,
+          width: phoneScreenSize.width,
           padding: const EdgeInsets.fromLTRB(25, 0, 25, 0),
           child: Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -340,20 +380,20 @@ class Bill extends StatelessWidget {
               const Text(
                 'ယခင်လဖတ်ချက်',
                 style: TextStyle(
-                  fontSize: 22,
+                  fontSize: 22,fontWeight: FontWeight.w900
                 ),
               ),
               Text(
-                history.previousUnit.toString(),
+                f.format(history.previousUnit),
                 style: const TextStyle(
-                  fontSize: 22,
+                  fontSize: 22,fontWeight: FontWeight.w900
                 ),
               ),
             ],
           ),
         ),
         Container(
-          width: 360,
+          width: phoneScreenSize.width,
           padding: const EdgeInsets.fromLTRB(25, 0, 25, 0),
           child: Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -361,13 +401,13 @@ class Bill extends StatelessWidget {
               const Text(
                 'ယခုလဖတ်ချက်',
                 style: TextStyle(
-                  fontSize: 22,
+                  fontSize: 22,fontWeight: FontWeight.w900
                 ),
               ),
               Text(
-                history.newUnit.toString(),
+                f.format(history.newUnit),
                 style: const TextStyle(
-                  fontSize: 22,
+                  fontSize: 22,fontWeight: FontWeight.w900
                 ),
               ),
             ],
@@ -376,7 +416,7 @@ class Bill extends StatelessWidget {
         Visibility(
           visible: history.meterMultiplier != 1,
           child: Container(
-            width: 360,
+            width: phoneScreenSize.width,
             padding: const EdgeInsets.fromLTRB(25, 0, 25, 0),
             child: Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -384,13 +424,13 @@ class Bill extends StatelessWidget {
                 const Text(
                   'မြှောက်ကိန်း',
                   style: TextStyle(
-                    fontSize: 22,
+                    fontSize: 22,fontWeight: FontWeight.w900
                   ),
                 ),
                 Text(
                   history.meterMultiplier.toString(),
                   style: const TextStyle(
-                    fontSize: 22,
+                    fontSize: 22,fontWeight: FontWeight.w900
                   ),
                 ),
               ],
@@ -398,7 +438,7 @@ class Bill extends StatelessWidget {
           ),
         ),
         Container(
-          width: 360,
+          width: phoneScreenSize.width,
           padding: const EdgeInsets.fromLTRB(25, 0, 25, 0),
           child: Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -406,22 +446,46 @@ class Bill extends StatelessWidget {
               const Text(
                 'သုံးစွဲယူနစ်',
                 style: TextStyle(
-                  fontSize: 22,
+                  fontSize: 22,fontWeight: FontWeight.w900
                 ),
               ),
               Text(
-                history.getUnitUsed().toString(),
+                f.format(history.getUnitUsed()),
                 style: const TextStyle(
-                  fontSize: 22,
+                  fontSize: 22,fontWeight: FontWeight.w900
                 ),
               ),
             ],
           ),
         ),
         Visibility(
+          visible: history.meterAllowance != 0,
+          child: Container(
+            width: phoneScreenSize.width,
+            padding: const EdgeInsets.fromLTRB(25, 0, 25, 0),
+            child: Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                const Text(
+                  'ခွင့်ပြုယူနစ်',
+                  style: TextStyle(
+                    fontSize: 22,fontWeight: FontWeight.w900
+                  ),
+                ),
+                Text(
+                  f.format(history.meterAllowance),
+                  style: const TextStyle(
+                    fontSize: 22,fontWeight: FontWeight.w900
+                  ),
+                ),
+              ],
+            ),
+          ),
+        ),
+        Visibility(
           visible: customer.horsePowerUnits != 0,
           child: Container(
-            width: 360,
+            width: phoneScreenSize.width,
             padding: const EdgeInsets.fromLTRB(25, 0, 25, 0),
             child: Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -429,13 +493,13 @@ class Bill extends StatelessWidget {
                 const Text(
                   'မြင်းကောင်းရေ',
                   style: TextStyle(
-                    fontSize: 22,
+                    fontSize: 22,fontWeight: FontWeight.w900
                   ),
                 ),
                 Text(
                   customer.horsePowerUnits.toString(),
                   style: const TextStyle(
-                    fontSize: 22,
+                    fontSize: 22,fontWeight: FontWeight.w900
                   ),
                 ),
               ],
@@ -443,7 +507,7 @@ class Bill extends StatelessWidget {
           ),
         ),
         Container(
-          width: 360,
+          width: phoneScreenSize.width,
           padding: const EdgeInsets.fromLTRB(25, 0, 25, 0),
           child: Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -451,20 +515,20 @@ class Bill extends StatelessWidget {
               const Text(
                 'နှုန်း',
                 style: TextStyle(
-                  fontSize: 22,
+                  fontSize: 22,fontWeight: FontWeight.w900
                 ),
               ),
               Text(
-                history.priceAtm.toString(),
+                f.format(history.priceAtm),
                 style: const TextStyle(
-                  fontSize: 22,
+                  fontSize: 22,fontWeight: FontWeight.w900
                 ),
               ),
             ],
           ),
         ),
         Container(
-          width: 360,
+          width: phoneScreenSize.width,
           padding: const EdgeInsets.fromLTRB(25, 0, 25, 0),
           child: Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -472,13 +536,13 @@ class Bill extends StatelessWidget {
               const Text(
                 'ကျသင့်ငွေ',
                 style: TextStyle(
-                  fontSize: 22,
+                  fontSize: 22,fontWeight: FontWeight.w900
                 ),
               ),
               Text(
-                history.getCost().toString(),
+                f.format(history.getCost()),
                 style: const TextStyle(
-                  fontSize: 22,
+                  fontSize: 22,fontWeight: FontWeight.w900
                 ),
               ),
             ],
@@ -487,7 +551,7 @@ class Bill extends StatelessWidget {
         Visibility(
           visible: customer.hasRoadLightCost,
           child: Container(
-            width: 360,
+            width: phoneScreenSize.width,
             padding: const EdgeInsets.fromLTRB(25, 0, 25, 0),
             child: Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -495,15 +559,15 @@ class Bill extends StatelessWidget {
                 const Text(
                   'လမ်းမီးခ',
                   style: TextStyle(
-                    fontSize: 22,
+                    fontSize: 22,fontWeight: FontWeight.w900
                   ),
                 ),
                 Text(
-                  customer.hasRoadLightCost
-                      ? history.roadLightPrice.toString()
-                      : '0',
+                  f.format(customer.hasRoadLightCost
+                      ? history.roadLightPrice
+                      : 0),
                   style: const TextStyle(
-                    fontSize: 22,
+                    fontSize: 22,fontWeight: FontWeight.w900
                   ),
                 ),
               ],
@@ -511,7 +575,7 @@ class Bill extends StatelessWidget {
           ),
         ),
         Container(
-          width: 360,
+          width: phoneScreenSize.width,
           padding: const EdgeInsets.fromLTRB(25, 0, 25, 0),
           child: Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -519,13 +583,13 @@ class Bill extends StatelessWidget {
               const Text(
                 'မီတာဝန်ဆောင်ခ',
                 style: TextStyle(
-                  fontSize: 22,
+                  fontSize: 22,fontWeight: FontWeight.w900
                 ),
               ),
               Text(
-                history.serviceChargeAtm.toString(),
+                f.format(history.serviceChargeAtm),
                 style: const TextStyle(
-                  fontSize: 22,
+                  fontSize: 22,fontWeight: FontWeight.w900
                 ),
               ),
             ],
@@ -534,7 +598,7 @@ class Bill extends StatelessWidget {
         Visibility(
           visible: customer.horsePowerUnits != 0,
           child: Container(
-            width: 360,
+            width: phoneScreenSize.width,
             padding: const EdgeInsets.fromLTRB(25, 0, 25, 0),
             child: Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -542,13 +606,13 @@ class Bill extends StatelessWidget {
                 const Text(
                   'မြင်းကောင်ရေခ',
                   style: TextStyle(
-                    fontSize: 22,
+                    fontSize: 22,fontWeight: FontWeight.w900
                   ),
                 ),
                 Text(
-                  history.horsePowerPerUnitCostAtm.toString(),
+                  f.format(history.horsePowerPerUnitCostAtm),
                   style: const TextStyle(
-                    fontSize: 22,
+                    fontSize: 22,fontWeight: FontWeight.w900
                   ),
                 ),
               ],
@@ -556,43 +620,63 @@ class Bill extends StatelessWidget {
           ),
         ),
         Container(
-          width: 360,
+          width: phoneScreenSize.width,
           padding: const EdgeInsets.fromLTRB(25, 0, 25, 0),
           child: Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
               const Text(
                 'စုစုပေါင်းသင့်ငွေ',
-                style: TextStyle(fontSize: 22, fontWeight: FontWeight.w900),
+                style: TextStyle(fontSize: 22,fontWeight: FontWeight.w900 ),
               ),
               Text(
-                history.getTotalCost().toString(),
+                f.format(history.getTotalCost()),
                 style:
-                    const TextStyle(fontSize: 22, fontWeight: FontWeight.w900),
+                    const TextStyle(fontSize: 22,fontWeight: FontWeight.w900),
               ),
             ],
           ),
         ),
+        Visibility(
+          visible: history.paidAmount != 0,
+          child: Container(
+            width: phoneScreenSize.width,
+            padding: const EdgeInsets.fromLTRB(25, 0, 25, 0),
+            child: Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                const Text(
+                  'ကျန်ငွေ',
+                  style: TextStyle(fontSize: 22, fontWeight: FontWeight.w900),
+                ),
+                Text(
+                  f.format((history.unpaidAmount())),
+                  style: const TextStyle(
+                      fontSize: 22, fontWeight: FontWeight.w900),
+                ),
+              ],
+            ),
+          ),
+        ),
         Container(
-          width: 360,
+          width: phoneScreenSize.width,
           padding: const EdgeInsets.fromLTRB(25, 0, 25, 0),
           child: Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
               const Text(
                 'ကြွေးကျန်',
-                style: TextStyle(fontSize: 22),
+                style: TextStyle(fontSize: 22, fontWeight: FontWeight.w900,)
               ),
               Text(
-                (customer.debt - (history.isPaid ? 0 : history.getTotalCost()))
-                    .toString(),
-                style: const TextStyle(fontSize: 22),
+                f.format((customer.debt - history.unpaidAmount())),
+                style: const TextStyle(fontSize: 22, fontWeight: FontWeight.w900,)
               ),
             ],
           ),
         ),
         Container(
-          width: 360,
+          width: phoneScreenSize.width,
           padding: const EdgeInsets.fromLTRB(25, 0, 25, 0),
           child: Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -600,13 +684,13 @@ class Bill extends StatelessWidget {
               const Text(
                 'နောက်ဆုံးပေးဆောင်ရန်ရက်',
                 style: TextStyle(
-                  fontSize: 17,
+                  fontSize: 17,fontWeight: FontWeight.w900
                 ),
               ),
               Text(
                 paymentDueDate(history.date),
                 style: const TextStyle(
-                  fontSize: 17,
+                  fontSize: 17,fontWeight: FontWeight.w900
                 ),
               ),
             ],
@@ -617,7 +701,7 @@ class Bill extends StatelessWidget {
 PTC Office Ph No. 059-51009,
 09-426330134, 09-426330135''',
           style: TextStyle(
-            fontSize: 16,
+            fontSize: 16, fontWeight: FontWeight.w900
           ),
         ),
 //         const Text(
@@ -647,12 +731,12 @@ PTC Office Ph No. 059-51009,
         Text(
           'Inspector: ${history.inspector}',
           style: const TextStyle(
-            fontSize: 16,
+            fontSize: 16,fontWeight: FontWeight.w900
           ),
         ),
         const Divider(),
         Container(
-          width: 360,
+          width: phoneScreenSize.width,
           padding: const EdgeInsets.fromLTRB(25, 0, 25, 0),
           child: const Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -660,39 +744,41 @@ PTC Office Ph No. 059-51009,
               Text(
                 'မီတာဖတ်ရက်',
                 style: TextStyle(
-                  fontSize: 17,
+                  fontSize: 17, fontWeight: FontWeight.w900
                 ),
               ),
               Text(
                 'သုံးစွဲယူနစ်',
                 style: TextStyle(
-                  fontSize: 17,
+                  fontSize: 17,fontWeight: FontWeight.w900
                 ),
               ),
             ],
           ),
         ),
-        for (var pastHistory in recentHistory) Container(
-          width: 360,
-          padding: const EdgeInsets.fromLTRB(25, 0, 25, 0),
-          child: Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            children: [
-              Text(
-                pastHistory.date,
-                style: const TextStyle(
-                  fontSize: 17,
+        //TODO: complete this after making chages to cloudcustomer
+        for (var pastHistory in historyList)
+          Container(
+            width: phoneScreenSize.width,
+            padding: const EdgeInsets.fromLTRB(25, 0, 25, 0),
+            child: Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                Text(
+                  pastHistory.date,
+                  style: const TextStyle(
+                    fontSize: 17,fontWeight: FontWeight.w900
+                  ),
                 ),
-              ),
-              Text(
-                pastHistory.getUnitUsed().toString(),
-                style: const TextStyle(
-                  fontSize: 17,
+                Text(
+                  pastHistory.getUnitUsed().toString(),
+                  style: const TextStyle(
+                    fontSize: 17,fontWeight: FontWeight.w900
+                  ),
                 ),
-              ),
-            ],
+              ],
+            ),
           ),
-        ),
         const Divider(),
       ],
     );

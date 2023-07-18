@@ -45,6 +45,19 @@ class CustomerSearchEditCustomerSearchSuccessful extends CustomerSearchState {
       ];
 }
 
+class CustomerSearchExchangeMeterSearchSuccessful extends CustomerSearchState {
+  final CloudCustomer customer;
+  const CustomerSearchExchangeMeterSearchSuccessful({
+    required this.customer,
+  });
+
+  @override
+  List<Object> get props => [
+        super.props,
+        customer,
+      ];
+}
+
 //bill history search
 class CustomerSearchBillHistorySearchSuccessful extends CustomerSearchState {
   final CloudCustomer customer;
@@ -68,4 +81,12 @@ class CustomerSearchError extends CustomerSearchState {
 
 class CustomerSearchNotFoundError extends CustomerSearchError {
   const CustomerSearchNotFoundError();
+}
+
+class CustomerSearchMeterReadAlreadyReadAndPaid extends CustomerSearchError {
+  const CustomerSearchMeterReadAlreadyReadAndPaid();
+}
+
+class CustomerSearchMeterReadExchangeMeterWasDone extends CustomerSearchError {
+  const CustomerSearchMeterReadExchangeMeterWasDone();
 }

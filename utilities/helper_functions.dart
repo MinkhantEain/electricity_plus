@@ -129,6 +129,22 @@ bool isBookIdFormat(String input) {
   return true;
 }
 
+String getTempBookId(String bookId) {
+  List<int> codes = bookId.codeUnits.toList();
+  codes.replaceRange(0,1,[codes[0] + 13]);
+  
+  return String.fromCharCodes(codes);
+}
+
+  String bookIdToDocId(String bookId) {
+    return bookId.replaceAll(RegExp(r'/'), '-');
+  }
+
+  String docIdToBookId(String bookId) {
+    return bookId.replaceAll(RegExp(r'-'), '/');
+  }
+
+
 bool intIsBetween(int input, int startInclusive, int endInclusive) {
   return input >= startInclusive && input <= endInclusive;
 }
@@ -151,6 +167,45 @@ Future printBillReceipt(Uint8List capturedImage, PrinterManager printerManager,
   List<int> bytes = [];
   final profile = await CapabilityProfile.load(name: 'XP-N160I');
   final generator = Generator(PaperSize.mm58, profile);
+  final decodedImage = img.decodeImage(capturedImage)!;
+  // Create a black bottom layer
+  // Resize the image to a 130x? thumbnail (maintaining the aspect ratio).
+  // img.Image thumbnail = img.copyResize(decodedImage, width: 380, height: 1800);
+  img.Image thumbnail = img.copyResize(decodedImage, width: 400);
+  // creates a copy of the original image with set dimensions
+  //width 380 is max for 58 mm
+  // img.Image originalImg = img.copyResize(
+  //   decodedImage,
+  //   width: 380,
+  //   height: 1820,
+  // );
+  img.Image originalImg = img.copyResize(
+    decodedImage,
+    width: 400,
+  );
+  // img.Image originalImg = img.copyResize(decodedImage, width: 380, height: 130);
+  // fills the original image with a white background
+  img.fill(originalImg, color: img.ColorRgb8(255, 255, 255));
+  //insert the image inside the frame and center it
+  // drawImage(originalImg, thumbnail, dstX: padding.toInt());
+  drawImage(originalImg, thumbnail);
+
+  // convert image to grayscale
+  var grayscaleImage = img.grayscale(originalImg);
+
+  // bytes += generator.feed(1);
+  // bytes += generator.imageRaster(img.decodeImage(imageBytes)!, align: PosAlign.center);
+  bytes += generator.imageRaster(grayscaleImage, align: PosAlign.left);
+  // bytes += generator.imageRaster(grayscaleImage, align: PosAlign.center);
+  bytes += generator.qrcode('${customer.documentId}/${history.documentId}');
+  printerManager.send(type: PrinterType.bluetooth, bytes: bytes);
+}
+
+Future printBillReceipt80mm(Uint8List capturedImage, PrinterManager printerManager,
+    CloudCustomer customer, CloudCustomerHistory history) async {
+  List<int> bytes = [];
+  final profile = await CapabilityProfile.load(name: 'XP-N160I');
+  final generator = Generator(PaperSize.mm80, profile);
   final decodedImage = img.decodeImage(capturedImage)!;
   // Create a black bottom layer
   // Resize the image to a 130x? thumbnail (maintaining the aspect ratio).

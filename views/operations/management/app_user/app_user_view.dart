@@ -7,6 +7,7 @@ import 'package:electricity_plus/views/operations/management/app_user/bloc/app_u
 import 'package:electricity_plus/views/operations/management/app_user/edit_user/active_user_view.dart';
 import 'package:electricity_plus/views/operations/management/app_user/edit_user/bloc/edit_user_bloc.dart';
 import 'package:electricity_plus/views/operations/management/app_user/edit_user/suspended_user_view.dart';
+import 'package:electricity_plus/views/operations/management/bloc/admin_bloc.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
@@ -25,8 +26,8 @@ class AppUserView extends StatelessWidget {
               leading: BackButton(
                 onPressed: () async {
                   context
-                      .read<OperationBloc>()
-                      .add(const OperationEventAdminView());
+                      .read<AdminBloc>()
+                      .add(const AdminEventAdminView());
                   await BlocProvider.of<AppUserBloc>(context).close();
                 },
               ),

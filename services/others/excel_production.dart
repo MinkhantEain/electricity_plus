@@ -107,7 +107,8 @@ Future<void> inputAllCustomerData(
   num totalCost = 0;
   int rowIndex = 8;
   //TODO: get all customer with input date of the month chosen.
-  final customers = await provider.allReadCustomer();
+  List<CloudCustomer> customers = (await provider.allReadCustomer()).toList();
+  customers.sort((a, b) => a.compareTo(b),);
   dev.log(customers.toString());
   for (var customer in customers) {
     CloudCustomerHistory history =

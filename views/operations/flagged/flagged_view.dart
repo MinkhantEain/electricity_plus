@@ -3,10 +3,9 @@ import 'package:electricity_plus/services/cloud/firebase_cloud_storage.dart';
 import 'package:electricity_plus/services/cloud/operation/operation_bloc.dart';
 import 'package:electricity_plus/services/cloud/operation/operation_event.dart';
 import 'package:electricity_plus/utilities/custom_button.dart';
-import 'package:electricity_plus/views/operations/bill_history/bill_history_view.dart';
 import 'package:electricity_plus/views/operations/bill_history/bloc/bill_history_bloc.dart';
 import 'package:electricity_plus/views/operations/bill_receipt/bill_view.dart';
-import 'package:electricity_plus/views/operations/bill_receipt/bloc/bill_receipt_bloc.dart';
+import 'package:electricity_plus/views/operations/bill_receipt/bloc/bill_bloc.dart';
 import 'package:electricity_plus/views/operations/flagged/black_flag_customer_view.dart';
 import 'package:electricity_plus/views/operations/flagged/bloc/flagged_bloc.dart';
 import 'package:electricity_plus/views/operations/flagged/flag_list_view.dart';
@@ -16,6 +15,7 @@ import 'package:electricity_plus/views/operations/read_meter/bloc/read_meter_blo
 import 'package:electricity_plus/views/operations/read_meter/read_meter_first_page.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:intl/intl.dart';
 
 class FlaggedView extends StatelessWidget {
   const FlaggedView({super.key});
@@ -28,6 +28,26 @@ class FlaggedView extends StatelessWidget {
           LoadingScreen().show(context: context, text: 'Loading...');
         } else {
           LoadingScreen().hide();
+          if (state is FlaggedStateBillSelected) {
+            Navigator.of(context)
+                .push(
+                  MaterialPageRoute(
+                    builder: (context) => BlocProvider(
+                      create: (context) =>
+                          BillBloc(provider: FirebaseCloudStorage())
+                            ..add(
+                              BillEventInitialise(
+                                  customer: state.customer,
+                                  customerHistory: state.history,
+                                  historyList: const []),
+                            ),
+                      child: const BillView(),
+                    ),
+                  ),
+                )
+                .then((value) =>
+                    context.read<FlaggedBloc>().add(const FlaggedEventBlack()));
+          }
         }
       },
       builder: (context, state) {
@@ -61,18 +81,21 @@ class FlaggedView extends StatelessWidget {
                       context.read<FlaggedBloc>().add(const FlaggedEventRed());
                     },
                   ),
-                  HomePageButton(
-                    icon: const Icon(
-                      Icons.flag_sharp,
-                      color: Colors.black,
+                  Visibility(
+                    visible: DateTime.now().isAfter(DateTime.parse('${DateTime.now().toString().substring(0, 7)}-10')),
+                    child: HomePageButton(
+                      icon: const Icon(
+                        Icons.flag_sharp,
+                        color: Colors.black,
+                      ),
+                      text: 'Unpaid Customers',
+                      onPressed: () {
+                        //TODO: got to a view with all the unapid customer.
+                        context
+                            .read<FlaggedBloc>()
+                            .add(const FlaggedEventBlack());
+                      },
                     ),
-                    text: 'Unpaid Customers',
-                    onPressed: () {
-                      //TODO: got to a view with all the unapid customer.
-                      context
-                          .read<FlaggedBloc>()
-                          .add(const FlaggedEventBlack());
-                    },
                   ),
                   HomePageButton(
                     icon: const Icon(
@@ -81,9 +104,8 @@ class FlaggedView extends StatelessWidget {
                     ),
                     text: 'Unread Customers',
                     onPressed: () {
-                      context
-                          .read<FlaggedBloc>()
-                          .add(const FlaggedEventUnreadCustomers(customers: null));
+                      context.read<FlaggedBloc>().add(
+                          const FlaggedEventUnreadCustomers(customers: null));
                     },
                   ),
                 ],
@@ -103,15 +125,6 @@ class FlaggedView extends StatelessWidget {
               create: (context) => BillHistoryBloc(
                   customer: state.customer, historyList: state.history),
               child: const BlackFlagCustomerView());
-        } else if (state is FlaggedStateBillSelected) {
-          return BlocProvider(
-            create: (context) => BillReceiptBloc(FirebaseCloudStorage())
-              ..add(
-                BillFromFlaggedInitialise(
-                    customer: state.customer, history: state.history),
-              ),
-            child: const BillView(),
-          );
         } else if (state is FlaggedStateUnreadCustomerSelected) {
           return BlocProvider(
             create: (context) => ReadMeterBloc(
@@ -119,7 +132,8 @@ class FlaggedView extends StatelessWidget {
               state.customer,
               state.previousReading,
             ),
-            child: ReadMeterFirstPage(customers: state.customers, fromPage: 'Unread Customers'),
+            child: ReadMeterFirstPage(
+                customers: state.customers, fromPage: 'Unread Customers'),
           );
         } else {
           return const Scaffold();

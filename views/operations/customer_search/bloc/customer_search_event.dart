@@ -14,45 +14,25 @@ class CustomerSearchEventSearch extends CustomerSearchEvent {
     required this.userInput,
     required this.pageName,
   });
+  @override
+  List<Object> get props => [super.props, userInput, pageName];
 }
 
 class CustomerSearchEditCustomerSearchInitialise extends CustomerSearchEvent {
   const CustomerSearchEditCustomerSearchInitialise();
 }
 
-// class CustomerSearchEditCustomerSearch extends CustomerSearchEvent {
-//   final CloudCustomer customer;
-//   const CustomerSearchEditCustomerSearch({required this.customer});
-//   @override
-//   List<Object> get props => [super.props, customer];
-// }
-
 class CustomerSearchMeterReadSearchInitialise extends CustomerSearchEvent {
   const CustomerSearchMeterReadSearchInitialise();
 }
-
-// class CustomerSearchMeterReadSearch extends CustomerSearchEvent {
-//   final CloudCustomer customer;
-//   const CustomerSearchMeterReadSearch({required this.customer});
-//   @override
-//   List<Object> get props => [super.props, customer];
-// }
 
 class CustomerSearchBillHistorySearchInitialise extends CustomerSearchEvent {
   const CustomerSearchBillHistorySearchInitialise();
 }
 
-// class CustomerSearchBillHistorySearch extends CustomerSearchEvent {
-//   final CloudCustomer customer;
-//   const CustomerSearchBillHistorySearch({required this.customer});
-//   @override
-//   List<Object> get props => [super.props, customer];
-// }
-
-// class FlaggedCustomerListSearchEvent extends CustomerSearchEvent {
-//   const FlaggedCustomerListSearchEvent();
-// }
-
+class CustomerSearchExchangeMeterSearchInitialise extends CustomerSearchEvent {
+  const CustomerSearchExchangeMeterSearchInitialise();
+}
 
 
 

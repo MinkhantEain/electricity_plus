@@ -52,13 +52,19 @@ class ReadMeterBloc extends Bloc<ReadMeterEvent, ReadMeterState> {
           await provider.voidCurrentMonthLastHistory(customer: event.customer);
           CloudCustomerHistory customerHistory =
               await provider.submitElectricLog(
-                  customer: event.customer,
-                  newReading: event.newReading,
-                  comment: event.comment,
-                  imageUrl: imgUrl,
-                  previousReading: num.parse(previousReading));
+            customer: event.customer,
+            newReading: event.newReading,
+            comment: event.comment,
+            imageUrl: imgUrl,
+            previousReading: num.parse(previousReading),
+          );
+          final updatedCustomer = await provider.getCustomer(bookId: customer.bookId);
+          final historyList = await provider.getRecentBillHistory(customer: updatedCustomer);
           emit(ReadMeterStateSubmitted(
-              customer: customer, history: customerHistory));
+            customer: updatedCustomer,
+            history: customerHistory,
+            historyList: historyList,
+          ));
         } on CloudStorageException catch (e) {
           // UnableToUploadImageException
           if (e is UnableToUploadImageException) {
@@ -77,26 +83,22 @@ class ReadMeterBloc extends Bloc<ReadMeterEvent, ReadMeterState> {
       (event, emit) {
         emit(const ReadMeterStateLoading());
         emit(ReadMeterStateFlagReport(customer: event.customer));
-        
       },
     );
 
     on<ReadMeterEventSubmitFlagReport>(
       (event, emit) async {
-        
-         emit(const ReadMeterStateLoading());
+        emit(const ReadMeterStateLoading());
         try {
-          final imgUrl = await provider.storeImage(
-            customer.documentId,
-            event.image,
-            fileName: 'flag'
+          final imgUrl = await provider
+              .storeImage(customer.documentId, event.image, fileName: 'flag');
+          await provider.voidCurrentMonthLastHistory(customer: customer);
+          await provider.submitFlagReport(
+            customer: customer,
+            comment: event.comment,
+            imageUrl: imgUrl,
+            inspector: FirebaseAuth.instance.currentUser!.displayName!,
           );
-          provider.submitFlagReport(
-          customer: customer,
-          comment: event.comment,
-          imageUrl: imgUrl,
-          inspector: FirebaseAuth.instance.currentUser!.displayName!,
-        );
           emit(const ReadMeterStateFlagReportSubmitted());
         } on CloudStorageException catch (e) {
           // UnableToUploadImageException
