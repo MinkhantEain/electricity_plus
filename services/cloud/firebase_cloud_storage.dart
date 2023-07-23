@@ -26,20 +26,90 @@ class FirebaseCloudStorage {
 
   final firebaseStorage = FirebaseStorage.instance.ref();
 
-  // Future<bool> isAdminPersonnel(String uid) async {
-  //   return FirebaseFirestore.instance
-  //       .collection('AdminPersonnelList')
-  //       .doc(uid)
-  //       .get()
-  //       .then((DocumentSnapshot doc) {
-  //     if (doc.data() != null) {
-  //       final snapshot = doc.data() as Map<String, dynamic>;
-  //       return snapshot['AdminPage'];
-  //     } else {
-  //       return false;
-  //     }
-  //   }, onError: (_) => false);
-  // }
+  Future<Iterable<CloudCustomerHistory>> getStaffHistorySpecificDate(
+      {required Staff staff, required String date}) async {
+    final town = await AppDocumentData.getTownName();
+    return firebaseFirestoreInstance
+        .collectionGroup(historyCollection)
+        .where(inspectorUidField, isEqualTo: staff.uid)
+        .where(townField, isEqualTo: town)
+        .where(dateField, isGreaterThanOrEqualTo: date)
+        .where(dateField,
+            isLessThanOrEqualTo: DateTime(
+              int.parse(date.substring(0, 4)),
+              int.parse(date.substring(5, 7)),
+              int.parse(date.substring(8)) + 1,
+            ).toString())
+        .where(isVoidedField, isEqualTo: false)
+        .get()
+        .then((value) =>
+            value.docs.map((e) => CloudCustomerHistory.fromSnapshot(e)));
+  }
+
+  Future<void> editCustomerDetails(
+      {required CloudCustomer updatedCustomer}) async {
+    final town = await AppDocumentData.getTownName();
+    setDoc(
+        document: FirebaseFirestore.instance.doc(
+            '$town$customerDetailsCollection/${updatedCustomer.documentId}'),
+        dataFieldMap: updatedCustomer.dataFieldMap());
+  }
+
+  Future<Iterable<CloudCustomerHistory>> getAllHistorySpecificDate(
+      {required String date}) async {
+    final town = await AppDocumentData.getTownName();
+    return firebaseFirestoreInstance
+        .collectionGroup(historyCollection)
+        .where(townField, isEqualTo: town)
+        .where(dateField, isGreaterThanOrEqualTo: date)
+        .where(dateField,
+            isLessThanOrEqualTo: DateTime(
+              int.parse(date.substring(0, 4)),
+              int.parse(date.substring(5, 7)),
+              int.parse(date.substring(8)) + 1,
+            ).toString())
+        .where(isVoidedField, isEqualTo: false)
+        .get()
+        .then((value) =>
+            value.docs.map((e) => CloudCustomerHistory.fromSnapshot(e)));
+  }
+
+  Future<Iterable<CloudReceipt>> getStaffReceiptSpecificDate(
+      {required Staff staff, required String date}) async {
+    final town = await AppDocumentData.getTownName();
+    dev.log(date);
+
+    return firebaseFirestoreInstance
+        .collectionGroup(receiptCollection)
+        .where(collectorUidField, isEqualTo: staff.uid)
+        .where(townNameField, isEqualTo: town)
+        .where(transactionDateField, isGreaterThanOrEqualTo: date)
+        .where(transactionDateField,
+            isLessThanOrEqualTo: DateTime(
+              int.parse(date.substring(0, 4)),
+              int.parse(date.substring(5, 7)),
+              int.parse(date.substring(8)) + 1,
+            ).toString())
+        .get()
+        .then((value) => value.docs.map((e) => CloudReceipt.fromSnapshot(e)));
+  }
+
+  Future<Iterable<CloudReceipt>> getAllReceiptSpecificDate(
+      {required String date}) async {
+    final town = await AppDocumentData.getTownName();
+    return firebaseFirestoreInstance
+        .collectionGroup(receiptCollection)
+        .where(townNameField, isEqualTo: town)
+        .where(transactionDateField, isGreaterThanOrEqualTo: date)
+        .where(transactionDateField,
+            isLessThanOrEqualTo: DateTime(
+              int.parse(date.substring(0, 4)),
+              int.parse(date.substring(5, 7)),
+              int.parse(date.substring(8)) + 1,
+            ).toString())
+        .get()
+        .then((value) => value.docs.map((e) => CloudReceipt.fromSnapshot(e)));
+  }
 
   Future<Iterable<Staff>> getAllActiveStaff() async {
     final town = await AppDocumentData.getTownName();
@@ -149,12 +219,6 @@ class FirebaseCloudStorage {
           .child(customerDocumentId)
           .child(currentMonthYearDate() + fileName)
           .putFile(file);
-      //deletes file from a year ago if present
-      final yearAgoImgRef =
-          firebaseStorage.child(customerDocumentId).child(pastMonthYearDate());
-      yearAgoImgRef
-          .getDownloadURL()
-          .then((_) => yearAgoImgRef.delete(), onError: (e) => e);
       final snapshot = await uploadTask.whenComplete(() {});
 
       final urlDownload = await snapshot.ref.getDownloadURL();
@@ -306,16 +370,17 @@ class FirebaseCloudStorage {
     required String imageUrl,
     required String inspector,
   }) async {
+    final town = await AppDocumentData.getTownName();
     final flag = CloudFlag(
       date: DateTime.now().toString(),
       comment: comment,
+      town: town,
       documentId: DateTime.now().toString().substring(0, 7),
       imageUrl: imageUrl,
       inspector: inspector,
       isResolved: false,
     );
 
-    final town = await AppDocumentData.getTownName();
     final flagDocRef = FirebaseFirestore.instance.doc(
         '$town$customerDetailsCollection/${customer.documentId}/$flagCollection/${flag.documentId}');
     //creates a flag collection
@@ -324,6 +389,7 @@ class FirebaseCloudStorage {
         dateField: flag.date,
         commentField: flag.comment,
         imageUrlField: flag.imageUrl,
+        townField: town,
         inspectorField: flag.inspector,
         isResolvedField: flag.isResolved,
       });
@@ -363,6 +429,35 @@ class FirebaseCloudStorage {
     } on QueryFailsException {
       return 0;
     }
+  }
+
+  Future<Iterable<CloudCustomerHistory>> getCustomerHistoryByMonth(
+      {String? givenDate}) async {
+    String date = givenDate ?? DateTime.now().toString().substring(0, 7);
+    final town = await AppDocumentData.getTownName();
+    return firebaseFirestoreInstance
+        .collectionGroup(historyCollection)
+        .where(dateField, isGreaterThanOrEqualTo: date)
+        .where(dateField, isLessThan: '$date-32')
+        .where(isVoidedField, isEqualTo: false)
+        .where(townField, isEqualTo: town)
+        .get()
+        .then((value) =>
+            value.docs.map((e) => CloudCustomerHistory.fromSnapshot(e)));
+  }
+
+  Future<Iterable<CloudExchangeHistory>> getCustomerExchangeHistoryByMonth(
+      {String? givenDate}) async {
+    String date = givenDate ?? DateTime.now().toString().substring(0, 7);
+    final town = await AppDocumentData.getTownName();
+    return firebaseFirestoreInstance
+        .collectionGroup(exchangeHistoryCollection)
+        .where(dateField, isGreaterThanOrEqualTo: date)
+        .where(dateField, isLessThan: '$date-32')
+        .where(townField, isEqualTo: town)
+        .get()
+        .then((value) =>
+            value.docs.map((e) => CloudExchangeHistory.fromSnapshot(e)));
   }
 
   ///gets the latest valid history of customer
@@ -447,6 +542,9 @@ class FirebaseCloudStorage {
           documentId: customerHistoryDocRef.id,
           previousUnit: previousReading,
           newUnit: newReading,
+          town: town,
+          name: customer.name,
+          bookId: customer.bookId,
           priceAtm: prices.pricePerUnit,
           cost: await calculateCost(customer, newReading),
           date: DateTime.now().toString(),
@@ -457,6 +555,7 @@ class FirebaseCloudStorage {
           paidAmount: 0,
           meterAllowance: 0,
           inspector: FirebaseAuth.instance.currentUser!.displayName!,
+          inspectorUid: FirebaseAuth.instance.currentUser!.uid,
           serviceChargeAtm: prices.serviceCharge,
           horsePowerPerUnitCostAtm: prices.horsePowerPerUnitCost,
           horsePowerUnits: customer.horsePowerUnits,
@@ -493,7 +592,7 @@ class FirebaseCloudStorage {
         .where(isVoidedField, isEqualTo: false)
         .where(dateField, isLessThanOrEqualTo: upperDateThreshold)
         .orderBy(dateField, descending: true)
-        .limit(5)
+        .limit(6)
         .get()
         .then((value) =>
             value.docs.map((e) => CloudCustomerHistory.fromSnapshot(e)));
@@ -689,6 +788,7 @@ class FirebaseCloudStorage {
         name: name,
         address: address,
         lastUnit: meterReading,
+        town: town,
         lastReadDate: pastMonthYearDate(),
         flag: false,
         debt: 0,
@@ -706,7 +806,10 @@ class FirebaseCloudStorage {
         documentId: customerHistoryDocRef.id,
         previousUnit: meterReading,
         newUnit: meterReading,
+        name: customer.name,
+        bookId: customer.bookId,
         meterAllowance: 0,
+        town: town,
         priceAtm: prices.pricePerUnit,
         cost: 0,
         date: pastMonthYearDate(),
@@ -716,6 +819,7 @@ class FirebaseCloudStorage {
         isVoided: false,
         paidAmount: 0,
         inspector: FirebaseAuth.instance.currentUser!.displayName!,
+        inspectorUid: FirebaseAuth.instance.currentUser!.uid,
         isPaid: true,
         serviceChargeAtm: prices.serviceCharge,
         horsePowerPerUnitCostAtm: prices.horsePowerPerUnitCost,
@@ -728,25 +832,6 @@ class FirebaseCloudStorage {
           document: customerHistoryDocRef,
           dataFieldMap: history.dataFieldMap());
 
-      // final receipt = CloudReceipt(
-      //   documentId: customerReceiptRef.id,
-      //   forDate: monthYearWordFormat(DateTime.now().toString()),
-      //   meterReadDate: pastMonthYearDate(),
-      //   bookId: bookId,
-      //   customerName: name,
-      //   collectorName: FirebaseAuth.instance.currentUser!.displayName!,
-      //   transactionDate: DateTime.now().toString(),
-      //   paymentDueDate: paymentDueDate(DateTime.now().toString()),
-      //   customerDocId: newCustomerDocRef.id,
-      //   historyDocId: customerHistoryDocRef.id,
-      //   townName: town,
-      //   meterAllowance: 0,
-      //   priceAtm: prices.pricePerUnit,
-      //   initialCost: 0,
-      //   finalCost: 0,
-      // );
-      // await setDoc(
-      //     document: customerReceiptRef, dataFieldMap: receipt.dataFieldMap());
     } on Exception {
       rethrow;
     }
@@ -809,7 +894,10 @@ class FirebaseCloudStorage {
     try {
       batch.update(
         customerRef,
-        {debtField: customer.debt},
+        {
+          debtField: customer.debt,
+          lastUnitField: history.newUnit,
+        },
       );
       batch.update(
         historyRef,
@@ -872,12 +960,14 @@ class FirebaseCloudStorage {
     await for (var line in lines) {
       final splitExpression = RegExp(",(?=(?:[^\"]*\"[^\"]*\")*(?![^\"]*\"))");
       final splittedLine = line.split(splitExpression);
+      dev.log(splittedLine.toString());
       if (isIntInput(splittedLine[0].trim())) {
         try {
           final name = splittedLine[3];
           final address = splittedLine[7];
           final bookId = splittedLine[6];
           final meterId = splittedLine[2];
+          final previousMeterReading = num.parse(splittedLine[10].trim());
           final meterReading = num.parse(splittedLine[11].trim());
           final meterMultiplier = splittedLine[12].trim().isEmpty
               ? 1
@@ -890,10 +980,13 @@ class FirebaseCloudStorage {
               writeCustomerCollection.doc(bookIdToDocId(bookId));
           final historyDoc = FirebaseFirestore.instance
               .collection('${customerDoc.path}/$historyCollection')
-              .doc();
+              .doc(importDate.substring(0, 7));
           final historyObj = CloudCustomerHistory(
+            name: name,
+            bookId: bookId,
             documentId: historyDoc.id,
-            previousUnit: meterReading,
+            previousUnit: previousMeterReading,
+            town: town,
             newUnit: meterReading,
             priceAtm: priceAtm,
             meterAllowance: 0,
@@ -905,6 +998,7 @@ class FirebaseCloudStorage {
             isVoided: false,
             paidAmount: 0,
             inspector: '',
+            inspectorUid: '',
             isPaid: true,
             serviceChargeAtm: serviceCharge,
             horsePowerPerUnitCostAtm: horsePowerPerUnitCost,
@@ -915,6 +1009,7 @@ class FirebaseCloudStorage {
           final customerObj = CloudCustomer(
             documentId: customerDoc.id,
             bookId: bookId,
+            town: town,
             meterId: meterId,
             name: name,
             address: address,

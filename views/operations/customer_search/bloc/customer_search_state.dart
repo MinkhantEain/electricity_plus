@@ -47,14 +47,17 @@ class CustomerSearchEditCustomerSearchSuccessful extends CustomerSearchState {
 
 class CustomerSearchExchangeMeterSearchSuccessful extends CustomerSearchState {
   final CloudCustomer customer;
+  final CloudCustomerHistory history;
   const CustomerSearchExchangeMeterSearchSuccessful({
     required this.customer,
+    required this.history,
   });
 
   @override
   List<Object> get props => [
         super.props,
         customer,
+        history,
       ];
 }
 

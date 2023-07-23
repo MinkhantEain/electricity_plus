@@ -8,7 +8,7 @@ import 'dart:developer' as dev show log;
 
 void inputData(Sheet excelSheet, CellStyle style, int colIndex, int rowIndex,
     dynamic value) {
-  var cell = excelSheet.cell(
+  final cell = excelSheet.cell(
     CellIndex.indexByColumnRow(columnIndex: colIndex, rowIndex: rowIndex),
   );
   cell.cellStyle = style;
@@ -50,6 +50,7 @@ void inputCustomerData(CloudCustomer customer, CloudCustomerHistory history,
     19, //
     20,
     21, //
+    22,
   ];
   List<dynamic> customerDataValue = [
     customer.meterId,
@@ -65,7 +66,8 @@ void inputCustomerData(CloudCustomer customer, CloudCustomerHistory history,
     history.serviceChargeAtm,
     history.getHorsePowerCost(),
     history.getCost(),
-    history.cost
+    history.cost,
+    history.paidAmount,
   ];
   inputData(excelSheet, style, 1, rowIndex, rowIndex - 7);
   for (int i = 0; i < dataColumnIndex.length; i++) {
@@ -90,6 +92,7 @@ void addTotal(List<num> totalData, int rowIndex, Sheet excelSheet) {
     18,
     19,
     21,
+    22,
   ];
 
   for (int i = 0; i < indexCol.length; ++i) {
@@ -105,12 +108,12 @@ Future<void> inputAllCustomerData(
   num totalServiceCharge = 0;
   num totalHorsePowerCost = 0;
   num totalCost = 0;
+  num totalCollected = 0;
   int rowIndex = 8;
-  //TODO: get all customer with input date of the month chosen.
   List<CloudCustomer> customers = (await provider.allReadCustomer()).toList();
   customers.sort((a, b) => a.compareTo(b),);
   dev.log(customers.toString());
-  for (var customer in customers) {
+  for (final customer in customers) {
     CloudCustomerHistory history =
         await provider.getCustomerHistory(customer: customer);
     totalUnitUsed += (history.newUnit - history.previousUnit) * history.meterMultiplier;
@@ -119,6 +122,7 @@ Future<void> inputAllCustomerData(
     totalHorsePowerCost +=
         (history.horsePowerPerUnitCostAtm * history.horsePowerUnits);
     totalCost += history.cost;
+    totalCollected += history.paidAmount;
     inputCustomerData(customer, history, excelSheet, rowIndex);
     //increment rowIndex
     rowIndex++;
@@ -129,12 +133,13 @@ Future<void> inputAllCustomerData(
     totalServiceCharge,
     totalHorsePowerCost,
     totalCost,
+    totalCollected,
   ];
   addTotal(totalData, rowIndex, excelSheet);
 }
 
 Future<void> createExcelSheet(String townName) async {
-  var excel = Excel.createExcel();
+  final excel = Excel.createExcel();
   Sheet sheetObject = excel['sheet1'];
   final secondRowStyle = CellStyle(
     bold: true,
@@ -156,7 +161,7 @@ Future<void> createExcelSheet(String townName) async {
     diagonalBorderUp: false,
     diagonalBorderDown: false,
   );
-  var secondRowcell = sheetObject.cell(
+  final secondRowcell = sheetObject.cell(
     CellIndex.indexByColumnRow(columnIndex: 9, rowIndex: 1),
   );
   secondRowcell.value = 'Meter Units Report For ${monthYear()} ( $townName )';
@@ -185,7 +190,7 @@ Future<void> createExcelSheet(String townName) async {
     diagonalBorderDown: false,
   );
 
-  var thirdRowCell = sheetObject.cell(
+  final thirdRowCell = sheetObject.cell(
     CellIndex.indexByColumnRow(columnIndex: 2, rowIndex: 2),
   );
   thirdRowCell.value = 'All Ledger';
@@ -193,7 +198,7 @@ Future<void> createExcelSheet(String townName) async {
   sheetObject.merge(
       CellIndex.indexByString('C3'), CellIndex.indexByString('E4'));
 
-  var informationRowStyle = CellStyle(
+  final informationRowStyle = CellStyle(
     bold: false,
     rotation: 0,
     italic: false,
@@ -214,7 +219,7 @@ Future<void> createExcelSheet(String townName) async {
     diagonalBorderDown: false,
   );
 
-  var infoCell0 = sheetObject.cell(
+  final infoCell0 = sheetObject.cell(
     CellIndex.indexByColumnRow(
       columnIndex: 1,
       rowIndex: 7,
@@ -223,7 +228,7 @@ Future<void> createExcelSheet(String townName) async {
   infoCell0.value = 'No.1';
   infoCell0.cellStyle = informationRowStyle;
 
-  var infoCell22 = sheetObject.cell(
+  final infoCell22 = sheetObject.cell(
     CellIndex.indexByColumnRow(
       columnIndex: 3,
       rowIndex: 7,
@@ -232,7 +237,7 @@ Future<void> createExcelSheet(String townName) async {
   infoCell22.value = 'မီတာနံပါတ်';
   infoCell22.cellStyle = informationRowStyle;
 
-  var infoCell1 = sheetObject.cell(
+  final infoCell1 = sheetObject.cell(
     CellIndex.indexByColumnRow(
       columnIndex: 4,
       rowIndex: 7,
@@ -241,7 +246,7 @@ Future<void> createExcelSheet(String townName) async {
   infoCell1.value = 'အမည်';
   infoCell1.cellStyle = informationRowStyle;
 
-  var infoCell2 = sheetObject.cell(
+  final infoCell2 = sheetObject.cell(
     CellIndex.indexByColumnRow(
       columnIndex: 7,
       rowIndex: 7,
@@ -250,7 +255,7 @@ Future<void> createExcelSheet(String townName) async {
   infoCell2.value = 'စာရင်းအမှတ်';
   infoCell2.cellStyle = informationRowStyle;
 
-  var infoCell3 = sheetObject.cell(
+  final infoCell3 = sheetObject.cell(
     CellIndex.indexByColumnRow(
       columnIndex: 8,
       rowIndex: 7,
@@ -259,7 +264,7 @@ Future<void> createExcelSheet(String townName) async {
   infoCell3.value = 'လိပ်စာ';
   infoCell3.cellStyle = informationRowStyle;
 
-  var infoCell4 = sheetObject.cell(
+  final infoCell4 = sheetObject.cell(
     CellIndex.indexByColumnRow(
       columnIndex: 11,
       rowIndex: 7,
@@ -268,7 +273,7 @@ Future<void> createExcelSheet(String townName) async {
   infoCell4.value = 'Old Unit';
   infoCell4.cellStyle = informationRowStyle;
 
-  var infoCell5 = sheetObject.cell(
+  final infoCell5 = sheetObject.cell(
     CellIndex.indexByColumnRow(
       columnIndex: 12,
       rowIndex: 7,
@@ -277,7 +282,7 @@ Future<void> createExcelSheet(String townName) async {
   infoCell5.value = 'New Unit';
   infoCell5.cellStyle = informationRowStyle;
 
-  var infoCell6 = sheetObject.cell(
+  final infoCell6 = sheetObject.cell(
     CellIndex.indexByColumnRow(
       columnIndex: 13,
       rowIndex: 7,
@@ -286,7 +291,7 @@ Future<void> createExcelSheet(String townName) async {
   infoCell6.value = 'မြှောက်ကိန်း';
   infoCell6.cellStyle = informationRowStyle;
 
-  var infoCell7 = sheetObject.cell(
+  final infoCell7 = sheetObject.cell(
     CellIndex.indexByColumnRow(
       columnIndex: 14,
       rowIndex: 7,
@@ -295,7 +300,7 @@ Future<void> createExcelSheet(String townName) async {
   infoCell7.value = 'ပေါင်းရန်';
   infoCell7.cellStyle = informationRowStyle;
 
-  var infoCell8 = sheetObject.cell(
+  final infoCell8 = sheetObject.cell(
     CellIndex.indexByColumnRow(
       columnIndex: 16,
       rowIndex: 7,
@@ -304,7 +309,7 @@ Future<void> createExcelSheet(String townName) async {
   infoCell8.value = 'Unit Used';
   infoCell8.cellStyle = informationRowStyle;
 
-  var infoCell9 = sheetObject.cell(
+  final infoCell9 = sheetObject.cell(
     CellIndex.indexByColumnRow(
       columnIndex: 17,
       rowIndex: 7,
@@ -313,7 +318,7 @@ Future<void> createExcelSheet(String townName) async {
   infoCell9.value = 'လမ်းမီးခ';
   infoCell9.cellStyle = informationRowStyle;
 
-  var infoCell10 = sheetObject.cell(
+  final infoCell10 = sheetObject.cell(
     CellIndex.indexByColumnRow(
       columnIndex: 18,
       rowIndex: 7,
@@ -322,7 +327,7 @@ Future<void> createExcelSheet(String townName) async {
   infoCell10.value = '၀န်ဆောင်ခ';
   infoCell10.cellStyle = informationRowStyle;
 
-  var infoCell11 = sheetObject.cell(
+  final infoCell11 = sheetObject.cell(
     CellIndex.indexByColumnRow(
       columnIndex: 19,
       rowIndex: 7,
@@ -331,7 +336,7 @@ Future<void> createExcelSheet(String townName) async {
   infoCell11.value = 'မြင်းကောင်ရေခ';
   infoCell11.cellStyle = informationRowStyle;
 
-  var infoCell12 = sheetObject.cell(
+  final infoCell12 = sheetObject.cell(
     CellIndex.indexByColumnRow(
       columnIndex: 20,
       rowIndex: 7,
@@ -340,7 +345,7 @@ Future<void> createExcelSheet(String townName) async {
   infoCell12.value = 'Cost';
   infoCell12.cellStyle = informationRowStyle;
 
-  var infoCell13 = sheetObject.cell(
+  final infoCell13 = sheetObject.cell(
     CellIndex.indexByColumnRow(
       columnIndex: 21,
       rowIndex: 7,
@@ -348,6 +353,14 @@ Future<void> createExcelSheet(String townName) async {
   );
   infoCell13.value = 'Total Cost';
   infoCell13.cellStyle = informationRowStyle;
+
+  final infoCell14 = sheetObject.cell(CellIndex.indexByColumnRow(
+    columnIndex: 22,
+    rowIndex: 7,
+  ));
+  infoCell14.value = 'Collected';
+  infoCell14.cellStyle = informationRowStyle;
+
   sheetObject.setColWidth(0, 0);
   sheetObject.setColWidth(1, 1);
   sheetObject.setColWidth(2, 3);
@@ -377,6 +390,7 @@ Future<void> createExcelSheet(String townName) async {
   sheetObject.setColWidth(19, 11);
   sheetObject.setColWidth(20, 8);
   sheetObject.setColWidth(21, 11);
+  sheetObject.setColWidth(22, 11);
 
   sheetObject.merge(
       CellIndex.indexByString('B8'), CellIndex.indexByString('C8'));
@@ -389,8 +403,8 @@ Future<void> createExcelSheet(String townName) async {
 
   await inputAllCustomerData(FirebaseCloudStorage(), sheetObject, townName);
 
-  var outputBytes = excel.save()!;
-  FileStorage.save(outputBytes, monthYear());
+  final outputBytes = excel.save()!;
+  await FileStorage.save(outputBytes, monthYear());
   // final File toCloud = File('${dir.path}/${monthYear()}.xlsx')
   //   ..createSync(recursive: true)
   //   ..writeAsBytesSync(outputBytes);
@@ -413,6 +427,6 @@ String monthYear() {
     '11': 'Nov',
     '12': 'Dec',
   };
-  var result = DateTime.now().toString().substring(0, 7);
+  final result = DateTime.now().toString().substring(0, 7);
   return "${intToMonth[result.substring(5, 7)]} ${result.substring(0, 4)}";
 }

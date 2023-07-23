@@ -18,6 +18,13 @@ class AdminEventExchangeMeter extends AdminEvent {
   const AdminEventExchangeMeter();
 }
 
+class AdminEventMonthlyTotal extends AdminEvent {
+  final String date;
+  const AdminEventMonthlyTotal({
+    this.date = '',
+  });
+}
+
 class AdminEventAdminView extends AdminEvent {
   const AdminEventAdminView();
 }
@@ -32,4 +39,8 @@ class AdminEventInitialiseData extends AdminEvent {
 
 class AdminEventChooseTown extends AdminEvent {
   const AdminEventChooseTown();
+}
+
+class AdminEventEditCustomer extends AdminEvent {
+  const AdminEventEditCustomer();
 }

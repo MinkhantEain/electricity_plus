@@ -24,12 +24,8 @@ class AppUserStateLoading extends AppUserState {
   const AppUserStateLoading();
 }
 
-class AppUserStateUserMeterReadHisotry extends AppUserState {
-  const AppUserStateUserMeterReadHisotry();
-}
-
-class AppUserStateUserPaymentCollectedHistory extends AppUserState {
-  const AppUserStateUserPaymentCollectedHistory();
+class AppUserStateAppUserHisotry extends AppUserState {
+  const AppUserStateAppUserHisotry();
 }
 
 class AppUserStateSuspendUser extends AppUserState {

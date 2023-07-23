@@ -15,12 +15,8 @@ class AppUserEventAppUser extends AppUserEvent {
   const AppUserEventAppUser();
 }
 
-class AppUserEventUserMeterReadHisotry extends AppUserEvent {
-  const AppUserEventUserMeterReadHisotry();
-}
-
-class AppUserEventUserPaymentCollectedHistory extends AppUserEvent {
-  const AppUserEventUserPaymentCollectedHistory();
+class AppUserEventAppUserHistory extends AppUserEvent {
+  const AppUserEventAppUserHistory();
 }
 
 class AppUserEventSuspendUser extends AppUserEvent {

@@ -11,11 +11,8 @@ class AppUserBloc extends Bloc<AppUserEvent, AppUserState> {
     on<AppUserEventAddNewUser>(
         (event, emit) => emit(const AppUserStateAddNewUser()));
 
-    on<AppUserEventUserMeterReadHisotry>(
-        (event, emit) => emit(const AppUserStateUserMeterReadHisotry()));
-
-    on<AppUserEventUserPaymentCollectedHistory>(
-        (event, emit) => emit(const AppUserStateUserPaymentCollectedHistory()));
+    on<AppUserEventAppUserHistory>(
+        (event, emit) => emit(const AppUserStateAppUserHisotry()));
 
     on<AppUserEventSuspendUser>(
         (event, emit) => emit(const AppUserStateSuspendUser()));

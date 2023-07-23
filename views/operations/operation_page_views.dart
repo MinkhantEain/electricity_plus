@@ -9,8 +9,6 @@ import 'package:electricity_plus/views/operations/flagged/flagged_view.dart';
 import 'package:electricity_plus/views/operations/management/add_customer/add_customer_view.dart';
 import 'package:electricity_plus/views/operations/management/add_customer/bloc/add_customer_bloc.dart';
 import 'package:electricity_plus/views/operations/management/admin_view.dart';
-import 'package:electricity_plus/views/operations/management/app_user/app_user_view.dart';
-import 'package:electricity_plus/views/operations/management/app_user/bloc/app_user_bloc.dart';
 import 'package:electricity_plus/views/operations/management/bloc/admin_bloc.dart';
 import 'package:electricity_plus/views/operations/management/import_data/bloc/import_data_bloc.dart';
 import 'package:electricity_plus/views/operations/management/price_setting/bloc/set_price_bloc.dart';
@@ -100,7 +98,7 @@ class _OperationPageViewsState extends State<OperationPageViews> {
           );
         } else if (state is OperationStateAdminView) {
           return BlocProvider(
-            create: (context) => AdminBloc(FirebaseCloudStorage()),
+            create: (context) => AdminBloc(FirebaseCloudStorage(), state.userType),
             child: const AdminView(),
           );
         } else if (state is OperationStateInitialiseData) {

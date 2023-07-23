@@ -16,6 +16,8 @@ class BillHistoryStateInitial extends BillHistoryState {
     required Iterable<CloudCustomerHistory> historyList,
     required this.customer,
   }) : super(historyList: historyList);
+  @override
+  List<Object> get props => [super.props, customer];
 }
 
 class BillHistoryStateSelected extends BillHistoryState {
@@ -26,6 +28,8 @@ class BillHistoryStateSelected extends BillHistoryState {
     required this.customer,
     required this.history,
   }) : super(historyList: historyList);
+  @override
+  List<Object> get props => [super.props, customer];
 }
 
 class BillHistoryStateLoading extends BillHistoryState {

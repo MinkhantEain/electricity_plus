@@ -3,11 +3,10 @@ import 'package:electricity_plus/services/models/cloud_customer_history.dart';
 import 'package:electricity_plus/services/models/users.dart';
 import 'package:electricity_plus/services/others/town.dart';
 import 'package:equatable/equatable.dart';
-import 'package:file_picker/file_picker.dart';
 import 'package:flutter/foundation.dart';
 
 @immutable
-abstract class OperationState extends Equatable{
+abstract class OperationState extends Equatable {
   final bool isLoading;
   final String? loadingText;
   const OperationState({
@@ -30,7 +29,6 @@ class OperationStateChooseTown extends OperationState {
     required this.towns,
     required this.exception,
   }) : super(isLoading: isLoading);
-
 }
 
 class OperationStateDefault extends OperationState {
@@ -164,14 +162,16 @@ class OperationStateAddCustomer extends OperationState {
 
 class OperationStateAdminView extends OperationState {
   final Exception? exception;
+  final String userType;
   const OperationStateAdminView(
-      {required bool isLoading, required this.exception})
+      {required bool isLoading,
+      required this.exception,
+      required this.userType})
       : super(isLoading: isLoading);
 }
 
 class OperationStateInitialiseData extends OperationState {
-  const OperationStateInitialiseData()
-      : super(isLoading: false);
+  const OperationStateInitialiseData() : super(isLoading: false);
 }
 
 class OperationStateProduceExcel extends OperationState {

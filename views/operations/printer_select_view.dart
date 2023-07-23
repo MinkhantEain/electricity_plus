@@ -29,7 +29,7 @@ class _PrinterSelectViewState extends State<PrinterSelectView> {
   // _currentUsbStatus is only supports on Android
   // ignore: unused_field
   List<int>? pendingTask;
-  String _port = '9100';
+  final String _port = '9100';
   final _ipController = TextEditingController();
   final _portController = TextEditingController();
   BluetoothPrinter? selectedPrinter;

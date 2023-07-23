@@ -1,10 +1,9 @@
-import 'dart:developer' as dev show log;
+
 
 import 'package:electricity_plus/helper/loading/loading_screen.dart';
 import 'package:electricity_plus/services/models/cloud_customer.dart';
 import 'package:electricity_plus/utilities/dialogs/electric_log_dialogs.dart';
 import 'package:electricity_plus/utilities/dialogs/error_dialog.dart';
-import 'package:electricity_plus/utilities/helper_functions.dart';
 import 'package:electricity_plus/views/operations/customer_search/bloc/customer_search_bloc.dart';
 import 'package:electricity_plus/views/operations/flagged/bloc/flagged_bloc.dart';
 import 'package:electricity_plus/views/operations/read_meter/bloc/read_meter_bloc.dart';
@@ -215,7 +214,6 @@ class _ReadMeterFirstPageState extends State<ReadMeterFirstPage> {
                     child: ElevatedButton(
                       child: const Text('Resolve Flag'),
                       onPressed: () {
-                        //TODO: redirect to resolve issue with the customer.
                       },
                     ))
               ],

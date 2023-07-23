@@ -1,4 +1,4 @@
-import 'dart:developer';
+
 
 import 'package:electricity_plus/helper/loading/loading_screen.dart';
 import 'package:electricity_plus/services/auth/bloc/auth_bloc.dart';
@@ -12,7 +12,6 @@ import 'package:electricity_plus/views/forgot_password_view.dart';
 import 'package:electricity_plus/views/login_view.dart';
 import 'package:electricity_plus/views/operations/operation_page_views.dart';
 import 'package:electricity_plus/views/register_view.dart';
-import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
@@ -51,21 +50,15 @@ class HomePage extends StatelessWidget {
               text: state.loadingText ?? 'Plase wait a moment');
         } else {
           LoadingScreen().hide();
-          if (state is AuthStateNotAStaff) {  
+          if (state is AuthStateNotAStaff) {
             await showErrorDialog(
                 context, 'You are not a user. Seek assistance from admin');
           }
-          // if (state is AuthStateNeedsVerification) {
-          //   await showEmailVerificationSendDialogs(context);
-          // }
         }
       },
       builder: (context, state) {
         if (state is AuthStateLoggedIn) {
-          log(FirebaseAuth.instance.currentUser!.toString());
           return const OperationPageViews();
-          // } else if (state is AuthStateNeedsVerification) {
-          //   return const VerifyEmailView();
         } else if (state is AuthStateLoggedOut) {
           return const LoginView();
         } else if (state is AuthStateForgotPassword) {
@@ -74,7 +67,7 @@ class HomePage extends StatelessWidget {
           return const RegisterView();
         } else {
           return const Scaffold(
-            body: CircularProgressIndicator(),
+            body: Center(child: CircularProgressIndicator()),
           );
         }
       },

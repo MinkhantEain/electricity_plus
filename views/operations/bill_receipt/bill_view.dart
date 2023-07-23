@@ -6,16 +6,13 @@ import 'package:electricity_plus/utilities/helper_functions.dart';
 import 'package:electricity_plus/views/operations/bill_receipt/bill_receipt_dialogs.dart';
 import 'package:electricity_plus/views/operations/bill_receipt/bloc/bill_bloc.dart';
 import 'package:electricity_plus/views/operations/bill_receipt/bloc/receipt_bloc.dart';
-import 'package:electricity_plus/views/operations/bill_receipt/payment_details_acquisition.dart';
 import 'package:electricity_plus/views/operations/bill_receipt/receipt_frame.dart';
-import 'package:electricity_plus/views/operations/bill_receipt/receipt_page.dart';
 import 'package:electricity_plus/views/operations/printer_select_view.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_pos_printer_platform/flutter_pos_printer_platform.dart';
 import 'package:intl/intl.dart';
 import 'package:screenshot/screenshot.dart';
-import 'dart:developer' as dev show log;
 
 class BillView extends StatefulWidget {
   const BillView({
@@ -130,7 +127,6 @@ class _BillViewState extends State<BillView> {
                                   InheritedTheme.captureAll(
                                     context,
                                     Material(
-                                      //TODO: implement the history for past 3 months
                                       child: Bill(
                                         phoneScreenSize:
                                             MediaQuery.sizeOf(context),
@@ -160,8 +156,6 @@ class _BillViewState extends State<BillView> {
                             },
                           ),
                         ),
-                        //TODO: implement payment method, implement access assigning
-                        //TODO: must put hasPaymentCollectionRight to make payment
                         Visibility(
                             visible: !state.history.isPaid &&
                                 !state.history.isVoided,
@@ -231,13 +225,13 @@ class Bill extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    var f = NumberFormat('#,###,###,###,###,###', 'en_US');
+    final f = NumberFormat('#,###,###,###,###,###', 'en_US');
     return Column(
       children: [
-        Column(
+        const Column(
           children: [
-            const SizedBox(
-              height: 22,
+            SizedBox(
+              height: 18,
             ),
             SizedBox(
               width: 325,
@@ -245,22 +239,18 @@ class Bill extends StatelessWidget {
                 mainAxisAlignment: MainAxisAlignment.center,
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  Image.asset(
-                    'assets/images/BillReceiptLogo.png',
-                    scale: 6,
-                  ),
-                  const SizedBox(
+                  SizedBox(
                     width: 10,
                   ),
-                  const Column(
+                  Column(
                     children: [
                       SizedBox(
                         height: 4,
                       ),
                       Text(
-                        'Phoe Thee Cho Co.Ltd',
+                        'Electricity Plus Co.Ltd',
                         style: TextStyle(
-                          fontSize: 22,fontWeight: FontWeight.w900
+                          fontSize: 18,fontWeight: FontWeight.w500
                         ),
                       ),
                     ],
@@ -268,24 +258,24 @@ class Bill extends StatelessWidget {
                 ],
               ),
             ),
-            const SizedBox(
+            SizedBox(
               height: 5,
             ),
-            const Text(
-              'ဓါတ်အားခတောင်းခံလွှာ',
-              style: TextStyle(fontSize: 22, fontWeight: FontWeight.w900),
+            Text(
+              'Electricity Bill',
+              style: TextStyle(fontSize: 18, fontWeight: FontWeight.w500),
             ),
           ],
         ),
         Text(
           customer.name,
-          style: const TextStyle(fontSize: 22,fontWeight: FontWeight.w900),
+          style: const TextStyle(fontSize: 18,fontWeight: FontWeight.w900),
         ),
         Text(
           customer.address,
           maxLines: 2,
           overflow: TextOverflow.ellipsis,
-          style: const TextStyle(fontSize: 22,fontWeight: FontWeight.w900),
+          style: const TextStyle(fontSize: 18,fontWeight: FontWeight.w500),
         ),
         Container(
           width: phoneScreenSize.width,
@@ -294,15 +284,15 @@ class Bill extends StatelessWidget {
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
               const Text(
-                'ငွေစာရင်းမှတ်',
+                'BookID',
                 style: TextStyle(
-                  fontSize: 22,fontWeight: FontWeight.w900
+                  fontSize: 18,fontWeight: FontWeight.w500
                 ),
               ),
               Text(
                 customer.bookId,
                 style: const TextStyle(
-                  fontSize: 22,fontWeight: FontWeight.w900
+                  fontSize: 18,fontWeight: FontWeight.w900
                 ),
               ),
             ],
@@ -315,15 +305,15 @@ class Bill extends StatelessWidget {
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
               const Text(
-                'အသုံးပြုသည့်လ',
+                'Month',
                 style: TextStyle(
-                  fontSize: 22,fontWeight: FontWeight.w900
+                  fontSize: 18,fontWeight: FontWeight.w500
                 ),
               ),
               Text(
                 monthYearWordFormat(history.date),
                 style: const TextStyle(
-                  fontSize: 22,fontWeight: FontWeight.w900
+                  fontSize: 18,fontWeight: FontWeight.w500
                 ),
               ),
             ],
@@ -336,15 +326,15 @@ class Bill extends StatelessWidget {
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
               const Text(
-                'မီတာဖတ်သည့်နေ့',
+                'Date',
                 style: TextStyle(
-                  fontSize: 22,fontWeight: FontWeight.w900
+                  fontSize: 18,fontWeight: FontWeight.w500
                 ),
               ),
               Text(
                 dayMonthYearNumericFormat(history.date),
                 style: const TextStyle(
-                  fontSize: 22,fontWeight: FontWeight.w900
+                  fontSize: 18,fontWeight: FontWeight.w500
                 ),
               ),
             ],
@@ -357,15 +347,15 @@ class Bill extends StatelessWidget {
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
               const Text(
-                'မီတာအမှတ်',
+                'Meter ID',
                 style: TextStyle(
-                  fontSize: 22,fontWeight: FontWeight.w900
+                  fontSize: 18,fontWeight: FontWeight.w500
                 ),
               ),
               Text(
                 customer.meterId,
                 style: const TextStyle(
-                  fontSize: 22,fontWeight: FontWeight.w900
+                  fontSize: 18,fontWeight: FontWeight.w500
                 ),
               ),
             ],
@@ -378,15 +368,15 @@ class Bill extends StatelessWidget {
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
               const Text(
-                'ယခင်လဖတ်ချက်',
+                'Previous Unit',
                 style: TextStyle(
-                  fontSize: 22,fontWeight: FontWeight.w900
+                  fontSize: 18,fontWeight: FontWeight.w500
                 ),
               ),
               Text(
                 f.format(history.previousUnit),
                 style: const TextStyle(
-                  fontSize: 22,fontWeight: FontWeight.w900
+                  fontSize: 18,fontWeight: FontWeight.w500
                 ),
               ),
             ],
@@ -399,15 +389,15 @@ class Bill extends StatelessWidget {
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
               const Text(
-                'ယခုလဖတ်ချက်',
+                'New Unit',
                 style: TextStyle(
-                  fontSize: 22,fontWeight: FontWeight.w900
+                  fontSize: 18,fontWeight: FontWeight.w500
                 ),
               ),
               Text(
                 f.format(history.newUnit),
                 style: const TextStyle(
-                  fontSize: 22,fontWeight: FontWeight.w900
+                  fontSize: 18,fontWeight: FontWeight.w500
                 ),
               ),
             ],
@@ -422,15 +412,15 @@ class Bill extends StatelessWidget {
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
                 const Text(
-                  'မြှောက်ကိန်း',
+                  'Unit Multiplier',
                   style: TextStyle(
-                    fontSize: 22,fontWeight: FontWeight.w900
+                    fontSize: 18,fontWeight: FontWeight.w500
                   ),
                 ),
                 Text(
                   history.meterMultiplier.toString(),
                   style: const TextStyle(
-                    fontSize: 22,fontWeight: FontWeight.w900
+                    fontSize: 18,fontWeight: FontWeight.w500
                   ),
                 ),
               ],
@@ -444,15 +434,15 @@ class Bill extends StatelessWidget {
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
               const Text(
-                'သုံးစွဲယူနစ်',
+                'Unit Used',
                 style: TextStyle(
-                  fontSize: 22,fontWeight: FontWeight.w900
+                  fontSize: 18,fontWeight: FontWeight.w500
                 ),
               ),
               Text(
                 f.format(history.getUnitUsed()),
                 style: const TextStyle(
-                  fontSize: 22,fontWeight: FontWeight.w900
+                  fontSize: 18,fontWeight: FontWeight.w500
                 ),
               ),
             ],
@@ -467,15 +457,15 @@ class Bill extends StatelessWidget {
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
                 const Text(
-                  'ခွင့်ပြုယူနစ်',
+                  'Meter Allowance',
                   style: TextStyle(
-                    fontSize: 22,fontWeight: FontWeight.w900
+                    fontSize: 18,fontWeight: FontWeight.w500
                   ),
                 ),
                 Text(
                   f.format(history.meterAllowance),
                   style: const TextStyle(
-                    fontSize: 22,fontWeight: FontWeight.w900
+                    fontSize: 18,fontWeight: FontWeight.w500
                   ),
                 ),
               ],
@@ -491,15 +481,15 @@ class Bill extends StatelessWidget {
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
                 const Text(
-                  'မြင်းကောင်းရေ',
+                  'HorsePower',
                   style: TextStyle(
-                    fontSize: 22,fontWeight: FontWeight.w900
+                    fontSize: 18,fontWeight: FontWeight.w500
                   ),
                 ),
                 Text(
                   customer.horsePowerUnits.toString(),
                   style: const TextStyle(
-                    fontSize: 22,fontWeight: FontWeight.w900
+                    fontSize: 18,fontWeight: FontWeight.w500
                   ),
                 ),
               ],
@@ -513,15 +503,15 @@ class Bill extends StatelessWidget {
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
               const Text(
-                'နှုန်း',
+                'Electric unit price',
                 style: TextStyle(
-                  fontSize: 22,fontWeight: FontWeight.w900
+                  fontSize: 18,fontWeight: FontWeight.w500
                 ),
               ),
               Text(
                 f.format(history.priceAtm),
                 style: const TextStyle(
-                  fontSize: 22,fontWeight: FontWeight.w900
+                  fontSize: 18,fontWeight: FontWeight.w500
                 ),
               ),
             ],
@@ -534,15 +524,15 @@ class Bill extends StatelessWidget {
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
               const Text(
-                'ကျသင့်ငွေ',
+                'cost',
                 style: TextStyle(
-                  fontSize: 22,fontWeight: FontWeight.w900
+                  fontSize: 18,fontWeight: FontWeight.w500
                 ),
               ),
               Text(
                 f.format(history.getCost()),
                 style: const TextStyle(
-                  fontSize: 22,fontWeight: FontWeight.w900
+                  fontSize: 18,fontWeight: FontWeight.w500
                 ),
               ),
             ],
@@ -557,9 +547,9 @@ class Bill extends StatelessWidget {
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
                 const Text(
-                  'လမ်းမီးခ',
+                  'Road Light Price',
                   style: TextStyle(
-                    fontSize: 22,fontWeight: FontWeight.w900
+                    fontSize: 18,fontWeight: FontWeight.w500
                   ),
                 ),
                 Text(
@@ -567,7 +557,7 @@ class Bill extends StatelessWidget {
                       ? history.roadLightPrice
                       : 0),
                   style: const TextStyle(
-                    fontSize: 22,fontWeight: FontWeight.w900
+                    fontSize: 18,fontWeight: FontWeight.w500
                   ),
                 ),
               ],
@@ -581,15 +571,15 @@ class Bill extends StatelessWidget {
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
               const Text(
-                'မီတာဝန်ဆောင်ခ',
+                'Service Charge',
                 style: TextStyle(
-                  fontSize: 22,fontWeight: FontWeight.w900
+                  fontSize: 18,fontWeight: FontWeight.w500
                 ),
               ),
               Text(
                 f.format(history.serviceChargeAtm),
                 style: const TextStyle(
-                  fontSize: 22,fontWeight: FontWeight.w900
+                  fontSize: 18,fontWeight: FontWeight.w500
                 ),
               ),
             ],
@@ -604,15 +594,15 @@ class Bill extends StatelessWidget {
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
                 const Text(
-                  'မြင်းကောင်ရေခ',
+                  'HorsePower Cost',
                   style: TextStyle(
-                    fontSize: 22,fontWeight: FontWeight.w900
+                    fontSize: 18,fontWeight: FontWeight.w500
                   ),
                 ),
                 Text(
                   f.format(history.horsePowerPerUnitCostAtm),
                   style: const TextStyle(
-                    fontSize: 22,fontWeight: FontWeight.w900
+                    fontSize: 18,fontWeight: FontWeight.w500
                   ),
                 ),
               ],
@@ -626,13 +616,13 @@ class Bill extends StatelessWidget {
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
               const Text(
-                'စုစုပေါင်းသင့်ငွေ',
-                style: TextStyle(fontSize: 22,fontWeight: FontWeight.w900 ),
+                'Total Cost',
+                style: TextStyle(fontSize: 18,fontWeight: FontWeight.w500 ),
               ),
               Text(
                 f.format(history.getTotalCost()),
                 style:
-                    const TextStyle(fontSize: 22,fontWeight: FontWeight.w900),
+                    const TextStyle(fontSize: 18,fontWeight: FontWeight.w900),
               ),
             ],
           ),
@@ -646,13 +636,13 @@ class Bill extends StatelessWidget {
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
                 const Text(
-                  'ကျန်ငွေ',
-                  style: TextStyle(fontSize: 22, fontWeight: FontWeight.w900),
+                  'Left Over',
+                  style: TextStyle(fontSize: 18, fontWeight: FontWeight.w500),
                 ),
                 Text(
                   f.format((history.unpaidAmount())),
                   style: const TextStyle(
-                      fontSize: 22, fontWeight: FontWeight.w900),
+                      fontSize: 18, fontWeight: FontWeight.w500),
                 ),
               ],
             ),
@@ -665,12 +655,12 @@ class Bill extends StatelessWidget {
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
               const Text(
-                'ကြွေးကျန်',
-                style: TextStyle(fontSize: 22, fontWeight: FontWeight.w900,)
+                'Debt',
+                style: TextStyle(fontSize: 18, fontWeight: FontWeight.w500,)
               ),
               Text(
                 f.format((customer.debt - history.unpaidAmount())),
-                style: const TextStyle(fontSize: 22, fontWeight: FontWeight.w900,)
+                style: const TextStyle(fontSize: 18, fontWeight: FontWeight.w500,)
               ),
             ],
           ),
@@ -682,15 +672,15 @@ class Bill extends StatelessWidget {
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
               const Text(
-                'နောက်ဆုံးပေးဆောင်ရန်ရက်',
+                'Payment Due Date',
                 style: TextStyle(
-                  fontSize: 17,fontWeight: FontWeight.w900
+                  fontSize: 17,fontWeight: FontWeight.w500
                 ),
               ),
               Text(
                 paymentDueDate(history.date),
                 style: const TextStyle(
-                  fontSize: 17,fontWeight: FontWeight.w900
+                  fontSize: 17,fontWeight: FontWeight.w500
                 ),
               ),
             ],
@@ -698,40 +688,15 @@ class Bill extends StatelessWidget {
         ),
         const Text(
           '''
-PTC Office Ph No. 059-51009,
-09-426330134, 09-426330135''',
+ElectricityPlus Office Ph No. 100101010,''',
           style: TextStyle(
-            fontSize: 16, fontWeight: FontWeight.w900
+            fontSize: 16, fontWeight: FontWeight.w500
           ),
         ),
-//         const Text(
-//           'အထူးမေတ္တာရပ်ခံချက်',
-//           style: TextStyle(fontSize: 16,),
-//         ),
-//         const Text(
-//           '''(၁) ဓာတ်အားခကိုယခုလ (၂၀)ရက်နေ့ နောက်ဆုံး
-// ပေးသွင်းရန်''',
-//           style: TextStyle(fontSize: 16,),
-//         ),
-//         const Text(
-//           '''(၂) သတ်မှတ်ရက်ကျော်လွန်ပါက ဓာတ်အားယာယီ
-// ဖြတ်တောက်ထားမည်ဖြစ်ပြီးဓာတ်အားခနှင့်ရက်
-// လွန်ဒဏ်ကြေး (၂၀၀၀)ကျပ်ပေးသွင်းပြီးမှ ဓာတ်
-// အားပြန်လည်သုံးစွဲခွင့်ရပါမည်။''',
-//           style: TextStyle(fontSize: 16,),
-//         ),
-//         const Text(
-//           '''(၃)မသမာနည်းဖြင့်လျှပ်စစ်ဓာတ်အားတရားမဝင်
-// သုံးစွဲမှုများတွေ့ရှိပါကလျှပ်စစ်ဥပဒေနှင့်အညီသာ
-// ဆောင်ရွက်သွားပါမည်။မီးပျက်တိုင်ကြားရန်ဖုန်း -
-// 059-51009,09-426330134, 09-426330135''',
-//           style: TextStyle(fontSize: 16,),
-//         ),
-//         const Divider(height: 10),
         Text(
           'Inspector: ${history.inspector}',
           style: const TextStyle(
-            fontSize: 16,fontWeight: FontWeight.w900
+            fontSize: 16,fontWeight: FontWeight.w500
           ),
         ),
         const Divider(),
@@ -742,21 +707,20 @@ PTC Office Ph No. 059-51009,
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
               Text(
-                'မီတာဖတ်ရက်',
+                'Meter Read Date',
                 style: TextStyle(
-                  fontSize: 17, fontWeight: FontWeight.w900
+                  fontSize: 17, fontWeight: FontWeight.w500
                 ),
               ),
               Text(
-                'သုံးစွဲယူနစ်',
+                'Unit Used',
                 style: TextStyle(
-                  fontSize: 17,fontWeight: FontWeight.w900
+                  fontSize: 17,fontWeight: FontWeight.w500
                 ),
               ),
             ],
           ),
         ),
-        //TODO: complete this after making chages to cloudcustomer
         for (var pastHistory in historyList)
           Container(
             width: phoneScreenSize.width,
@@ -765,15 +729,15 @@ PTC Office Ph No. 059-51009,
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
                 Text(
-                  pastHistory.date,
+                  pastHistory.date.substring(0, 10),
                   style: const TextStyle(
-                    fontSize: 17,fontWeight: FontWeight.w900
+                    fontSize: 17,fontWeight: FontWeight.w500
                   ),
                 ),
                 Text(
                   pastHistory.getUnitUsed().toString(),
                   style: const TextStyle(
-                    fontSize: 17,fontWeight: FontWeight.w900
+                    fontSize: 17,fontWeight: FontWeight.w500
                   ),
                 ),
               ],

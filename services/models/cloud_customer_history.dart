@@ -6,9 +6,13 @@ import 'package:flutter/foundation.dart';
 class CloudCustomerHistory {
   final String documentId;
   final String date;
+  final String bookId;
+  final String name;
   final String imageUrl;
   final String comment;
   final String inspector;
+  final String inspectorUid;
+  final String town;
   final num previousUnit;
   final num newUnit;
   final num priceAtm;
@@ -31,6 +35,8 @@ class CloudCustomerHistory {
     required this.cost,
     required this.date,
     required this.imageUrl,
+    required this.inspectorUid,
+    required this.town,
     required this.comment,
     required this.isVoided,
     required this.paidAmount,
@@ -42,26 +48,37 @@ class CloudCustomerHistory {
     required this.meterMultiplier,
     required this.roadLightPrice,
     required this.meterAllowance,
+    required this.bookId,
+    required this.name,
   });
 
   static CloudCustomerHistory getBlankHistory({
     num? previousUnit,
     num? newUnit,
     required String inspector,
+    required String inspectorUid,
     required String documentId,
+    required String town,
+    required String bookId,
+    required String name,
   }) {
     return CloudCustomerHistory(
       documentId: documentId,
+      name: name,
+      bookId: bookId,
       previousUnit: previousUnit ?? 0,
       newUnit: newUnit ?? 0,
       priceAtm: 0,
       cost: 0,
+      town: town,
       date: DateTime.now().toString(),
-      imageUrl: 'https://firebasestorage.googleapis.com/v0/b/electricityplus-a6572.appspot.com/o/newUser%2Fsoil.jpg?alt=media&token=93cdbd32-72a3-4992-a134-226d465c340f',
+      imageUrl:
+          'https://firebasestorage.googleapis.com/v0/b/electricityplus-a6572.appspot.com/o/newUser%2Fsoil.jpg?alt=media&token=93cdbd32-72a3-4992-a134-226d465c340f',
       comment: 'Blank history',
       isVoided: false,
       paidAmount: 0,
       inspector: inspector,
+      inspectorUid: inspectorUid,
       isPaid: true,
       serviceChargeAtm: 0,
       horsePowerPerUnitCostAtm: 0,
@@ -102,12 +119,16 @@ class CloudCustomerHistory {
       documentId: documentId,
       previousUnit: previousUnit,
       newUnit: newUnit,
+      bookId: bookId,
+      name: name,
       priceAtm: priceAtm,
       cost: cost - (newMeterAllowance - meterAllowance) * priceAtm,
       date: date,
       imageUrl: imageUrl,
       comment: comment,
       isVoided: isVoided,
+      inspectorUid: inspectorUid,
+      town: town,
       paidAmount: paidAmount,
       inspector: inspector,
       isPaid: isPaid,
@@ -134,8 +155,12 @@ class CloudCustomerHistory {
         cost: cost,
         date: date,
         imageUrl: imageUrl,
+        inspectorUid: inspectorUid,
+        town: town,
         comment: comment,
         isVoided: isVoided,
+        name: name,
+        bookId: bookId,
         paidAmount: receiptPaidAmount,
         inspector: inspector,
         isPaid: hasPaid,
@@ -156,9 +181,13 @@ class CloudCustomerHistory {
         dateField: date,
         imageUrlField: imageUrl,
         commentField: comment,
+        nameField: name,
+        bookIdField: bookId,
         isPaidField: isPaid,
         isVoidedField: isVoided,
         paidAmountField: paidAmount,
+        inspectorUidField: inspectorUid,
+        townField: town,
         inspectorField: inspector,
         horsePowerPerUnitCostAtmField: horsePowerPerUnitCostAtm,
         horsePowerUnitsField: horsePowerUnits,
@@ -174,11 +203,15 @@ class CloudCustomerHistory {
         newUnit = snapshot.data()[newUnitField],
         priceAtm = snapshot.data()[priceAtmField],
         serviceChargeAtm = snapshot.data()[serviceChargeAtmField],
+        name = snapshot.data()[nameField],
+        bookId = snapshot.data()[bookIdField],
         cost = snapshot.data()[costField],
         date = snapshot.data()[dateField],
         imageUrl = snapshot.data()[imageUrlField],
+        town = snapshot.data()[townField],
         comment = snapshot.data()[commentField],
         isPaid = snapshot.data()[isPaidField],
+        inspectorUid = snapshot.data()[inspectorUidField],
         isVoided = snapshot.data()[isVoidedField],
         paidAmount = snapshot.data()[paidAmountField],
         inspector = snapshot.data()[inspectorField],
@@ -186,7 +219,7 @@ class CloudCustomerHistory {
             snapshot.data()[horsePowerPerUnitCostAtmField],
         horsePowerUnits = snapshot.data()[horsePowerUnitsField],
         meterMultiplier = snapshot.data()[meterMultiplierField],
-        meterAllowance = snapshot.data()[meterAllowanceField],
+        meterAllowance = snapshot.data()[meterAllowanceField] ?? 0,
         roadLightPrice = snapshot.data()[roadLightPriceField];
 
   CloudCustomerHistory.fromDocSnapshot(
@@ -198,7 +231,11 @@ class CloudCustomerHistory {
         serviceChargeAtm = snapshot.data()![serviceChargeAtmField],
         cost = snapshot.data()![costField],
         date = snapshot.data()![dateField],
+        town = snapshot.data()![townField],
         isPaid = snapshot.data()![isPaidField],
+        name = snapshot.data()![nameField],
+        bookId = snapshot.data()![bookIdField],
+        inspectorUid = snapshot.data()![inspectorUidField],
         imageUrl = snapshot.data()![imageUrlField],
         comment = snapshot.data()![commentField],
         isVoided = snapshot.data()![isVoidedField],
@@ -223,10 +260,13 @@ cost: $cost
 date: $date
 imageUrl: $imageUrl
 comment: $comment
+name: $name
+bookId: $bookId
 isVoided: $isVoided
 paidAmount: $paidAmount
 isPaid: $isPaid
 inspector: $inspector
+inspectorUid: $inspectorUid
 meterAllowance: $meterAllowance
 horsePowerCostAtm = $horsePowerPerUnitCostAtm
 horsePowerUnits = $horsePowerUnits

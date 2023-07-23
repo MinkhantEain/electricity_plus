@@ -1,4 +1,4 @@
-import 'dart:developer';
+
 
 import 'package:bloc/bloc.dart';
 import 'package:electricity_plus/services/cloud/cloud_storage_exceptions.dart';
@@ -8,7 +8,6 @@ import 'package:electricity_plus/services/models/cloud_customer_history.dart';
 import 'package:electricity_plus/services/models/cloud_receipt_model.dart';
 import 'package:electricity_plus/services/others/local_storage.dart';
 import 'package:electricity_plus/utilities/helper_functions.dart';
-import 'package:electricity_plus/views/operations/bill_receipt/bloc/bill_bloc.dart';
 import 'package:equatable/equatable.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 
@@ -80,6 +79,7 @@ class ReceiptBloc extends Bloc<ReceiptEvent, ReceiptState> {
                 documentId: event.customerHistory.documentId,
                 bank: event.bank,
                 paidAmount: 0,
+                collectorUid: FirebaseAuth.instance.currentUser!.uid,
                 paymentMethod: event.paymentMethod,
                 transactionId: event.transactionId,
                 bankTransactionDate: event.transactionDate,

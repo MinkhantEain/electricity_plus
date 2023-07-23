@@ -1,10 +1,11 @@
-import 'dart:developer' as dev show log;
+
 
 import 'package:electricity_plus/enums/menu_action.dart';
 import 'package:electricity_plus/helper/loading/loading_screen.dart';
 import 'package:electricity_plus/helper/password_enquiry/password_enquiry_overlay.dart';
 import 'package:electricity_plus/services/auth/bloc/auth_bloc.dart';
 import 'package:electricity_plus/services/auth/bloc/auth_event.dart';
+import 'package:electricity_plus/services/cloud/cloud_storage_constants.dart';
 import 'package:electricity_plus/services/cloud/firebase_cloud_storage.dart';
 import 'package:electricity_plus/services/cloud/operation/operation_bloc.dart';
 import 'package:electricity_plus/services/cloud/operation/operation_event.dart';
@@ -17,7 +18,7 @@ import 'package:electricity_plus/views/operations/customer_search/customer_searc
 import 'package:electricity_plus/views/operations/management/app_user/app_user_view.dart';
 import 'package:electricity_plus/views/operations/management/app_user/bloc/app_user_bloc.dart';
 import 'package:electricity_plus/views/operations/management/bloc/admin_bloc.dart';
-import 'package:electricity_plus/views/operations/management/exchange_meter/bloc/exchange_meter_bloc.dart';
+import 'package:electricity_plus/views/operations/management/monthly_total_view.dart';
 import 'package:electricity_plus/views/operations/management/town_selection/bloc/town_selection_bloc.dart';
 import 'package:electricity_plus/views/operations/management/town_selection/town_selection_view.dart';
 import 'package:flutter/material.dart';
@@ -98,6 +99,13 @@ class _AdminViewState extends State<AdminView> {
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: [
                     HomePageButton(
+                      icon: const Icon(Icons.pending_actions_outlined),
+                      text: "Monthly Total",
+                      onPressed: () {
+                        context.read<AdminBloc>().add(const AdminEventMonthlyTotal());
+                      },
+                    ),
+                    HomePageButton(
                       icon: const Icon(Icons.price_change_outlined),
                       text: 'Set Price',
                       onPressed: () {
@@ -119,6 +127,15 @@ class _AdminViewState extends State<AdminView> {
                       },
                     ),
                     HomePageButton(
+                      icon: const Icon(Icons.change_circle_outlined),
+                      text: "Exchange Meter",
+                      onPressed: () {
+                        context
+                            .read<AdminBloc>()
+                            .add(const AdminEventExchangeMeter());
+                      },
+                    ),
+                    HomePageButton(
                       icon: const Icon(Icons.person_add_alt_outlined),
                       text: "Add Customer",
                       onPressed: () {
@@ -128,12 +145,10 @@ class _AdminViewState extends State<AdminView> {
                       },
                     ),
                     HomePageButton(
-                      icon: const Icon(Icons.change_circle_outlined),
-                      text: "Exchange Meter",
+                      icon: const Icon(Icons.mode_edit_outline_outlined),
+                      text: "Edit Customer",
                       onPressed: () {
-                        context
-                            .read<AdminBloc>()
-                            .add(const AdminEventExchangeMeter());
+                        context.read<AdminBloc>().add(const AdminEventEditCustomer());
                       },
                     ),
                     HomePageButton(
@@ -167,19 +182,23 @@ class _AdminViewState extends State<AdminView> {
                             .add(const OperationEventInitialiseData());
                       },
                     ),
-                    HomePageButton(
-                      icon: const Icon(Icons.home_work_outlined),
-                      text: "Town",
-                      onPressed: () {
-                        PasswordEnquiry().show(
-                          context: context,
-                          onTap: () {
-                            context
-                                .read<AdminBloc>()
-                                .add(const AdminEventChooseTown());
-                          },
-                        );
-                      },
+                    
+                    Visibility(
+                      visible: state.userType == directorType,
+                      child: HomePageButton(
+                        icon: const Icon(Icons.home_work_outlined),
+                        text: "Town",
+                        onPressed: () {
+                          PasswordEnquiry().show(
+                            context: context,
+                            onTap: () {
+                              context
+                                  .read<AdminBloc>()
+                                  .add(const AdminEventChooseTown());
+                            },
+                          );
+                        },
+                      ),
                     ),
                   ],
                 ),
@@ -198,10 +217,17 @@ class _AdminViewState extends State<AdminView> {
             child: const AppUserView(),
           );
         } else if (state is AdminStateExchangeMeter) {
-          dev.log('message');
           return BlocProvider(
             create: (context) => CustomerSearchBloc(FirebaseCloudStorage())
               ..add(const CustomerSearchExchangeMeterSearchInitialise()),
+            child: const CustomerSearchView(),
+          );
+        } else if (state is AdminStateMonthlyTotal) {
+          return const MonthlyTotalView();
+        } else if (state is AdminStateEditCustomer) {
+          return BlocProvider(
+            create: (context) => CustomerSearchBloc(FirebaseCloudStorage())
+              ..add(const CustomerSearchEditCustomerSearchInitialise()),
             child: const CustomerSearchView(),
           );
         } else {

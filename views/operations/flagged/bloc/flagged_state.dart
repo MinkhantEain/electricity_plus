@@ -54,7 +54,7 @@ class FlaggedStateRedSelected extends FlaggedState {
     required this.image,
   });
   @override
-  // TODO: implement props
+
   List<Object> get props => [super.props, customer, flag];
 }
 
@@ -81,6 +81,5 @@ class FlaggedStatePageSelected extends FlaggedState {
     required this.pageName,
   });
   @override
-  // TODO: implement props
   List<Object> get props => [super.props, onTap, pageName];
 }

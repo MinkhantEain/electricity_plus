@@ -210,7 +210,7 @@ Future printBillReceipt80mm(Uint8List capturedImage, PrinterManager printerManag
   // Create a black bottom layer
   // Resize the image to a 130x? thumbnail (maintaining the aspect ratio).
   // img.Image thumbnail = img.copyResize(decodedImage, width: 380, height: 1800);
-  img.Image thumbnail = img.copyResize(decodedImage, width: 400);
+  img.Image thumbnail = img.copyResize(decodedImage, width: 550);
   // creates a copy of the original image with set dimensions
   //width 380 is max for 58 mm
   // img.Image originalImg = img.copyResize(
@@ -220,7 +220,7 @@ Future printBillReceipt80mm(Uint8List capturedImage, PrinterManager printerManag
   // );
   img.Image originalImg = img.copyResize(
     decodedImage,
-    width: 400,
+    width: 550,
   );
   // img.Image originalImg = img.copyResize(decodedImage, width: 380, height: 130);
   // fills the original image with a white background

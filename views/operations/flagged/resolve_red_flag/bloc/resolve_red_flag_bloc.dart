@@ -22,7 +22,7 @@ class ResolveRedFlagBloc
           image: image,
         )) {
     on<ResolveRedFlagEvent>((event, emit) {
-      // TODO: implement event handler
+      
     });
 
     on<ResolveRedFlagEventResolve>((event, emit) async {

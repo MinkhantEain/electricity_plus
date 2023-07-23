@@ -15,7 +15,7 @@ class BillHistoryBloc extends Bloc<BillHistoryEvent, BillHistoryState> {
           customer: customer,
         )) {
 
-    on<BillHistoryEventSelect>((event, emit) {
+    on<BillHistoryEventSelect>((event, emit) async {
       emit(BillHistoryStateLoading(historyList: historyList));
       emit(BillHistoryStateSelected(
           history: event.history,

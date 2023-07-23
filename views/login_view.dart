@@ -1,7 +1,4 @@
-import 'dart:developer';
 
-import 'package:electricity_plus/services/others/local_storage.dart';
-import 'package:electricity_plus/services/others/town.dart';
 import 'package:electricity_plus/utilities/custom_button.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';

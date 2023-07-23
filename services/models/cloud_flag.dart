@@ -6,6 +6,7 @@ class CloudFlag {
   final String inspector;
   final String date;
   final String imageUrl;
+  final String town;
   final String comment;
   final bool isResolved;
 
@@ -13,6 +14,7 @@ class CloudFlag {
   required this.comment,
   required this.documentId,
   required this.imageUrl,
+  required this.town,
   required this.inspector,
   required this.isResolved});
 
@@ -20,6 +22,7 @@ class CloudFlag {
   documentId = snapshot.id,
   comment = snapshot.data()![commentField],
   date = snapshot.data()![dateField],
+  town = snapshot.data()![townField],
   imageUrl = snapshot.data()![imageUrlField],
   inspector = snapshot.data()![inspectorField],
   isResolved = snapshot.data()![isResolvedField];
@@ -28,6 +31,7 @@ class CloudFlag {
   documentId = snapshot.id,
   comment = snapshot.data()[commentField],
   date = snapshot.data()[dateField],
+  town = snapshot.data()[townField],
   imageUrl = snapshot.data()[imageUrlField],
   inspector = snapshot.data()[inspectorField],
   isResolved = snapshot.data()[isResolvedField];

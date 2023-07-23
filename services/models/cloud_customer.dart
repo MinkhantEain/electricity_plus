@@ -10,6 +10,7 @@ class CloudCustomer implements Comparable {
   final String meterId;
   final String name;
   final String lastReadDate;
+  final String town;
   final String address;
   final DocumentReference<Map<String, dynamic>> lastHistory;
   final num lastUnit;
@@ -28,6 +29,7 @@ class CloudCustomer implements Comparable {
       required this.address,
       required this.lastUnit,
       required this.flag,
+      required this.town,
       required this.lastReadDate,
       required this.debt,
       required this.adder,
@@ -36,7 +38,8 @@ class CloudCustomer implements Comparable {
       required this.hasRoadLightCost,
       required this.lastHistory});
 
-  CloudCustomer updateLastHistory(DocumentReference<Map<String, dynamic>> newLastHistory) {
+  CloudCustomer updateLastHistory(
+      DocumentReference<Map<String, dynamic>> newLastHistory) {
     return CloudCustomer(
       documentId: documentId,
       bookId: bookId,
@@ -44,6 +47,7 @@ class CloudCustomer implements Comparable {
       name: name,
       address: address,
       lastUnit: lastUnit,
+      town: town,
       flag: flag,
       lastReadDate: lastReadDate,
       debt: debt,
@@ -55,6 +59,30 @@ class CloudCustomer implements Comparable {
     );
   }
 
+  CloudCustomer editCustomer({
+    required String newName,
+    required num newHorsePowerUnits,
+    required num newMeterMultiplier,
+    required bool newHasRoadLightCost,
+  }) {
+    return CloudCustomer(
+        documentId: documentId,
+        bookId: bookId,
+        meterId: meterId,
+        name: newName,
+        address: address,
+        lastUnit: lastUnit,
+        flag: flag,
+        town: town,
+        lastReadDate: lastReadDate,
+        debt: debt,
+        adder: adder,
+        horsePowerUnits: newHorsePowerUnits,
+        meterMultiplier: newMeterMultiplier,
+        hasRoadLightCost: newHasRoadLightCost,
+        lastHistory: lastHistory);
+  }
+
   ///deduct the amount from debt, can be negative to add
   CloudCustomer debtDeduction({required deductAmount}) {
     return CloudCustomer(
@@ -62,6 +90,7 @@ class CloudCustomer implements Comparable {
       bookId: bookId,
       meterId: meterId,
       name: name,
+      town: town,
       address: address,
       lastUnit: lastUnit,
       flag: flag,
@@ -85,6 +114,7 @@ class CloudCustomer implements Comparable {
         lastReadDateField: lastReadDate,
         flagField: flag,
         adderField: adder,
+        townField: town,
         debtField: debt,
         horsePowerUnitsField: horsePowerUnits,
         meterMultiplierField: meterMultiplier,
@@ -101,6 +131,7 @@ class CloudCustomer implements Comparable {
         lastHistoryField: lastHistory,
         flagField: flag,
         adderField: adder,
+        townField: town,
         debtField: debt,
         horsePowerUnitsField: horsePowerUnits,
         meterMultiplierField: meterMultiplier,
@@ -116,6 +147,7 @@ class CloudCustomer implements Comparable {
         lastUnit = json['lastUnit'],
         flag = json['flag'],
         debt = json[debtField],
+        town = json[townField],
         adder = json['adder'],
         lastReadDate = json[lastReadDateField].toString(),
         horsePowerUnits = json['horsePowerUnits'],
@@ -129,6 +161,7 @@ class CloudCustomer implements Comparable {
         bookId = snapshot.data()[bookIdField],
         meterId = snapshot.data()[meterIdField],
         name = snapshot.data()[nameField],
+        town = snapshot.data()[townField],
         address = snapshot.data()[addressField],
         lastUnit = snapshot.data()[lastUnitField],
         flag = snapshot.data()[flagField],
@@ -146,6 +179,7 @@ class CloudCustomer implements Comparable {
         meterId = snapshot.data()![meterIdField],
         name = snapshot.data()![nameField],
         address = snapshot.data()![addressField],
+        town = snapshot.data()![townField],
         lastUnit = snapshot.data()![lastUnitField],
         flag = snapshot.data()![flagField],
         lastReadDate = snapshot.data()![lastReadDateField],
@@ -167,6 +201,7 @@ address: $address
 debt: $debt
 lastUnit: $lastUnit
 flag: $flag
+town: $town
 adder: $adder
 horsePowerUnits: $horsePowerUnits
 meterMultiplier: $meterMultiplier

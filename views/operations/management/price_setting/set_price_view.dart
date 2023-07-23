@@ -81,7 +81,6 @@ class _SetPriceViewState extends State<SetPriceView> {
             ),
             body: SingleChildScrollView(
               child: Column(children: [
-                //TODO: need to change in order to reduce reads, import all prices in one read
                 Text('''
 Current Price is ${state.price}
 Current service charge is ${state.serviceCharge}

@@ -9,11 +9,17 @@ abstract class ExchangeMeterState extends Equatable {
 
 class ExchangeMeterStateInitial extends ExchangeMeterState {
   final CloudCustomer customer;
+  final CloudCustomerHistory history;
   const ExchangeMeterStateInitial({
     required this.customer,
+    required this.history,
   });
   @override
-  List<Object> get props => [super.props, customer];
+  List<Object> get props => [
+        super.props,
+        customer,
+        history,
+      ];
 }
 
 class ExchangeMeterStateLoading extends ExchangeMeterState {

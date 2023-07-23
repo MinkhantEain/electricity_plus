@@ -1,7 +1,6 @@
 import "package:electricity_plus/services/auth/auth_provider.dart";
 import 'package:electricity_plus/services/auth/auth_user.dart';
 import 'package:electricity_plus/services/auth/firebase_auth_provider.dart';
-import 'package:electricity_plus/services/models/users.dart';
 
 class AuthService implements AuthProvider {
   final AuthProvider provider;

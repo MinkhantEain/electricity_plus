@@ -48,9 +48,7 @@ Future<void> showDeleteUserConfirmationDialog(
                 toBeDeletedStaff: staff,
                 currentSuspendedStaffs: currentSuspendedStaff,
               ))
-          : context.read<EditUserBloc>().add(EditUserEventActiveUserView(
-                currentActiveStaff: currentSuspendedStaff,
-              )));
+          : null);
 }
 
 Future<void> showUserTypeOptionDialog(BuildContext context, Staff selectedStaff,

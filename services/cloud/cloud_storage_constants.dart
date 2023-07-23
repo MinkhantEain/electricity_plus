@@ -5,6 +5,7 @@ const textFieldName = 'text';
 //Customer Fields
 const meterIdField = 'MeterID';
 const bookIdField = 'BookID';
+const townField = 'Town';
 const nameField = 'Name';
 const addressField = 'Address';
 const lastReadDateField = 'LastReadDate';
@@ -28,6 +29,7 @@ const costField = 'Cost';
 const dateField = 'Date';
 const paidAmountField = 'PaidAmount';
 const imageUrlField = 'ImageURL';
+const inspectorUidField = 'InspectorUID';
 const commentField = 'Comment';
 const isVoidedField = 'isVoided';
 const isPaidField= 'isPaid';
@@ -96,6 +98,7 @@ const paidAmount = 'PaidAmount';
 const initialCostField = 'InitialCost';
 const meterAllowanceField = 'MeterAllowance';
 const finalCostField = 'FinalCost';
+const collectorUidField = 'CollectorUID';
 
 
 //AppUser

@@ -10,6 +10,7 @@ class CloudExchangeHistory {
   final String address;
   final String exchangeReason;
   final String date;
+  final String town;
   final num previousUnit;
   final num finalUnit;
   final num unitUsed;
@@ -30,6 +31,7 @@ class CloudExchangeHistory {
     required this.name,
     required this.exchangeReason,
     required this.previousUnit,
+    required this.town,
     required this.finalUnit,
     required this.unitUsed,
     required this.calculationDetails,
@@ -49,6 +51,7 @@ class CloudExchangeHistory {
       newMeterIdField: newMeterId,
       nameField: name,
       dateField : date,
+      townField: town,
       exchangeReasonField: exchangeReason,
       previousUnitField: previousUnit,
       finalUnitField: finalUnit,
@@ -61,6 +64,8 @@ class CloudExchangeHistory {
     };
   }
 
+  
+
   CloudExchangeHistory.fromSnapshot(
       QueryDocumentSnapshot<Map<String, dynamic>> snapshot)
       : documentId = snapshot.id,
@@ -71,6 +76,7 @@ class CloudExchangeHistory {
         newMeterId = snapshot.data()[newMeterIdField],
         name = snapshot.data()[nameField],
         date = snapshot.data()[dateField],
+        town = snapshot.data()[townField],
         exchangeReason = snapshot.data()[exchangeReasonField],
         previousUnit = snapshot.data()[previousUnitField],
         finalUnit = snapshot.data()[finalUnitField],
@@ -80,4 +86,9 @@ class CloudExchangeHistory {
         newMeterInitialReading = snapshot.data()[newMeterInitialReadingField],
         costOfNewMeter = snapshot.data()[costOfNewMeterField],
         totalCost = snapshot.data()[totalCostField];
+
+  @override
+  String toString() {
+    return dataFieldMap().toString();
+  }
 }

@@ -15,7 +15,6 @@ import 'package:electricity_plus/views/operations/read_meter/bloc/read_meter_blo
 import 'package:electricity_plus/views/operations/read_meter/read_meter_first_page.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:intl/intl.dart';
 
 class FlaggedView extends StatelessWidget {
   const FlaggedView({super.key});
@@ -90,7 +89,6 @@ class FlaggedView extends StatelessWidget {
                       ),
                       text: 'Unpaid Customers',
                       onPressed: () {
-                        //TODO: got to a view with all the unapid customer.
                         context
                             .read<FlaggedBloc>()
                             .add(const FlaggedEventBlack());

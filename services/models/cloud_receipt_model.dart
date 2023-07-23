@@ -3,6 +3,7 @@ import 'package:electricity_plus/services/cloud/cloud_storage_constants.dart';
 
 class CloudReceipt {
   final String documentId;
+  final String collectorUid;
   final String forDate;
   final String meterReadDate;
   final String bookId;
@@ -24,6 +25,7 @@ class CloudReceipt {
 
   const CloudReceipt({
     required this.documentId,
+    required this.collectorUid,
     required this.bank,
     required this.paidAmount,
     required this.paymentMethod,
@@ -47,6 +49,7 @@ class CloudReceipt {
   Map<String, dynamic> dataFieldMap() {
     return {
       forDateField: forDate,
+      collectorUidField: collectorUid,
       meterReadDateField: meterReadDate,
       bookIdField: bookId,
       customerNameField: customerName,
@@ -78,6 +81,7 @@ class CloudReceipt {
         : (paidAmount + newPaidAmount);
     return CloudReceipt(
       documentId: documentId,
+      collectorUid: collectorUid,
       bank: bank,
       paidAmount: resultPaidAmount,
       paymentMethod: paymentMethod,
@@ -123,6 +127,7 @@ class CloudReceipt {
         transactionId = snapshot.data()[transactionIdField],
         bankTransactionDate = snapshot.data()[bankTransactionDateField],
         paymentMethod = snapshot.data()[paymentMethodField],
+        collectorUid = snapshot.data()[collectorUidField],
         bank = snapshot.data()[bankField];
 
   CloudReceipt.fromDocSnapshot(DocumentSnapshot<Map<String, dynamic>> snapshot)
@@ -144,6 +149,7 @@ class CloudReceipt {
         paidAmount = snapshot.data()![paidAmountField],
         transactionId = snapshot.data()![transactionIdField],
         paymentMethod = snapshot.data()![paymentMethodField],
+        collectorUid = snapshot.data()![collectorUidField],
         bank = snapshot.data()![bankField];
 
   String receiptNo() {
@@ -173,6 +179,7 @@ class CloudReceipt {
       bookId: bookId,
       customerName: customerName,
       collectorName: collectorName,
+      collectorUid: collectorUid,
       transactionDate: transactionDate,
       bankTransactionDate: bankTransactionDate,
       paymentDueDate: paymentDueDate,
@@ -201,6 +208,7 @@ class CloudReceipt {
       meterReadDate: meterReadDate,
       bookId: bookId,
       customerName: customerName,
+      collectorUid: collectorUid,
       collectorName: collectorName,
       bankTransactionDate: bankTransactionDate,
       transactionDate: transactionDate,

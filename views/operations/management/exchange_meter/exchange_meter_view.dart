@@ -21,7 +21,6 @@ class ExchangeMeterView extends StatefulWidget {
 class _ExchangeMeterViewState extends State<ExchangeMeterView> {
   final printerManager = PrinterManager.instance;
   late final TextEditingController exchangeReason;
-  late final TextEditingController previousUnit;
   late final TextEditingController newUnit;
   late final TextEditingController unitUsed;
   late final TextEditingController calculationDetails;
@@ -35,7 +34,6 @@ class _ExchangeMeterViewState extends State<ExchangeMeterView> {
   @override
   void initState() {
     exchangeReason = TextEditingController();
-    previousUnit = TextEditingController();
     newUnit = TextEditingController();
     unitUsed = TextEditingController();
     calculationDetails = TextEditingController();
@@ -51,7 +49,6 @@ class _ExchangeMeterViewState extends State<ExchangeMeterView> {
   @override
   void dispose() {
     exchangeReason.dispose();
-    previousUnit.dispose();
     newUnit.dispose();
     unitUsed.dispose();
     calculationDetails.dispose();
@@ -197,7 +194,9 @@ class _ExchangeMeterViewState extends State<ExchangeMeterView> {
                             padding: const EdgeInsets.fromLTRB(25, 0, 25, 0),
                             width: MediaQuery.of(context).size.width / 2,
                             child: TextFormField(
+                              enabled: false,
                               // // autovalidateMode: AutovalidateMode.always,
+                              initialValue: state.history.newUnit.toString(),
                               keyboardType: TextInputType.number,
                               validator: (value) {
                                 return (value != null &&
@@ -209,9 +208,8 @@ class _ExchangeMeterViewState extends State<ExchangeMeterView> {
                               },
                               textAlign: TextAlign.end,
                               decoration: const InputDecoration(
-                                labelText: 'ယခင်လယူနစ်',
+                                labelText: 'Previous Unit',
                               ),
-                              controller: previousUnit,
                               style: const TextStyle(
                                 fontSize: 22,
                               ),
@@ -229,11 +227,14 @@ class _ExchangeMeterViewState extends State<ExchangeMeterView> {
                                             value.contains('-') ||
                                             !isIntInput(value)))
                                     ? 'Enter a valid unit'
-                                    : null;
+                                    : (num.parse(value!) >=
+                                            state.history.newUnit)
+                                        ? null
+                                        : 'Must be greate than previous unit';
                               },
                               textAlign: TextAlign.end,
                               decoration: const InputDecoration(
-                                labelText: 'နောက်ဆုံးယူနစ်',
+                                labelText: 'Current Unit',
                               ),
                               controller: newUnit,
                               style: const TextStyle(
@@ -259,7 +260,7 @@ class _ExchangeMeterViewState extends State<ExchangeMeterView> {
                           },
                           textAlign: TextAlign.end,
                           decoration: const InputDecoration(
-                            labelText: 'ပေးရန်ကျန်သည့်သုံးစွဲယူနစ်စုစုပေါင်း',
+                            labelText: 'Unit Used',
                           ),
                           controller: unitUsed,
                           style: const TextStyle(
@@ -304,7 +305,7 @@ class _ExchangeMeterViewState extends State<ExchangeMeterView> {
                           },
                           textAlign: TextAlign.end,
                           decoration: const InputDecoration(
-                            labelText: 'ကျသင့်ငွေ',
+                            labelText: 'Cost',
                           ),
                           controller: cost,
                           style: const TextStyle(
@@ -395,7 +396,7 @@ class _ExchangeMeterViewState extends State<ExchangeMeterView> {
                           },
                           textAlign: TextAlign.end,
                           decoration: const InputDecoration(
-                            labelText: 'စုစုပေါင်းသင့်ငွေ',
+                            labelText: 'Total Cost',
                           ),
                           controller: totalCost,
                           style: const TextStyle(
@@ -420,7 +421,7 @@ class _ExchangeMeterViewState extends State<ExchangeMeterView> {
                                 newMeterCost: newMeterCost.text.trim(),
                                 newMeterId: newMeterId.text.trim(),
                                 newUnit: newUnit.text.trim(),
-                                previousUnit: previousUnit.text.trim(),
+                                previousUnit: state.history.newUnit.toString(),
                                 totalCost: totalCost.text.trim(),
                                 unitUsed: unitUsed.text.trim(),
                               ),

@@ -1,9 +1,10 @@
 import 'package:date_time_picker/date_time_picker.dart';
-import 'package:electricity_plus/views/operations/bill_receipt/bloc/bill_bloc.dart';
 import 'package:electricity_plus/views/operations/bill_receipt/bloc/receipt_bloc.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'dart:developer' as dev show log;
+
+import 'package:intl/intl.dart';
 
 class PaymentDetailsAcquisitionView extends StatefulWidget {
   const PaymentDetailsAcquisitionView({super.key});
@@ -42,6 +43,8 @@ class _PaymentDetailsAcquisitionViewState
     return BlocBuilder<ReceiptBloc, ReceiptState>(
       builder: (context, state) {
         state as ReceiptStatePaymentDetailsAcquitision;
+        final f = NumberFormat('#,###,###,###,###,###', 'en_US');
+        amountPaidController.text = f.format(state.customerHistory.cost);
         return Scaffold(
           appBar: AppBar(
             leading: BackButton(
@@ -50,7 +53,7 @@ class _PaymentDetailsAcquisitionViewState
                     .pop([state.customer, state.customerHistory]);
               },
             ),
-            title: Text('Payment: ${state.customerHistory.unpaidAmount()}'),
+            title: Text('Payment: ${f.format(state.customerHistory.unpaidAmount())}'),
           ),
           body: SingleChildScrollView(
             child: Column(
@@ -137,6 +140,7 @@ class _PaymentDetailsAcquisitionViewState
                     Expanded(
                       flex: 1,
                       child: TextField(
+                        enabled: false,
                         controller: amountPaidController,
                         keyboardType: TextInputType.number,
                       ),
@@ -152,7 +156,7 @@ class _PaymentDetailsAcquisitionViewState
                             bank: bankController.text.trim(),
                             transactionId: transactionIdController.text.trim(),
                             paymentMethod: _paymentMethod.trim(),
-                            paidAmount: amountPaidController.text.trim(),
+                            paidAmount: amountPaidController.text.replaceAll(RegExp(r','), '').trim(),
                           ));
                     },
                     child: const Text('Submit')),

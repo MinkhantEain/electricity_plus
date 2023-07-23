@@ -1,6 +1,5 @@
 import 'package:bloc/bloc.dart';
 import 'package:electricity_plus/services/cloud/firebase_cloud_storage.dart';
-import 'package:electricity_plus/services/models/progress.dart';
 import 'package:equatable/equatable.dart';
 import 'package:file_picker/file_picker.dart';
 import 'dart:developer' as dev show log;

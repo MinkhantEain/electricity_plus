@@ -186,10 +186,6 @@ class OperationBloc extends Bloc<OperationEvent, OperationState> {
         emit(const OperationStateElectricLogSearch());
       },
     );
-
-    //set price implementation
-
-    //TODO: needs to be changed as it reads too much for single operation
     on<OperationEventSetPrice>(
       (event, emit) async {
         final prices = await provider.getAllPrices();
@@ -286,10 +282,11 @@ class OperationBloc extends Bloc<OperationEvent, OperationState> {
 
     //AdminView
     on<OperationEventAdminView>(
-      (event, emit) {
-        emit(const OperationStateAdminView(
+      (event, emit) async {
+        emit(OperationStateAdminView(
           isLoading: false,
           exception: null,
+          userType: (await AppDocumentData.getUserDetails()).userType
         ));
       },
     );

@@ -44,46 +44,46 @@ class _ReceiptPageState extends State<ReceiptPage> {
                     child: Column(
                       children: [
                         const Text(
-                          'Phoe Thee Cho Co.,Ltd',
+                          'Electricity Plus Co.,Ltd',
                           style: TextStyle(
-                              fontSize: 22, fontWeight: FontWeight.w900),
+                              fontSize: 17, fontWeight: FontWeight.w900),
                         ),
                         Text(
                           state.receipt.townName,
                           style: const TextStyle(
-                              fontSize: 22, fontWeight: FontWeight.w500),
+                              fontSize: 17, fontWeight: FontWeight.w500),
                         ),
                         Row(
                           mainAxisAlignment: MainAxisAlignment.center,
                           children: [
                             Text(
                               state.receipt.forDate,
-                              style: const TextStyle(fontSize: 22),
+                              style: const TextStyle(fontSize: 17),
                             ),
                             const SizedBox(
                               width: 5,
                             ),
                             const Text(
-                              'ငွေရပြေစာ',
+                              'Receipt',
                               style: TextStyle(
-                                  fontSize: 22, fontWeight: FontWeight.w500),
+                                  fontSize: 17, fontWeight: FontWeight.w500),
                             ),
                           ],
                         ),
                         Text(
                           state.receipt.customerName,
                           style: const TextStyle(
-                              fontSize: 22, fontWeight: FontWeight.w500),
+                              fontSize: 17, fontWeight: FontWeight.w500),
                         ),
                         Text(
                           state.receipt.bookId,
                           style: const TextStyle(
-                              fontSize: 22, fontWeight: FontWeight.w500),
+                              fontSize: 17, fontWeight: FontWeight.w500),
                         ),
                         Text(
-                          state.receipt.transactionDate,
+                          state.receipt.transactionDate.substring(0, 10),
                           style: const TextStyle(
-                              fontSize: 22, fontWeight: FontWeight.w500),
+                              fontSize: 17, fontWeight: FontWeight.w500),
                         ),
                         Container(
                           width: MediaQuery.of(context).size.width,
@@ -94,13 +94,13 @@ class _ReceiptPageState extends State<ReceiptPage> {
                               const Text(
                                 'Payment Collector',
                                 style: TextStyle(
-                                  fontSize: 22,
+                                  fontSize: 17,
                                 ),
                               ),
                               Text(
                                 FirebaseAuth.instance.currentUser!.displayName!,
                                 style: const TextStyle(
-                                  fontSize: 22,
+                                  fontSize: 17,
                                 ),
                               ),
                             ],
@@ -115,13 +115,13 @@ class _ReceiptPageState extends State<ReceiptPage> {
                               const Text(
                                 'Payment Method',
                                 style: TextStyle(
-                                  fontSize: 22,
+                                  fontSize: 17,
                                 ),
                               ),
                               Text(
                                 state.receipt.paymentMethod,
                                 style: const TextStyle(
-                                  fontSize: 22,
+                                  fontSize: 17,
                                 ),
                               ),
                             ],
@@ -138,13 +138,13 @@ class _ReceiptPageState extends State<ReceiptPage> {
                                 const Text(
                                   'Bank (online)',
                                   style: TextStyle(
-                                    fontSize: 22,
+                                    fontSize: 17,
                                   ),
                                 ),
                                 Text(
                                   state.receipt.bank,
                                   style: const TextStyle(
-                                    fontSize: 22,
+                                    fontSize: 17,
                                   ),
                                 ),
                               ],
@@ -162,13 +162,13 @@ class _ReceiptPageState extends State<ReceiptPage> {
                                 const Text(
                                   'Transaction ID',
                                   style: TextStyle(
-                                    fontSize: 22,
+                                    fontSize: 17,
                                   ),
                                 ),
                                 Text(
                                   state.receipt.transactionId,
                                   style: const TextStyle(
-                                    fontSize: 22,
+                                    fontSize: 17,
                                   ),
                                 ),
                               ],
@@ -186,13 +186,13 @@ class _ReceiptPageState extends State<ReceiptPage> {
                                 const Text(
                                   'Transaction Date',
                                   style: TextStyle(
-                                    fontSize: 22,
+                                    fontSize: 17,
                                   ),
                                 ),
                                 Text(
                                   state.receipt.bankTransactionDate,
                                   style: const TextStyle(
-                                    fontSize: 22,
+                                    fontSize: 17,
                                   ),
                                 ),
                               ],
@@ -206,15 +206,15 @@ class _ReceiptPageState extends State<ReceiptPage> {
                             mainAxisAlignment: MainAxisAlignment.spaceBetween,
                             children: [
                               const Text(
-                                'အသုံးပြုသည်လ',
+                                'For Date',
                                 style: TextStyle(
-                                  fontSize: 22,
+                                  fontSize: 17,
                                 ),
                               ),
                               Text(
                                 state.receipt.forDate,
                                 style: const TextStyle(
-                                  fontSize: 22,
+                                  fontSize: 17,
                                 ),
                               ),
                             ],
@@ -227,15 +227,15 @@ class _ReceiptPageState extends State<ReceiptPage> {
                             mainAxisAlignment: MainAxisAlignment.spaceBetween,
                             children: [
                               const Text(
-                                'မီတာဖတ်ရက်',
+                                'Meter Read Date',
                                 style: TextStyle(
-                                  fontSize: 22,
+                                  fontSize: 17,
                                 ),
                               ),
                               Text(
                                 state.receipt.meterReadDate.substring(0, 10),
                                 style: const TextStyle(
-                                  fontSize: 22,
+                                  fontSize: 17,
                                 ),
                               ),
                             ],
@@ -248,15 +248,15 @@ class _ReceiptPageState extends State<ReceiptPage> {
                             mainAxisAlignment: MainAxisAlignment.spaceBetween,
                             children: [
                               const Text(
-                                'မီတာအမှတ်',
+                                'Meter ID',
                                 style: TextStyle(
-                                  fontSize: 22,
+                                  fontSize: 17,
                                 ),
                               ),
                               Text(
                                 state.customer.meterId,
                                 style: const TextStyle(
-                                  fontSize: 22,
+                                  fontSize: 17,
                                 ),
                               ),
                             ],
@@ -269,15 +269,36 @@ class _ReceiptPageState extends State<ReceiptPage> {
                             mainAxisAlignment: MainAxisAlignment.spaceBetween,
                             children: [
                               const Text(
-                                'သုံးစွဲယူနစ်',
+                                'Unit Used',
                                 style: TextStyle(
-                                  fontSize: 22,
+                                  fontSize: 17,
                                 ),
                               ),
                               Text(
                                 f.format(state.customerHistory.getUnitUsed()),
                                 style: const TextStyle(
-                                  fontSize: 22,
+                                  fontSize: 17,
+                                ),
+                              ),
+                            ],
+                          ),
+                        ),
+                        Container(
+                          width: MediaQuery.of(context).size.width,
+                          padding: const EdgeInsets.fromLTRB(25, 0, 25, 0),
+                          child: Row(
+                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                            children: [
+                              const Text(
+                                'ELectricity Unit Price',
+                                style: TextStyle(
+                                  fontSize: 17,
+                                ),
+                              ),
+                              Text(
+                                f.format(state.receipt.priceAtm),
+                                style: const TextStyle(
+                                  fontSize: 17,
                                 ),
                               ),
                             ],
@@ -292,15 +313,15 @@ class _ReceiptPageState extends State<ReceiptPage> {
                               mainAxisAlignment: MainAxisAlignment.spaceBetween,
                               children: [
                                 const Text(
-                                  'ခွင့်ပြုယူနစ်',
+                                  'Meter Allowance',
                                   style: TextStyle(
-                                    fontSize: 22,
+                                    fontSize: 17,
                                   ),
                                 ),
                                 Text(
                                   f.format(state.customerHistory.meterAllowance),
                                   style: const TextStyle(
-                                    fontSize: 22,
+                                    fontSize: 17,
                                   ),
                                 ),
                               ],
@@ -314,15 +335,15 @@ class _ReceiptPageState extends State<ReceiptPage> {
                             mainAxisAlignment: MainAxisAlignment.spaceBetween,
                             children: [
                               const Text(
-                                'ကျသင့်ငွေ',
+                                'Cost',
                                 style: TextStyle(
-                                  fontSize: 22,
+                                  fontSize: 17,
                                 ),
                               ),
                               Text(
                                 f.format(state.customerHistory.cost),
                                 style: const TextStyle(
-                                  fontSize: 22,
+                                  fontSize: 17,
                                 ),
                               ),
                             ],
@@ -335,15 +356,15 @@ class _ReceiptPageState extends State<ReceiptPage> {
                             mainAxisAlignment: MainAxisAlignment.spaceBetween,
                             children: [
                               const Text(
-                                'ပေးငွေ',
+                                'Cash Collected',
                                 style: TextStyle(
-                                  fontSize: 22,
+                                  fontSize: 17,
                                 ),
                               ),
                               Text(
                                 f.format(state.receipt.paidAmount),
                                 style: const TextStyle(
-                                  fontSize: 22,
+                                  fontSize: 17,
                                 ),
                               ),
                             ],
@@ -356,15 +377,15 @@ class _ReceiptPageState extends State<ReceiptPage> {
                             mainAxisAlignment: MainAxisAlignment.spaceBetween,
                             children: [
                               const Text(
-                                'ကျန်ငွေ',
+                                'Left Over',
                                 style: TextStyle(
-                                  fontSize: 22,
+                                  fontSize: 17,
                                 ),
                               ),
                               Text(
                                 f.format(state.customerHistory.unpaidAmount()),
                                 style: const TextStyle(
-                                  fontSize: 22,
+                                  fontSize: 17,
                                 ),
                               ),
                             ],

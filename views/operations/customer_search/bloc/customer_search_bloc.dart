@@ -6,7 +6,6 @@ import 'package:electricity_plus/services/models/cloud_customer_history.dart';
 import 'package:electricity_plus/utilities/helper_functions.dart';
 import 'package:equatable/equatable.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'dart:developer' as dev show log;
 
 part 'customer_search_event.dart';
 part 'customer_search_state.dart';
@@ -15,6 +14,7 @@ class CustomerSearchBloc
     extends Bloc<CustomerSearchEvent, CustomerSearchState> {
   CustomerSearchBloc(FirebaseCloudStorage provider)
       : super(const CustomerSearchInitial(pageName: '')) {
+
     on<CustomerSearchEventSearch>((event, emit) async {
       emit(const CustomerSearchLoading());
       if (event.userInput.isEmpty) {
@@ -38,7 +38,7 @@ class CustomerSearchBloc
               final lastHistory = await customer.lastHistory.get().then(
                     (value) => CloudCustomerHistory.fromDocSnapshot(value),
                   );
-              if (isWithinMonth(lastHistory.date) && lastHistory.isPaid) {
+              if (isWithinMonth(lastHistory.date) && lastHistory.paidAmount != 0) {
                 emit(const CustomerSearchMeterReadAlreadyReadAndPaid());
                 emit(CustomerSearchInitial(pageName: event.pageName));
               } else if (isWithinMonth(lastHistory.date) && lastHistory.priceAtm == 0) {
@@ -56,6 +56,7 @@ class CustomerSearchBloc
             } else if (event.pageName == 'Exchange Meter') {
               emit(CustomerSearchExchangeMeterSearchSuccessful(
                 customer: customer,
+                history: await provider.getCustomerHistory(customer: customer)
               ));
             } else {
               emit(CustomerSearchInitial(pageName: event.pageName));

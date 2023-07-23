@@ -1,3 +1,5 @@
+// ignore_for_file: non_constant_identifier_names
+
 import 'package:electricity_plus/enums/menu_action.dart';
 import 'package:electricity_plus/services/auth/bloc/auth_bloc.dart';
 import 'package:electricity_plus/services/auth/bloc/auth_event.dart';

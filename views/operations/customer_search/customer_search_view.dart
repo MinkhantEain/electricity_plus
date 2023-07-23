@@ -7,6 +7,8 @@ import 'package:electricity_plus/utilities/dialogs/error_dialog.dart';
 import 'package:electricity_plus/views/operations/bill_history/bloc/bill_history_bloc.dart';
 import 'package:electricity_plus/views/operations/bill_history/bill_history_view.dart';
 import 'package:electricity_plus/views/operations/customer_search/bloc/customer_search_bloc.dart';
+import 'package:electricity_plus/views/operations/management/edit_customer/bloc/edit_customer_bloc.dart';
+import 'package:electricity_plus/views/operations/management/edit_customer/edit_customer_view.dart';
 import 'package:electricity_plus/views/operations/management/exchange_meter/bloc/exchange_meter_bloc.dart';
 import 'package:electricity_plus/views/operations/management/exchange_meter/exchange_meter_view.dart';
 import 'package:electricity_plus/views/operations/read_meter/bloc/read_meter_bloc.dart';
@@ -71,9 +73,11 @@ class _CustomerSearchViewState extends State<CustomerSearchView> {
             await showErrorDialog(
                 context, 'User not found, make sure the bookID is correct.');
           } else if (state is CustomerSearchMeterReadAlreadyReadAndPaid) {
-            await showErrorDialog(context, 'Customer has been read and paid for the month');
+            await showErrorDialog(
+                context, 'Customer has been read and has made a payment');
           } else if (state is CustomerSearchMeterReadExchangeMeterWasDone) {
-            await showErrorDialog(context, 'Exchange meter was done, cannot read this month.');
+            await showErrorDialog(
+                context, 'Exchange meter was done, cannot read this month.');
           } else if (state is CustomerSearchError) {
             await showErrorDialog(
                 context, 'Unexpected error occured. Contact admin');
@@ -120,7 +124,8 @@ class _CustomerSearchViewState extends State<CustomerSearchView> {
                           // ignore: use_build_context_synchronously
                           context.read<CustomerSearchBloc>().add(
                                 CustomerSearchEventSearch(
-                                  userInput: _userInputTextController.text.trim(),
+                                  userInput:
+                                      _userInputTextController.text.trim(),
                                   pageName: state.pageName,
                                 ),
                               );
@@ -162,8 +167,15 @@ class _CustomerSearchViewState extends State<CustomerSearchView> {
         } else if (state is CustomerSearchExchangeMeterSearchSuccessful) {
           return BlocProvider(
             create: (context) => ExchangeMeterBloc(
-                provider: FirebaseCloudStorage(), customer: state.customer),
+                provider: FirebaseCloudStorage(),
+                customer: state.customer,
+                history: state.history),
             child: const ExchangeMeterView(),
+          );
+        } else if (state is CustomerSearchEditCustomerSearchSuccessful) {
+          return BlocProvider(
+            create: (context) => EditCustomerBloc(FirebaseCloudStorage(), state.customer),
+            child: EditCustomerView(customer: state.customer),
           );
         } else {
           return const Scaffold();

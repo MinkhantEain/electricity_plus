@@ -1,9 +1,7 @@
 import 'package:bloc/bloc.dart';
 import 'package:electricity_plus/services/cloud/firebase_cloud_storage.dart';
 import 'package:electricity_plus/services/models/users.dart';
-import 'package:electricity_plus/services/others/local_storage.dart';
 import 'package:equatable/equatable.dart';
-import 'package:firebase_auth/firebase_auth.dart';
 
 part 'edit_user_event.dart';
 part 'edit_user_state.dart';
@@ -63,6 +61,8 @@ class EditUserBloc extends Bloc<EditUserEvent, EditUserState> {
         emit(EditUserStateStaffToBeDeleted(
             currentSuspendedUsers: event.currentSuspendedStaffs,
             toBeDeletedStaff: event.toBeDeletedStaff));
+        emit(EditUserStateSuspendedUserView(
+            currentSuspendedUsers: event.currentSuspendedStaffs));
       },
     );
 
@@ -81,8 +81,9 @@ class EditUserBloc extends Bloc<EditUserEvent, EditUserState> {
         emit(const EditUserStateLoading());
         await provider.activateUser(event.toBeActivatedStaff, event.userType);
         var staffList = event.currentSuspendedStaffs.toList();
-        staffList.remove(event.toBeActivatedStaff);
-        emit(EditUserStateSuspendedUserActivated(activatedUser: event.toBeActivatedStaff));
+        staffList = staffList.where((staff) => staff.uid != event.toBeActivatedStaff.uid).toList();
+        emit(EditUserStateSuspendedUserActivated(
+            activatedUser: event.toBeActivatedStaff));
         emit(EditUserStateSuspendedUserView(currentSuspendedUsers: staffList));
       },
     );
@@ -91,13 +92,12 @@ class EditUserBloc extends Bloc<EditUserEvent, EditUserState> {
       (event, emit) async {
         emit(const EditUserStateLoading());
         await provider.deleteStaff(staff: event.toBeDeletedStaff);
-        emit(EditUserStateSuspendedUserDeleted(deletedUser: event.toBeDeletedStaff));
+        emit(EditUserStateSuspendedUserDeleted(
+            deletedUser: event.toBeDeletedStaff));
         var staffList = event.currentSuspendedStaffs.toList();
         staffList.remove(event.toBeDeletedStaff);
         emit(EditUserStateSuspendedUserView(currentSuspendedUsers: staffList));
       },
     );
-
-
   }
 }

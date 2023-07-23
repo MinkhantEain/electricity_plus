@@ -3,6 +3,7 @@ import 'package:electricity_plus/services/cloud/firebase_cloud_storage.dart';
 import 'package:electricity_plus/services/models/cloud_customer.dart';
 import 'package:electricity_plus/services/models/cloud_customer_history.dart';
 import 'package:electricity_plus/services/models/exchange_model.dart';
+import 'package:electricity_plus/services/others/local_storage.dart';
 import 'package:electricity_plus/utilities/helper_functions.dart';
 import 'package:equatable/equatable.dart';
 import 'package:firebase_auth/firebase_auth.dart';
@@ -14,8 +15,11 @@ class ExchangeMeterBloc extends Bloc<ExchangeMeterEvent, ExchangeMeterState> {
   ExchangeMeterBloc({
     required FirebaseCloudStorage provider,
     required CloudCustomer customer,
-  }) : super(ExchangeMeterStateInitial(customer: customer)) {
+    required CloudCustomerHistory history,
+  }) : super(ExchangeMeterStateInitial(customer: customer, history: history)) {
+
     on<ExchangeMeterEventSubmit>((event, emit) async {
+      final town = await AppDocumentData.getTownName();
       emit(const ExchangeMeterStateLoading());
       //gets the details
       final calculationDetails = event.calculationDetails;
@@ -34,6 +38,7 @@ class ExchangeMeterBloc extends Bloc<ExchangeMeterEvent, ExchangeMeterState> {
         documentId: '',
         address: customer.address,
         bookId: customer.bookId,
+        town: town,
         date: DateTime.now().toString(),
         tempBookId: getTempBookId(customer.bookId),
         oldMeterId: customer.meterId,
@@ -56,6 +61,7 @@ class ExchangeMeterBloc extends Bloc<ExchangeMeterEvent, ExchangeMeterState> {
         bookId: getTempBookId(customer.bookId),
         meterId: customer.meterId,
         name: customer.name,
+        town: town,
         address: customer.address,
         lastUnit: customer.lastUnit,
         flag: false,
@@ -72,8 +78,11 @@ class ExchangeMeterBloc extends Bloc<ExchangeMeterEvent, ExchangeMeterState> {
       final exchangeBill = CloudCustomerHistory(
         documentId: '',
         previousUnit: previousUnit,
+        name: customer.name,
+        bookId: customer.bookId,
         newUnit: previousUnit+unitUsed,
         priceAtm: 0,
+        town: town,
         cost: 0,
         date: DateTime.now().toString(),
         imageUrl:
@@ -82,6 +91,7 @@ class ExchangeMeterBloc extends Bloc<ExchangeMeterEvent, ExchangeMeterState> {
         isVoided: false,
         paidAmount: 0,
         inspector: FirebaseAuth.instance.currentUser!.displayName!,
+        inspectorUid: FirebaseAuth.instance.currentUser!.uid,
         isPaid: true,
         serviceChargeAtm: 0,
         horsePowerPerUnitCostAtm: 0,
@@ -99,6 +109,7 @@ class ExchangeMeterBloc extends Bloc<ExchangeMeterEvent, ExchangeMeterState> {
         name: customer.name,
         address: customer.address,
         lastUnit: initialMeterReading,
+        town: town,
         flag: false,
         lastReadDate: DateTime.now().toString(),
         debt: customer.debt + totalCost,
@@ -113,8 +124,11 @@ class ExchangeMeterBloc extends Bloc<ExchangeMeterEvent, ExchangeMeterState> {
       final blankHistory = CloudCustomerHistory(
         documentId: '',
         previousUnit: initialMeterReading,
+        name: customer.name,
+        bookId: customer.bookId,
         newUnit: initialMeterReading,
         priceAtm: 0,
+        town: town,
         cost: totalCost,
         date: DateTime.now().toString(),
         imageUrl:
@@ -123,6 +137,7 @@ class ExchangeMeterBloc extends Bloc<ExchangeMeterEvent, ExchangeMeterState> {
         isVoided: false,
         paidAmount: 0,
         inspector: FirebaseAuth.instance.currentUser!.displayName!,
+        inspectorUid: FirebaseAuth.instance.currentUser!.uid,
         isPaid: false,
         serviceChargeAtm: 0,
         horsePowerPerUnitCostAtm: 0,
