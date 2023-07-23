@@ -64,15 +64,6 @@ class _OperationPageViewsState extends State<OperationPageViews> {
       builder: (context, state) {
         if (state is OperationStateDefault) {
           return const HomePageView();
-          // } else if (state is OperationStateGeneratingBill) {
-          //   return BlocProvider(
-          //     create: (context) => BillBloc(provider: FirebaseCloudStorage())
-          //       ..add(BillEventInitialise(
-          //         customer: state.customer,
-          //         customerHistory: state.history,
-          //       )),
-          //     child: const BillView(),
-          //   );
         } else if (state is OperationStateSettingPrice) {
           return BlocProvider(
             create: (context) => SetPriceBloc(FirebaseCloudStorage())

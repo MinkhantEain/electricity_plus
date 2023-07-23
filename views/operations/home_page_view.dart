@@ -138,7 +138,6 @@ class _HomePageViewState extends State<HomePageView> {
                   ),
                   Visibility(
                     visible: ([
-                      cashierType,
                       managerType,
                       adminType,
                       directorType

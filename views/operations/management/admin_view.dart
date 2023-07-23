@@ -184,7 +184,7 @@ class _AdminViewState extends State<AdminView> {
                     ),
                     
                     Visibility(
-                      visible: state.userType == directorType,
+                      visible: state.userType == directorType || state.userType == adminType,
                       child: HomePageButton(
                         icon: const Icon(Icons.home_work_outlined),
                         text: "Town",
