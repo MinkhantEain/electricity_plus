@@ -140,7 +140,7 @@ class _BillViewState extends State<BillView> {
                                   context: context,
                                 )
                                     .then((capturedImage) async {
-                                  await printBillReceipt80mm(
+                                  await printBillReceipt(
                                       capturedImage,
                                       printerManager,
                                       state.customer,

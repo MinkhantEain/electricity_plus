@@ -918,7 +918,7 @@ class FirebaseCloudStorage {
     final town = await AppDocumentData.getTownName();
     return firebaseFirestoreInstance
         .collection('$town$customerDetailsCollection')
-        .where(lastReadDateField, isLessThan: DateTime.now().toString())
+        .where(lastReadDateField, isLessThan: DateTime.now().toString().substring(0, 7))
         .get()
         .then((value) => value.docs.map((e) => CloudCustomer.fromSnapshot(e)));
   }
